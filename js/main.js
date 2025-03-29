@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Modal functionality
   const modal = document.getElementById('free-class-modal');
   const closeModalBtn = document.getElementById('close-modal');
-  const freeClassButtons = document.querySelectorAll('.btn[href="#free-class"]');
+  const freeClassButtons = document.querySelectorAll('.free-class-btn');
 
   if (modal && closeModalBtn) {
     // Open modal for all free class buttons
