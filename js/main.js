@@ -443,4 +443,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Initial call to animate elements in view on page load
   setTimeout(animateOnScroll, 100);
-});
+});        clearInterval(intervalId);
