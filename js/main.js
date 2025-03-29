@@ -3,6 +3,51 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
+  // Implement lazy loading for images
+  function setupLazyLoading() {
+    // Create a new IntersectionObserver instance
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        // If the image is in the viewport
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          // Replace the src with the data-src value
+          if (img.dataset.src) {
+            img.src = img.dataset.src;
+            img.removeAttribute('data-src');
+          }
+          // Stop observing the image
+          observer.unobserve(img);
+        }
+      });
+    }, {
+      rootMargin: '50px 0px', // Start loading images when they're 50px from viewport
+      threshold: 0.01 // Trigger when even 1% of the image is visible
+    });
+
+    // Find all images with data-src attribute and observe them
+    document.querySelectorAll('img[data-src]').forEach(img => {
+      imageObserver.observe(img);
+    });
+  }
+
+  // Apply lazy loading to existing images
+  function convertToLazyLoad() {
+    const images = document.querySelectorAll('img:not([data-src])');
+    images.forEach(img => {
+      // Skip images that are already lazy loaded or don't have a src
+      if (!img.src || img.hasAttribute('data-src') || img.src.includes('data:image')) return;
+
+      // Set data-src and use a placeholder
+      img.dataset.src = img.src;
+      img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"%3E%3C/svg%3E';
+    });
+    setupLazyLoading();
+  }
+
+  // Run lazy loading setup
+  convertToLazyLoad();
+
   // Header scroll effect
   const header = document.querySelector('.site-header');
 
@@ -36,12 +81,12 @@ document.addEventListener('DOMContentLoaded', function() {
     if (videoContainer) {
       videoContainer.classList.add('animate-on-scroll');
     }
-    
+
     // Lazy load video for better performance
     trainingVideo.addEventListener('loadeddata', function() {
       console.log('Video loaded successfully');
     });
-    
+
     trainingVideo.addEventListener('error', function(e) {
       console.error('Error loading video:', e);
       // Fallback if video doesn't load
@@ -312,30 +357,46 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Video background
+  // Video background with mobile optimization
   const videoContainer = document.querySelector('.hero-video-container');
   if (videoContainer) {
-    const video = document.createElement('video');
-    video.className = 'hero-video';
-    video.autoplay = true;
-    video.loop = true;
-    video.muted = true;
-    video.playsInline = true;
+    // Check if device is mobile
+    const isMobile = window.innerWidth < 768 || 
+                     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-    // Add source element
-    const source = document.createElement('source');
-    source.src = 'videos/tactical-training.mp4';
-    source.type = 'video/mp4';
-
-    video.appendChild(source);
-    videoContainer.appendChild(video);
-
-    // Fallback if video can't play
-    video.addEventListener('error', function() {
+    if (isMobile) {
+      // Use static image for mobile
       videoContainer.style.backgroundImage = 'url("images/hero-bg.jpg")';
       videoContainer.style.backgroundSize = 'cover';
       videoContainer.style.backgroundPosition = 'center';
-    });
+
+      // Add a class for mobile-specific styling
+      videoContainer.classList.add('mobile-hero');
+    } else {
+      // Use video for desktop
+      const video = document.createElement('video');
+      video.className = 'hero-video';
+      video.autoplay = true;
+      video.loop = true;
+      video.muted = true;
+      video.playsInline = true;
+      video.setAttribute('loading', 'lazy');
+
+      // Add source element
+      const source = document.createElement('source');
+      source.src = 'videos/tactical-training.mp4';
+      source.type = 'video/mp4';
+
+      video.appendChild(source);
+      videoContainer.appendChild(video);
+
+      // Fallback if video can't play
+      video.addEventListener('error', function() {
+        videoContainer.style.backgroundImage = 'url("images/hero-bg.jpg")';
+        videoContainer.style.backgroundSize = 'cover';
+        videoContainer.style.backgroundPosition = 'center';
+      });
+    }
   }
 
   // Initialize Google Map
@@ -535,3 +596,202 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initial call to animate elements in view on page load
   setTimeout(animateOnScroll, 100);
 });
+
+  // Add sticky mobile CTA
+  function addStickyCTA() {
+    if (window.innerWidth >= 768) return; // Only for mobile
+
+    // Create the sticky CTA element
+    const stickyCTA = document.createElement('div');
+    stickyCTA.className = 'sticky-cta';
+    stickyCTA.innerHTML = `
+      <button class="btn btn-primary btn-sticky free-class-btn">
+        CLAIM FREE CLASS <span class="arrow">→</span>
+      </button>
+    `;
+
+    // Append to body
+    document.body.appendChild(stickyCTA);
+
+    // Add event listener to the button
+    stickyCTA.querySelector('.free-class-btn').addEventListener('click', function(e) {
+      e.preventDefault();
+      // Open the free class modal
+      const modal = document.getElementById('free-class-modal');
+      if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+    });
+
+    // Hide sticky CTA when footer is visible
+    const footer = document.querySelector('.site-footer');
+    if (footer) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            stickyCTA.classList.add('hidden');
+          } else {
+            stickyCTA.classList.remove('hidden');
+          }
+        });
+      }, { threshold: 0.1 });
+
+      observer.observe(footer);
+    }
+  }
+
+  // Initialize sticky CTA
+  addStickyCTA();
+
+
+  // Exit intent popup
+  function setupExitIntentPopup() {
+    let exitIntentShown = false;
+    let mouseY;
+
+    // Track mouse position
+    document.addEventListener('mousemove', function(e) {
+      mouseY = e.clientY;
+    });
+
+    // Detect when mouse leaves the window from the top
+    document.addEventListener('mouseout', function(e) {
+      if (!exitIntentShown && 
+          e.clientY <= 0 && 
+          !e.relatedTarget && 
+          !document.getElementById('free-class-modal').classList.contains('active')) {
+
+        // Show exit modal
+        document.getElementById('free-class-modal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+
+        // Update modal title to create urgency
+        const modalTitle = document.querySelector('.form-header h2');
+        if (modalTitle) {
+          modalTitle.innerHTML = "WAIT! DON'T MISS YOUR FREE TRAINING";
+        }
+
+        exitIntentShown = true;
+
+        // Add analytics tracking
+        if (window.gtag) {
+          window.gtag('event', 'exit_intent_popup_shown');
+        }
+      }
+    });
+
+    // Also trigger for mobile scroll up (simulating exit intent)
+    let lastScrollTop = 0;
+    window.addEventListener('scroll', function() {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+      if (scrollTop < lastScrollTop && scrollTop < 300 && !exitIntentShown) {
+        // User is scrolling up near the top - likely leaving
+        setTimeout(() => {
+          if (!document.getElementById('free-class-modal').classList.contains('active')) {
+            document.getElementById('free-class-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            exitIntentShown = true;
+          }
+        }, 500);
+      }
+
+      lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+    }, { passive: true });
+  }
+
+  // Setup exit intent
+  setupExitIntentPopup();
+
+
+  // Prioritize content loading
+  function optimizeContentLoading() {
+    // Move testimonials above program section on mobile
+    if (window.innerWidth < 768) {
+      const testimonialsSection = document.getElementById('testimonials');
+      const programsSection = document.getElementById('programs');
+
+      if (testimonialsSection && programsSection) {
+        const parent = programsSection.parentNode;
+        parent.insertBefore(testimonialsSection, programsSection);
+
+        // Add special class for mobile styling
+        testimonialsSection.classList.add('mobile-priority');
+      }
+    }
+
+    // Defer non-critical scripts
+    function deferScript(src) {
+      const script = document.createElement('script');
+      script.src = src;
+      script.defer = true;
+      document.body.appendChild(script);
+    }
+
+    // Defer non-essential scripts after page load
+    window.addEventListener('load', function() {
+      setTimeout(() => {
+        // Add any additional scripts that aren't critical for initial page load
+        deferScript('js/optimized-modal.js');
+      }, 2000);
+    });
+  }
+
+  // Run optimization
+  optimizeContentLoading();
+
+
+  // CSS optimization
+  function optimizeCSS() {
+    // Check if styles are already consolidated
+    if (document.querySelector('link[href="css/combined.min.css"]')) return;
+
+    // Create a single style element for critical CSS
+    const criticalStyles = document.createElement('style');
+    criticalStyles.id = 'critical-css';
+
+    // Function to fetch and inject CSS
+    function fetchAndInjectCSS(files) {
+      const promises = files.map(file => 
+        fetch(file)
+          .then(response => response.text())
+          .catch(error => console.error(`Error loading ${file}:`, error))
+      );
+
+      Promise.all(promises).then(cssContents => {
+        // Combine all CSS
+        const combinedCSS = cssContents.join('\n');
+
+        // Inject critical CSS directly
+        criticalStyles.textContent = combinedCSS;
+        document.head.appendChild(criticalStyles);
+
+        // Remove individual CSS files
+        document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+          if (files.includes(link.href) || link.href.includes('fonts.googleapis.com')) {
+            link.disabled = true;
+            link.parentNode.removeChild(link);
+          }
+        });
+      });
+    }
+
+    // Files to consolidate (order matters)
+    const cssFiles = [
+      'css/reset.css',
+      'css/styles.css',
+      'css/responsive.css',
+      'css/chatbot.css'
+    ];
+
+    // Load the combined CSS after initial render
+    window.addEventListener('load', () => {
+      fetchAndInjectCSS(cssFiles);
+    });
+  }
+
+  // Run CSS optimization if in production
+  if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    optimizeCSS();
+  }

@@ -305,24 +305,34 @@ document.addEventListener('DOMContentLoaded', function() {
       // Simple response logic based on keywords
       if (lowerMessage.includes('price') || lowerMessage.includes('cost') || lowerMessage.includes('fee')) {
         addBotMessage("Our training packages start at $149/month for our Basic Defense package. We also offer Tactical Defender ($249/month) and Elite Operator ($399/month) packages. All new members can try a free first class! Would you like more details about what's included in each package?");
+        // Offer booking after price discussion
+        setTimeout(offerClassBooking, 5000);
       }
       else if (lowerMessage.includes('location') || lowerMessage.includes('address') || lowerMessage.includes('where')) {
         addBotMessage("We're located at 160 S Old Springs Road #155, Anaheim Hills, CA 92808. Our facility features state-of-the-art training equipment and simulation areas. Would you like directions?");
       }
       else if (lowerMessage.includes('hour') || lowerMessage.includes('open') || lowerMessage.includes('time')) {
         addBotMessage("Our hours of operation are:\n• Monday-Friday: 9:00 AM - 8:00 PM\n• Saturday: 9:00 AM - 6:00 PM\n• Sunday: 10:00 AM - 4:00 PM\nWhen would you like to visit us?");
+        // Offer booking after hours discussion
+        setTimeout(offerClassBooking, 5000);
       }
       else if (lowerMessage.includes('instructor') || lowerMessage.includes('teach')) {
         addBotMessage("Our elite instructor team is led by Casey Forester and Ty Kern, both with extensive military and tactical experience. We also have specialized instructors like Sarah Martinez who focuses on defensive tactics and women's self-defense. Would you like to know more about any specific instructor?");
       }
       else if (lowerMessage.includes('class') || lowerMessage.includes('course') || lowerMessage.includes('program') || lowerMessage.includes('training')) {
         addBotMessage("We offer several training programs including Defensive Handgun, Home Defense Mastery, Advanced Tactical, and Non-Firearm Defense. All our programs follow our 8-level training system to take you from beginner to expert. Which program interests you most?");
+        // Offer booking after program discussion
+        setTimeout(offerClassBooking, 5000);
       }
       else if (lowerMessage.includes('free') || lowerMessage.includes('trial')) {
-        addBotMessage("Yes! We offer a free first class for all new members. It's a great way to experience our training approach with zero risk. Would you like me to help you schedule your free class?");
+        addBotMessage("Yes! We offer a free first class for all new members. It's a great way to experience our training approach with zero risk. Would you like me to help you schedule your free class now?");
+        // Immediate booking offer
+        setTimeout(offerClassBooking, 2000);
       }
       else if (lowerMessage.includes('experience') || lowerMessage.includes('beginner') || lowerMessage.includes('never')) {
         addBotMessage("No prior experience is needed! Our training programs are designed for all levels, from complete beginners to advanced practitioners. Our Level 1 classes cover all the essentials of safety and handling fundamentals. Many of our members had never handled a firearm before joining us.");
+        // Offer booking after experience discussion
+        setTimeout(offerClassBooking, 5000);
       }
       else if (lowerMessage.includes('equipment') || lowerMessage.includes('bring') || lowerMessage.includes('firearm') || lowerMessage.includes('gun')) {
         addBotMessage("For beginner classes, we provide all necessary equipment, including firearms, holsters, and safety gear. As you advance, you may prefer to use your own equipment, but it's never required. For specialized courses, we'll provide a detailed equipment list ahead of time.");
@@ -331,7 +341,9 @@ document.addEventListener('DOMContentLoaded', function() {
         addBotMessage("You can reach us at (657) 276-0457 or email us at anaheimhills@uniteddefensetactical.com. Would you prefer I help schedule a call with one of our instructors?");
       }
       else if (lowerMessage.includes('book') || lowerMessage.includes('sign up') || lowerMessage.includes('register') || lowerMessage.includes('schedule')) {
-        addBotMessage("To schedule your first class, you can fill out the form on our website, call us at (657) 276-0457, or I can collect your information now and have an instructor contact you. What would work best for you?");
+        addBotMessage("I can help you schedule your free class right now! Would you like to book your session?");
+        // Immediate booking offer
+        setTimeout(offerClassBooking, 1000);
       }
       else if (lowerMessage.includes('thank')) {
         addBotMessage("You're welcome! If you have any other questions, feel free to ask. We look forward to training with you soon!");
@@ -341,7 +353,61 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       else {
         addBotMessage("Thanks for reaching out! I'd be happy to answer questions about our firearms and self-defense training programs, membership options, facility, or scheduling a free class. What specific information are you looking for today?");
+        // Set a timer to offer booking if no response
+        setTimeout(() => {
+          if (document.querySelectorAll('.chat-messages .message').length < 4) {
+            offerClassBooking();
+          }
+        }, 30000);
       }
-    }, Math.floor(Math.random() * 900) + 300); // Random delay between 300-1200ms
+    }, Math.floor(Math.random() * 600) + 300); // Reduced delay between 300-900ms for better UX
+  }
+
+  // Add function to offer class booking
+  function offerClassBooking() {
+    // Check if this offer has already been shown
+    if (document.querySelector('.quick-replies')) {
+      return;
+    }
+
+    // After 30 seconds of chat activity or when user mentions specific keywords
+    const bookingMessage = "Would you like to reserve your free class now? I can schedule it for you instantly.";
+    const quickReplyHTML = `
+      <div class="quick-replies">
+        <button class="quick-reply-btn free-class-btn">Yes, book my class</button>
+        <button class="quick-reply-btn">No thanks</button>
+      </div>
+    `;
+
+    addBotMessage(bookingMessage);
+
+    // Add the quick reply buttons
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message', 'bot-message', 'quick-reply-container');
+    messageElement.innerHTML = quickReplyHTML;
+    chatMessages.appendChild(messageElement);
+    scrollToBottom();
+
+    // Add event listeners to the quick reply buttons
+    document.querySelectorAll('.quick-reply-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        if (this.classList.contains('free-class-btn')) {
+          // Open booking modal
+          const modal = document.getElementById('free-class-modal');
+          modal.classList.add('active');
+          document.body.style.overflow = 'hidden';
+
+          // Record user choice
+          addUserMessage("Yes, I'd like to book a free class");
+        } else {
+          // Continue chat
+          addUserMessage("No thanks");
+          addBotMessage("No problem! Let me know if you have any other questions.");
+        }
+
+        // Remove the quick replies
+        document.querySelector('.quick-reply-container').remove();
+      });
+    });
   }
 });
