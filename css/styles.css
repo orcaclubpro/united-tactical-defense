@@ -411,6 +411,9 @@ section {
   display: flex;
   align-items: center;
   background-color: var(--color-navy);
+  background-image: url('../images/hero.jpg');
+  background-size: cover;
+  background-position: center;
   color: white;
   margin-top: 0;
   padding: 0;
