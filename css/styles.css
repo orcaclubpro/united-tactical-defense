@@ -1226,7 +1226,7 @@ address a {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.8);
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -1243,7 +1243,7 @@ address a {
 
 .modal-container {
   background-color: white;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   width: 90%;
   max-width: 1000px;
   max-height: 90vh;
@@ -1252,6 +1252,7 @@ address a {
   display: flex;
   transform: scale(0.8);
   transition: transform var(--transition-medium);
+  box-shadow: var(--shadow-lg);
 }
 
 .modal-overlay.active .modal-container {
@@ -1262,23 +1263,31 @@ address a {
   position: absolute;
   top: 15px;
   right: 15px;
-  background: var(--color-navy);
+  background: rgba(0, 0, 0, 0.5);
   color: white;
   border: none;
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   cursor: pointer;
   z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 2.4rem;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  background: var(--color-tactical-red);
+  transform: rotate(90deg);
 }
 
 .modal-video {
   flex: 1;
   background-color: var(--color-navy);
   position: relative;
+  overflow: hidden;
 }
 
 .modal-video video {
@@ -1287,19 +1296,140 @@ address a {
   object-fit: cover;
 }
 
+.modal-overlay-text {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0));
+  padding: 6rem 2rem 2rem;
+  color: white;
+}
+
+.overlay-content h3 {
+  font-size: 2.8rem;
+  margin-bottom: 1rem;
+  color: white;
+}
+
+.overlay-content p {
+  font-size: 1.6rem;
+  opacity: 0.9;
+  margin-bottom: 0;
+}
+
 .modal-form {
   flex: 1;
-  padding: var(--spacing-md);
+  padding: var(--spacing-lg);
   overflow-y: auto;
+}
+
+.form-header {
+  margin-bottom: var(--spacing-md);
+  text-align: center;
+}
+
+.form-header h2 {
+  font-size: 3.2rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-tactical-red);
+}
+
+.form-header p {
+  font-size: 1.6rem;
+  color: var(--color-gunmetal);
+  margin-bottom: var(--spacing-md);
+}
+
+.form-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background-color: rgba(0,0,0,0.03);
+  border-radius: var(--radius-md);
+}
+
+.benefit-item {
+  display: flex;
+  align-items: center;
+}
+
+.benefit-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-right: 1rem;
+  background-color: var(--color-tactical-red);
+  color: white;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.benefit-text {
+  font-size: 1.4rem;
+  font-weight: 500;
+}
+
+.signup-form .form-group {
+  margin-bottom: 1.6rem;
+}
+
+.signup-form input,
+.signup-form select {
+  padding: 1.2rem;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: var(--radius-md);
+  font-size: 1.6rem;
+  width: 100%;
+  transition: all 0.2s;
+}
+
+.signup-form input:focus,
+.signup-form select:focus {
+  border-color: var(--color-tactical-red);
+  box-shadow: 0 0 0 3px rgba(209, 0, 0, 0.1);
+  outline: none;
+}
+
+.signup-form label {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-weight: 600;
+  font-size: 1.4rem;
+}
+
+.signup-form .btn {
+  margin-top: 0.8rem;
+}
+
+.form-disclaimer {
+  text-align: center;
+  font-size: 1.2rem;
+  color: var(--color-text-muted);
+  margin-top: 1.6rem;
+  margin-bottom: 0;
 }
 
 @media (max-width: 768px) {
   .modal-container {
     flex-direction: column;
-    max-height: 80vh;
+    max-height: 85vh;
   }
 
   .modal-video {
     height: 200px;
+  }
+
+  .modal-form {
+    padding: var(--spacing-md);
+  }
+
+  .form-header h2 {
+    font-size: 2.4rem;
   }
 }

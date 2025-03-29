@@ -124,15 +124,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Modal functionality
   const modal = document.getElementById('free-class-modal');
-  const openModalBtn = document.getElementById('open-free-class-modal');
   const closeModalBtn = document.getElementById('close-modal');
+  const freeClassButtons = document.querySelectorAll('.btn[href="#free-class"]');
 
-  if (modal && openModalBtn && closeModalBtn) {
-    // Open modal
-    openModalBtn.addEventListener('click', function() {
-      modal.classList.add('active');
-      document.body.style.overflow = 'hidden'; // Prevent scrolling behind modal
+  if (modal && closeModalBtn) {
+    // Open modal for all free class buttons
+    freeClassButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling behind modal
+      });
     });
+
+    // Also handle the dedicated button in free class section
+    const openModalBtn = document.getElementById('open-free-class-modal');
+    if (openModalBtn) {
+      openModalBtn.addEventListener('click', function() {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling behind modal
+      });
+    }
 
     // Close modal
     closeModalBtn.addEventListener('click', function() {
