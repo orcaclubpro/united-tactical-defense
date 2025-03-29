@@ -122,6 +122,41 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  // Modal functionality
+  const modal = document.getElementById('free-class-modal');
+  const openModalBtn = document.getElementById('open-free-class-modal');
+  const closeModalBtn = document.getElementById('close-modal');
+
+  if (modal && openModalBtn && closeModalBtn) {
+    // Open modal
+    openModalBtn.addEventListener('click', function() {
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden'; // Prevent scrolling behind modal
+    });
+
+    // Close modal
+    closeModalBtn.addEventListener('click', function() {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    });
+
+    // Close modal on click outside
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    });
+
+    // Close modal on escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    });
+  }
+
   // Handle form submission
   const freeClassForm = document.getElementById('free-class-form');
 
@@ -161,8 +196,13 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       `;
 
-      // Scroll to success message
-      freeClassForm.scrollIntoView({behavior: 'smooth'});
+      // Auto-close modal after success (3 seconds)
+      setTimeout(() => {
+        if (modal.classList.contains('active')) {
+          modal.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      }, 3000);
     });
   }
 

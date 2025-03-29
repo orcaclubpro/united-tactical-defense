@@ -445,39 +445,16 @@
         </div>
     </section>
 
-    <!-- Free Class Section -->
+    <!-- Free Class CTA Section -->
     <section id="free-class" class="free-class">
         <div class="container">
             <header class="section-header">
                 <h2>Start With A Free Class</h2>
                 <p>Experience our training with zero risk or obligation</p>
             </header>
-            <form id="free-class-form" class="signup-form">
-                <div class="form-group">
-                    <label for="name">Full Name</label>
-                    <input type="text" id="name" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="phone">Phone Number</label>
-                    <input type="tel" id="phone" required>
-                </div>
-                <div class="form-group">
-                    <label for="experience">Experience Level</label>
-                    <select id="experience" required>
-                        <option value="" disabled selected>Select your experience level</option>
-                        <option value="beginner">Complete Beginner</option>
-                        <option value="some">Some Experience</option>
-                        <option value="experienced">Experienced</option>
-                        <option value="advanced">Advanced</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary btn-full">CLAIM YOUR FREE CLASS NOW</button>
-                <p class="form-disclaimer">We respect your privacy and will never share your information.</p>
-            </form>
+            <div class="text-center">
+                <button id="open-free-class-modal" class="btn btn-primary btn-lg">SIGN UP FOR A FREE CLASS</button>
+            </div>
         </div>
     </section>
 
@@ -554,6 +531,52 @@
         </div>
     </footer>
 
+    <!-- Free Class Modal -->
+    <div id="free-class-modal" class="modal-overlay">
+        <div class="modal-container">
+            <button class="modal-close" id="close-modal">&times;</button>
+            <div class="modal-video">
+                <video autoplay muted loop>
+                    <source src="videos/tactical-training.mp4" type="video/mp4">
+                    <!-- Fallback if video doesn't load -->
+                    <div class="video-fallback">
+                        <img src="images/training-handgun.jpg" alt="Tactical Training">
+                    </div>
+                </video>
+            </div>
+            <div class="modal-form">
+                <h2>Sign Up For A Free Class</h2>
+                <p>Experience our training with zero risk or obligation</p>
+                <form id="free-class-form" class="signup-form">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="experience">Experience Level</label>
+                        <select id="experience" required>
+                            <option value="" disabled selected>Select your experience level</option>
+                            <option value="beginner">Complete Beginner</option>
+                            <option value="some">Some Experience</option>
+                            <option value="experienced">Experienced</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">CLAIM YOUR FREE CLASS NOW</button>
+                    <p class="form-disclaimer">We respect your privacy and will never share your information.</p>
+                </form>
+            </div>
+        </div>
+    </div>
+    
     <!-- JavaScript -->
     <script src="js/main.js"></script>
     <link rel="stylesheet" href="css/chatbot.css">
