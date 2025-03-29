@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function() {
     modal.addEventListener('transitionend', function() {
       if (modal.classList.contains('active')) {
         // Start rotation when modal becomes visible
-        slideInterval = setInterval(rotateImages, 4000);
+        slideInterval = setInterval(rotateImages, 3000); // Changed to 3 seconds
       } else {
         // Stop rotation when modal is hidden
         clearInterval(slideInterval);
@@ -505,4 +505,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Initial call to animate elements in view on page load
   setTimeout(animateOnScroll, 100);
-});        clearInterval(intervalId);
+});
