@@ -1,35 +1,196 @@
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>UDT Lead Generation Dashboard</title>
-          <!-- CSS -->
-          <link rel="stylesheet" href="css/reset.css">
-          <link rel="stylesheet" href="css/styles.css">
-          <link rel="stylesheet" href="css/responsive.css">
-          <!-- Fonts -->
-          <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-          <!-- Chart.js -->
-          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-      </head>
-      <body>
-          <header class="site-header">
-              <div class="container">
-                  <a href="index.html" class="logo">UNITED DEFENSE TACTICAL</a>
-                  <h1>Lead Generation Dashboard</h1>
-              </div>
-          </header>
 
-          <main>
-              <div class="container">
-                  <div id="dashboard-container">
-                      <!-- Dashboard will be inserted here by JavaScript -->
-                  </div>
-              </div>
-          </main>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UDT Analytics Dashboard</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dashboard-body">
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">UDT</a>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active"><a href="#"><i class="fas fa-chart-line"></i> Overview</a></li>
+                    <li><a href="#"><i class="fas fa-bullseye"></i> Campaigns</a></li>
+                    <li><a href="#"><i class="fas fa-users"></i> Leads</a></li>
+                    <li><a href="#"><i class="fas fa-dollar-sign"></i> ROI</a></li>
+                    <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="index.html" class="return-link"><i class="fas fa-arrow-left"></i> Return to Website</a>
+            </div>
+        </aside>
 
-          <!-- JavaScript -->
-          <script src="js/dashboard.js"></script>
-      </body>
-      </html>
+        <!-- Main Content Area -->
+        <main class="dashboard-main">
+            <header class="dashboard-header">
+                <div class="header-title">
+                    <h1>Lead Analytics Dashboard</h1>
+                    <p>Performance metrics and lead generation analysis</p>
+                </div>
+                <div class="header-actions">
+                    <div class="date-range-selector">
+                        <select id="date-range" class="select-styled">
+                            <option value="today">Today</option>
+                            <option value="yesterday">Yesterday</option>
+                            <option value="7days" selected>Last 7 Days</option>
+                            <option value="30days">Last 30 Days</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+                        <div id="custom-date-inputs" class="custom-date-container" style="display: none;">
+                            <input type="date" id="date-start" class="date-input">
+                            <input type="date" id="date-end" class="date-input">
+                        </div>
+                    </div>
+                    <button id="refresh-data" class="btn-refresh"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+            </header>
+
+            <!-- Key Metrics Cards -->
+            <section class="metrics-overview">
+                <div class="metric-card" id="total-leads">
+                    <div class="metric-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h3>Total Leads</h3>
+                        <div class="metric-value">0</div>
+                        <div class="metric-change">+0% vs previous</div>
+                    </div>
+                </div>
+                <div class="metric-card" id="conversion-rate">
+                    <div class="metric-icon">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h3>Conversion Rate</h3>
+                        <div class="metric-value">0%</div>
+                        <div class="metric-change">+0% vs previous</div>
+                    </div>
+                </div>
+                <div class="metric-card" id="cost-per-lead">
+                    <div class="metric-icon">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h3>Cost Per Lead</h3>
+                        <div class="metric-value">$0.00</div>
+                        <div class="metric-change">+0% vs previous</div>
+                    </div>
+                </div>
+                <div class="metric-card" id="lead-value">
+                    <div class="metric-icon">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h3>Est. Lead Value</h3>
+                        <div class="metric-value">$0.00</div>
+                        <div class="metric-change">+0% vs previous</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="dashboard-charts">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-chart-pie"></i> Leads by Campaign Source</h3>
+                        <div class="chart-actions">
+                            <button class="btn-chart-action"><i class="fas fa-download"></i></button>
+                            <button class="btn-chart-action"><i class="fas fa-expand"></i></button>
+                        </div>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="campaign-chart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-chart-line"></i> Daily Lead Trend</h3>
+                        <div class="chart-actions">
+                            <button class="btn-chart-action"><i class="fas fa-download"></i></button>
+                            <button class="btn-chart-action"><i class="fas fa-expand"></i></button>
+                        </div>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="trend-chart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Data Tables Section -->
+            <section class="dashboard-tables">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3><i class="fas fa-file-alt"></i> Top Performing Pages</h3>
+                        <div class="table-actions">
+                            <button class="btn-table-action"><i class="fas fa-download"></i> Export</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="pages-table" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Page</th>
+                                    <th>Visitors</th>
+                                    <th>Leads</th>
+                                    <th>Conv. Rate</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="5" class="loading-data">Loading data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3><i class="fas fa-users"></i> Recent Leads</h3>
+                        <div class="table-actions">
+                            <button class="btn-table-action"><i class="fas fa-download"></i> Export</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="leads-table" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date/Time</th>
+                                    <th>Source</th>
+                                    <th>Page</th>
+                                    <th>Type</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="5" class="loading-data">Loading data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

@@ -258,107 +258,14 @@ class LeadTrackingModule {
 // Custom Dashboard Implementation
 class LeadDashboard {
   constructor(containerId) {
-    this.container = document.getElementById(containerId);
-    if (!this.container) {
-      console.error(`Dashboard container with ID "${containerId}" not found`);
-      return;
-    }
-
-    this.createDashboardUI();
+    // No need to create the UI elements as they're now in the HTML
+    this.setupEventListeners();
     this.fetchData();
     this.setupRefreshInterval();
+    this.charts = {};
   }
 
-  createDashboardUI() {
-    this.container.innerHTML = `
-      <div class="dashboard-header">
-        <h1>United Defense Tactical - Lead Generation Dashboard</h1>
-        <div class="date-range-selector">
-          <select id="date-range">
-            <option value="today">Today</option>
-            <option value="yesterday">Yesterday</option>
-            <option value="7days" selected>Last 7 Days</option>
-            <option value="30days">Last 30 Days</option>
-            <option value="custom">Custom Range</option>
-          </select>
-          <div id="custom-date-inputs" style="display: none;">
-            <input type="date" id="date-start">
-            <input type="date" id="date-end">
-          </div>
-          <button id="refresh-data">Refresh Data</button>
-        </div>
-      </div>
-
-      <div class="dashboard-metrics">
-        <div class="metric-card" id="total-leads">
-          <h3>Total Leads</h3>
-          <div class="metric-value">0</div>
-          <div class="metric-change">+0% vs previous</div>
-        </div>
-        <div class="metric-card" id="conversion-rate">
-          <h3>Conversion Rate</h3>
-          <div class="metric-value">0%</div>
-          <div class="metric-change">+0% vs previous</div>
-        </div>
-        <div class="metric-card" id="cost-per-lead">
-          <h3>Cost Per Lead</h3>
-          <div class="metric-value">$0.00</div>
-          <div class="metric-change">+0% vs previous</div>
-        </div>
-        <div class="metric-card" id="lead-value">
-          <h3>Est. Lead Value</h3>
-          <div class="metric-value">$0.00</div>
-          <div class="metric-change">+0% vs previous</div>
-        </div>
-      </div>
-
-      <div class="dashboard-charts">
-        <div class="chart-container">
-          <h3>Leads by Campaign Source</h3>
-          <canvas id="campaign-chart"></canvas>
-        </div>
-        <div class="chart-container">
-          <h3>Daily Lead Trend</h3>
-          <canvas id="trend-chart"></canvas>
-        </div>
-      </div>
-
-      <div class="dashboard-tables">
-        <div class="table-container">
-          <h3>Top Performing Pages</h3>
-          <table id="pages-table">
-            <thead>
-              <tr>
-                <th>Page</th>
-                <th>Visitors</th>
-                <th>Leads</th>
-                <th>Conv. Rate</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td colspan="4">Loading data...</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="table-container">
-          <h3>Recent Leads</h3>
-          <table id="leads-table">
-            <thead>
-              <tr>
-                <th>Date/Time</th>
-                <th>Source</th>
-                <th>Page</th>
-                <th>Type</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td colspan="4">Loading data...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    `;
-
+  setupEventListeners() {
     // Setup event listeners for dashboard controls
     const dateRange = document.getElementById('date-range');
     const customDateInputs = document.getElementById('custom-date-inputs');
@@ -367,7 +274,7 @@ class LeadDashboard {
     if (dateRange) {
       dateRange.addEventListener('change', (e) => {
         if (e.target.value === 'custom') {
-          customDateInputs.style.display = 'block';
+          customDateInputs.style.display = 'flex';
         } else {
           customDateInputs.style.display = 'none';
           this.fetchData();
@@ -378,128 +285,48 @@ class LeadDashboard {
     if (refreshButton) {
       refreshButton.addEventListener('click', () => {
         this.fetchData();
+        // Add animation to the refresh button
+        refreshButton.classList.add('rotating');
+        setTimeout(() => {
+          refreshButton.classList.remove('rotating');
+        }, 1000);
       });
     }
 
-    // Add dashboard styles
-    this.addDashboardStyles();
-  }
+    // Initialize today's date for date inputs
+    const dateStart = document.getElementById('date-start');
+    const dateEnd = document.getElementById('date-end');
+    if (dateStart && dateEnd) {
+      const today = new Date();
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(today.getDate() - 7);
 
-  addDashboardStyles() {
-    const styleElement = document.createElement('style');
-    styleElement.textContent = `
-      .dashboard-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #ddd;
-      }
+      dateStart.valueAsDate = oneWeekAgo;
+      dateEnd.valueAsDate = today;
 
-      .date-range-selector {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
+      // Add event listeners to fetch data when dates change
+      dateStart.addEventListener('change', () => this.fetchData());
+      dateEnd.addEventListener('change', () => this.fetchData());
+    }
 
-      .dashboard-metrics {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
-      }
+    // Add event listeners to table action buttons
+    document.querySelectorAll('.btn-table-action').forEach(button => {
+      button.addEventListener('click', () => {
+        alert('Export functionality would go here');
+      });
+    });
 
-      .metric-card {
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        padding: 20px;
-        text-align: center;
-      }
-
-      .metric-value {
-        font-size: 32px;
-        font-weight: bold;
-        margin: 10px 0;
-      }
-
-      .metric-change {
-        font-size: 14px;
-        color: #666;
-      }
-
-      .metric-change.positive {
-        color: #28a745;
-      }
-
-      .metric-change.negative {
-        color: #dc3545;
-      }
-
-      .dashboard-charts {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
-      }
-
-      .chart-container {
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        padding: 20px;
-      }
-
-      .dashboard-tables {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-        gap: 20px;
-      }
-
-      .table-container {
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        padding: 20px;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-
-      th, td {
-        padding: 8px 12px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-      }
-
-      th {
-        background-color: #f8f8f8;
-        font-weight: 600;
-      }
-
-      #refresh-data {
-        background-color: #007bff;
-        color: white;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-
-      #refresh-data:hover {
-        background-color: #0069d9;
-      }
-
-      select, input[type="date"] {
-        padding: 8px;
-        border-radius: 4px;
-        border: 1px solid #ddd;
-      }
-    `;
-    document.head.appendChild(styleElement);
+    // Add event listeners to chart action buttons
+    document.querySelectorAll('.btn-chart-action').forEach(button => {
+      button.addEventListener('click', () => {
+        const icon = button.querySelector('i');
+        if (icon.classList.contains('fa-download')) {
+          alert('Download chart functionality would go here');
+        } else if (icon.classList.contains('fa-expand')) {
+          alert('Expand chart functionality would go here');
+        }
+      });
+    });
   }
 
   fetchData() {
@@ -544,37 +371,150 @@ class LeadDashboard {
   }
 
   updateCharts(data) {
-    // In a real implementation, this would use Chart.js or similar library
-    // to render actual charts. For this demo, we'll just log the data.
     console.log('Campaign data for charts:', data);
 
-    // Chart.js implementation would go here
-    // Example:
-    /*
-    new Chart(document.getElementById('campaign-chart'), {
-      type: 'pie',
-      data: {
-        labels: data.campaigns.map(item => item.source),
-        datasets: [{
-          data: data.campaigns.map(item => item.leads),
-          backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b']
-        }]
-      }
-    });
+    // Clean up any existing charts
+    if (this.charts.campaign) {
+      this.charts.campaign.destroy();
+    }
+    if (this.charts.trend) {
+      this.charts.trend.destroy();
+    }
 
-    new Chart(document.getElementById('trend-chart'), {
-      type: 'line',
-      data: {
-        labels: data.trend.map(item => item.date),
-        datasets: [{
-          label: 'Leads',
-          data: data.trend.map(item => item.leads),
-          borderColor: '#4e73df',
-          tension: 0.1
-        }]
-      }
-    });
-    */
+    // Campaign source chart (doughnut)
+    const campaignCtx = document.getElementById('campaign-chart');
+    if (campaignCtx) {
+      this.charts.campaign = new Chart(campaignCtx, {
+        type: 'doughnut',
+        data: {
+          labels: data.campaigns.map(item => item.source),
+          datasets: [{
+            data: data.campaigns.map(item => item.leads),
+            backgroundColor: [
+              '#D10000', // Primary red
+              '#333333', // Dark gray
+              '#4A90E2', // Blue
+              '#F5A623', // Orange
+              '#7ED321'  // Green
+            ],
+            borderWidth: 2,
+            borderColor: '#FFFFFF'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '70%',
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: {
+                padding: 20,
+                font: {
+                  size: 12,
+                  family: "'Inter', sans-serif"
+                }
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              padding: 12,
+              titleFont: {
+                size: 14,
+                family: "'Inter', sans-serif"
+              },
+              bodyFont: {
+                size: 13,
+                family: "'Inter', sans-serif"
+              },
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || '';
+                  const value = context.raw || 0;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = Math.round((value / total) * 100);
+                  return `${label}: ${value} leads (${percentage}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Trend chart (line)
+    const trendCtx = document.getElementById('trend-chart');
+    if (trendCtx) {
+      this.charts.trend = new Chart(trendCtx, {
+        type: 'line',
+        data: {
+          labels: data.trend.map(item => item.date),
+          datasets: [{
+            label: 'Leads',
+            data: data.trend.map(item => item.leads),
+            borderColor: '#D10000',
+            backgroundColor: 'rgba(209, 0, 0, 0.1)',
+            tension: 0.3,
+            fill: true,
+            borderWidth: 3,
+            pointBackgroundColor: '#FFFFFF',
+            pointBorderColor: '#D10000',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: 'rgba(0,0,0,0.05)'
+              },
+              ticks: {
+                font: {
+                  family: "'Inter', sans-serif"
+                }
+              }
+            },
+            x: {
+              grid: {
+                color: 'rgba(0,0,0,0.05)'
+              },
+              ticks: {
+                font: {
+                  family: "'Inter', sans-serif"
+                }
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              padding: 12,
+              titleFont: {
+                size: 14,
+                family: "'Inter', sans-serif"
+              },
+              bodyFont: {
+                size: 13,
+                family: "'Inter', sans-serif"
+              },
+              callbacks: {
+                label: function(context) {
+                  return `Leads: ${context.raw}`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
   }
 
   updateTables(data) {
@@ -583,10 +523,18 @@ class LeadDashboard {
     if (pagesTableBody) {
       pagesTableBody.innerHTML = data.topPages.map(page => `
         <tr>
-          <td>${page.path}</td>
-          <td>${page.visitors}</td>
+          <td><strong>${page.path}</strong></td>
+          <td>${page.visitors.toLocaleString()}</td>
           <td>${page.leads}</td>
-          <td>${page.conversionRate}%</td>
+          <td>
+            <div class="conversion-badge ${this.getConversionClass(page.conversionRate)}">
+              ${page.conversionRate}%
+            </div>
+          </td>
+          <td>
+            <button class="btn-action" title="View Details"><i class="fas fa-eye"></i></button>
+            <button class="btn-action" title="Edit"><i class="fas fa-pencil-alt"></i></button>
+          </td>
         </tr>
       `).join('');
     }
@@ -597,12 +545,96 @@ class LeadDashboard {
       leadsTableBody.innerHTML = data.recentLeads.map(lead => `
         <tr>
           <td>${lead.datetime}</td>
-          <td>${lead.source}</td>
+          <td>
+            <span class="source-badge">${lead.source}</span>
+          </td>
           <td>${lead.page}</td>
           <td>${lead.type}</td>
+          <td>
+            <button class="btn-action" title="View Details"><i class="fas fa-eye"></i></button>
+            <button class="btn-action" title="Contact"><i class="fas fa-envelope"></i></button>
+          </td>
         </tr>
       `).join('');
     }
+
+    // Add event listeners to action buttons
+    document.querySelectorAll('.btn-action').forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const action = button.getAttribute('title');
+        alert(`${action} functionality would go here`);
+      });
+    });
+
+    // Add CSS for new elements
+    this.addTableStyles();
+  }
+
+  getConversionClass(rate) {
+    if (rate >= 5) return 'high';
+    if (rate >= 3) return 'medium';
+    return 'low';
+  }
+
+  addTableStyles() {
+    // Check if styles are already added
+    if (document.getElementById('dashboard-dynamic-styles')) return;
+
+    const styleElement = document.createElement('style');
+    styleElement.id = 'dashboard-dynamic-styles';
+    styleElement.textContent = `
+      .conversion-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 1.2rem;
+      }
+      .conversion-badge.high {
+        background-color: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+      }
+      .conversion-badge.medium {
+        background-color: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+      }
+      .conversion-badge.low {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+      }
+      .source-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 1.2rem;
+        background-color: rgba(0, 0, 0, 0.05);
+      }
+      .btn-action {
+        width: 30px;
+        height: 30px;
+        border-radius: 4px;
+        background-color: transparent;
+        border: 1px solid var(--color-border);
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        margin-right: 5px;
+        transition: all 0.2s;
+      }
+      .btn-action:hover {
+        background-color: var(--color-border);
+      }
+      @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      .rotating {
+        animation: rotate 1s linear;
+      }
+    `;
+    document.head.appendChild(styleElement);
   }
 
   setupRefreshInterval() {
