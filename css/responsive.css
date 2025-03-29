@@ -1,0 +1,358 @@
+/* Responsive Styles */
+
+/* Large Devices (up to 1200px) */
+@media (max-width: 1200px) {
+  .container {
+    max-width: 100%;
+    padding: 0 3rem;
+  }
+
+  .hero h1 {
+    font-size: 5rem;
+  }
+
+  .hero-content {
+    max-width: 55%;
+  }
+
+  .hero-image {
+    width: 45%;
+  }
+}
+
+/* Medium Devices (up to 992px) */
+@media (max-width: 992px) {
+  html {
+    font-size: 58%; /* Slightly reduce base font size */
+  }
+
+  /* Hero Section */
+  .hero {
+    height: auto;
+    min-height: 500px;
+  }
+
+  .hero-content {
+    max-width: 100%;
+    text-align: center;
+    padding: 12rem 0 6rem;
+  }
+
+  .hero-image {
+    display: none;
+  }
+
+  .hero-benefits {
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+  }
+
+  .cta-buttons {
+    justify-content: center;
+  }
+
+  /* Counter Stats */
+  .counter-container {
+    flex-wrap: wrap;
+    gap: 3rem;
+  }
+
+  .counter-item {
+    width: 45%;
+  }
+
+  /* Path Steps Layout */
+  .path-steps {
+    justify-content: center;
+    gap: 3rem;
+  }
+
+  .path-steps::before {
+    display: none; /* Hide connecting line on smaller screens */
+  }
+
+  .step {
+    width: 30%; /* 3 steps per row on medium screens */
+    margin-bottom: 3rem;
+    min-width: 180px;
+  }
+
+  /* Cards Layout */
+  .instructor-card,
+  .category-card,
+  .pricing-card {
+    width: 45%; /* 2 cards per row */
+  }
+
+  /* Testimonial Cards */
+  .testimonial-card {
+    width: 45%;
+  }
+
+  /* Location Layout */
+  .location-details {
+    flex-direction: column;
+  }
+
+  address {
+    max-width: 500px;
+    margin: 0 auto var(--spacing-md);
+  }
+
+  /* Footer Grid */
+  .footer-content {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Small Devices (up to 768px) */
+@media (max-width: 768px) {
+  html {
+    font-size: 55%; /* Further reduce base font size */
+  }
+
+  /* Header Layout */
+  .site-header .container {
+    flex-wrap: wrap;
+  }
+
+  .logo {
+    font-size: 2rem;
+    margin-right: auto;
+  }
+
+  .contact-info {
+    order: 3;
+    width: 100%;
+    text-align: center;
+    margin-top: 1rem;
+    display: none; /* Hide on mobile */
+  }
+
+  /* Mobile Navigation */
+  .mobile-menu-toggle {
+    display: block;
+    position: relative;
+    z-index: 1001;
+    margin-left: var(--spacing-md);
+  }
+
+  .main-nav {
+    order: 2;
+  }
+
+  .nav-links {
+    display: none; /* Hide by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: var(--color-navy);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    z-index: 1000;
+  }
+
+  .nav-links.active {
+    display: flex; /* Show when active class is added via JS */
+  }
+
+  .nav-links li {
+    margin: 0;
+  }
+
+  .nav-links a {
+    font-size: 2rem;
+  }
+
+  /* Hero Section */
+  .hero {
+    text-align: center;
+  }
+
+  .hero h1 {
+    font-size: 3.8rem;
+  }
+
+  .hero-tagline {
+    font-size: 2rem;
+  }
+
+  /* Trust Badges */
+  .badge-list {
+    justify-content: center;
+  }
+
+  .badge-list li {
+    width: 45%;
+    min-width: 0;
+  }
+
+  /* CTA Buttons */
+  .cta-buttons {
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Grid Items */
+  .instructor-card,
+  .category-card,
+  .testimonial-card,
+  .pricing-card {
+    width: 100%; /* Full width on small screens */
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Step Cards */
+  .step {
+    width: 45%; /* 2 steps per row on small screens */
+  }
+
+  /* Counter Stats */
+  .counter-item {
+    width: 100%;
+  }
+
+  /* Pricing Card */
+  .pricing-card.featured {
+    transform: scale(1);
+  }
+
+  .pricing-card.featured:hover {
+    transform: translateY(-10px);
+  }
+
+  /* Section Spacing */
+  section {
+    padding: var(--spacing-lg) 0;
+  }
+
+  .section-header {
+    margin-bottom: var(--spacing-md);
+  }
+
+  .section-header h2 {
+    font-size: 3.6rem;
+  }
+
+  /* Form Layout */
+  .signup-form {
+    padding: var(--spacing-md);
+  }
+}
+
+/* Extra Small Devices (up to 576px) */
+@media (max-width: 576px) {
+  html {
+    font-size: 50%; /* Minimum base font size */
+  }
+
+  /* Logo */
+  .logo {
+    font-size: 1.8rem;
+  }
+
+  /* Hero */
+  .hero h1 {
+    font-size: 3.2rem;
+  }
+
+  .hero-benefits {
+    text-align: left;
+  }
+
+  /* Step Layout */
+  .step {
+    width: 100%; /* Full width on extra small screens */
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Badge Layout */
+  .badge-list li {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .badge-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.6rem;
+  }
+
+  /* Featured Logos */
+  .featured-logos {
+    gap: var(--spacing-md);
+  }
+
+  .featured-logos img {
+    height: 30px;
+  }
+
+  /* Footer Layout */
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+
+  /* Footer Bottom */
+  .footer-bottom {
+    flex-direction: column-reverse;
+    text-align: center;
+  }
+
+  .social-links {
+    margin-bottom: var(--spacing-sm);
+  }
+
+  /* Map Height */
+  .map-container {
+    height: 300px;
+  }
+
+  /* FAQ */
+  .faq-question {
+    padding: var(--spacing-sm);
+    font-size: 1.6rem;
+  }
+}
+
+/* Display adjustments for very small devices */
+@media (max-width: 360px) {
+  .hero h1 {
+    font-size: 2.8rem;
+  }
+
+  .btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 1.6rem;
+  }
+}
+
+/* Prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .instructor-card:hover,
+  .category-card:hover,
+  .pricing-card:hover,
+  .step:hover {
+    transform: none !important;
+  }
+}

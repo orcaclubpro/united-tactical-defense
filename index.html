@@ -1,16 +1,561 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
-  <title>replit</title>
-  <link href="style.css" rel="stylesheet" type="text/css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Reality-based firearms and self-defense training in Anaheim Hills, CA. Expert instructors with military and law enforcement backgrounds.">
+    <title>United Defense Tactical | Reality-Based Firearms & Self-Defense Training</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="icon" href="images/favicon.ico">
 </head>
-
 <body>
-  Hello world
-  <script src="script.js"></script>
-</body>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="container">
+            <a href="#" class="logo">UNITED DEFENSE TACTICAL</a>
+            <nav class="main-nav">
+                <button class="mobile-menu-toggle" aria-label="Toggle menu" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-links">
+                    <li><a href="#programs">Programs</a></li>
+                    <li><a href="#instructors">Instructors</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="contact-info">
+                <a href="tel:6572760457" class="phone">(657) 276-0457</a>
+                <span>Anaheim Hills, CA</span>
+            </div>
+        </div>
+    </header>
 
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-video-container">
+            <!-- Video will be added via JavaScript -->
+        </div>
+        <div class="container">
+            <div class="hero-content">
+                <h1>REALITY-BASED TACTICAL TRAINING FOR REAL-WORLD DEFENSE</h1>
+                <p class="hero-tagline">Train to be safe. Train to be confident. Train to survive.</p>
+                <ul class="hero-benefits">
+                    <li>Train with former special forces operators & law enforcement</li>
+                    <li>Master proven techniques in state-of-the-art facilities</li>
+                    <li>Join over 5,000 trained civilians, military & police</li>
+                </ul>
+                <div class="cta-buttons">
+                    <a href="#free-class" class="btn btn-primary btn-lg">CLAIM FREE CLASS</a>
+                    <a href="#programs" class="btn btn-secondary">VIEW PROGRAMS</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust Badges -->
+    <section class="trust-badges">
+        <div class="container">
+            <ul class="badge-list">
+                <li>
+                    <div class="badge-icon">✓</div>
+                    <div class="badge-text">Elite Military Instructors</div>
+                </li>
+                <li>
+                    <div class="badge-icon">✓</div>
+                    <div class="badge-text">Reality-Based Simulation</div>
+                </li>
+                <li>
+                    <div class="badge-icon">✓</div>
+                    <div class="badge-text">8-Level Training System</div>
+                </li>
+                <li>
+                    <div class="badge-icon">✓</div>
+                    <div class="badge-text">100% Satisfaction Guarantee</div>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Featured Section -->
+    <section class="featured-section">
+        <div class="container">
+            <p>AS FEATURED IN</p>
+            <div class="featured-logos">
+                <img src="images/logo-foxnews.png" alt="Fox News Logo">
+                <img src="images/logo-uscca.png" alt="USCCA Logo">
+                <img src="images/logo-nra.png" alt="NRA Logo">
+                <img src="images/logo-tactical-life.png" alt="Tactical Life Magazine Logo">
+            </div>
+            <div class="counter-container">
+                <div class="counter-item">
+                    <div class="counter-value" data-target="5000">0</div>
+                    <div class="counter-label">TRAINED STUDENTS</div>
+                </div>
+                <div class="counter-item">
+                    <div class="counter-value" data-target="24">0</div>
+                    <div class="counter-label">TRAINING PROGRAMS</div>
+                </div>
+                <div class="counter-item">
+                    <div class="counter-value" data-target="65">0</div>
+                    <div class="counter-label">YEARS EXPERIENCE</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section (Moved Higher) -->
+    <section id="testimonials" class="testimonials">
+        <div class="container">
+            <header class="section-header">
+                <h2>What Our Members Say</h2>
+                <p>Real experiences from the UDT Anaheim Hills community</p>
+            </header>
+            <div class="testimonial-grid">
+                <article class="testimonial-card">
+                    <blockquote>
+                        <p>"United Defense Tactical gave me the confidence to protect myself and my family in any situation. Their reality-based training translates directly to real-world scenarios. The instructors are top-notch professionals."</p>
+                        <footer>
+                            <img src="images/testimonial-john.jpg" alt="John D." class="testimonial-img">
+                            <div>
+                                <cite>John D.</cite>
+                                <span>Member since 2023</span>
+                            </div>
+                        </footer>
+                    </blockquote>
+                </article>
+                <article class="testimonial-card">
+                    <blockquote>
+                        <p>"As a woman, I was initially intimidated about firearms training. The team at UDT created such a supportive environment that I quickly felt comfortable. Now I have skills I never thought possible. Worth every penny."</p>
+                        <footer>
+                            <img src="images/testimonial-rebecca.jpg" alt="Rebecca M." class="testimonial-img">
+                            <div>
+                                <cite>Rebecca M.</cite>
+                                <span>Member since 2024</span>
+                            </div>
+                        </footer>
+                    </blockquote>
+                </article>
+                <article class="testimonial-card">
+                    <blockquote>
+                        <p>"The simulation training at UDT is unlike anything I've experienced. It truly prepares you for real-world scenarios in a way that traditional range time can't. They bring military and law enforcement experience to every class."</p>
+                        <footer>
+                            <img src="images/testimonial-michael.jpg" alt="Michael T." class="testimonial-img">
+                            <div>
+                                <cite>Michael T.</cite>
+                                <span>Member since 2023</span>
+                            </div>
+                        </footer>
+                    </blockquote>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Training Categories (renamed to Programs) -->
+    <section id="programs" class="training-categories">
+        <div class="container">
+            <header class="section-header">
+                <h2>Reality-Based Training Programs</h2>
+                <p>You can't do what you haven't been trained to do</p>
+            </header>
+            <div class="category-grid">
+                <article class="category-card">
+                    <img src="images/training-handgun.jpg" alt="Handgun Training" class="category-img">
+                    <div class="category-info">
+                        <h3>Defensive Handgun</h3>
+                        <p>Master proper handling, shooting techniques, and safety protocols. From first-time shooters to advanced tactics, our program builds confidence and competence with your firearm.</p>
+                        <a href="#pricing" class="btn btn-primary">VIEW OPTIONS</a>
+                    </div>
+                </article>
+                <article class="category-card">
+                    <img src="images/training-home-defense.jpg" alt="Home Defense Training" class="category-img">
+                    <div class="category-info">
+                        <h3>Home Defense Mastery</h3>
+                        <p>Learn proven strategies to protect your home and family. Includes tactical room clearing, defensive positioning, threat assessment, and legal considerations of home defense.</p>
+                        <a href="#pricing" class="btn btn-primary">VIEW OPTIONS</a>
+                    </div>
+                </article>
+                <article class="category-card">
+                    <img src="images/training-advanced.jpg" alt="Advanced Tactical Training" class="category-img">
+                    <div class="category-info">
+                        <h3>Advanced Tactical</h3>
+                        <p>For experienced shooters ready for the next level. Includes dynamic movement, multiple threat engagement, and stress-induced training scenarios designed by special forces veterans.</p>
+                        <a href="#pricing" class="btn btn-primary">VIEW OPTIONS</a>
+                    </div>
+                </article>
+                <article class="category-card">
+                    <img src="images/training-self-defense.jpg" alt="Self-Defense Training" class="category-img">
+                    <div class="category-info">
+                        <h3>Non-Firearm Defense</h3>
+                        <p>Learn effective hand-to-hand combat techniques, threat de-escalation, and personal protection strategies. Perfect for everyday situations where a firearm isn't present or practical.</p>
+                        <a href="#pricing" class="btn btn-primary">VIEW OPTIONS</a>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Instructors Section -->
+    <section id="instructors" class="instructors-section">
+        <div class="container">
+            <header class="section-header">
+                <h2>Elite Instructor Team</h2>
+                <p>Learn from veterans with real-world tactical experience</p>
+            </header>
+            <div class="instructor-grid">
+                <article class="instructor-card">
+                    <img src="images/instructor-casey.jpg" alt="Casey Forester, Lead Instructor" class="instructor-img">
+                    <div class="instructor-info">
+                        <h3>Casey Forester</h3>
+                        <span class="instructor-title">Lead Instructor, Co-Owner</span>
+                        <p>Former special operations team leader with 20+ years of military experience in tactical operations and defense. Combat-tested expertise in multiple theaters of operation.</p>
+                    </div>
+                </article>
+                <article class="instructor-card">
+                    <img src="images/instructor-ty.jpg" alt="Ty Kern, Chief Instructor" class="instructor-img">
+                    <div class="instructor-info">
+                        <h3>Ty Kern</h3>
+                        <span class="instructor-title">Chief Instructor, Co-Owner</span>
+                        <p>40+ years of martial arts experience and certified firearms instructor. Combat veteran with expertise in close-quarters tactics and defensive techniques in high-stress situations.</p>
+                    </div>
+                </article>
+                <article class="instructor-card">
+                    <img src="images/instructor-sarah.jpg" alt="Sarah Martinez, Defensive Tactics Specialist" class="instructor-img">
+                    <div class="instructor-info">
+                        <h3>Sarah Martinez</h3>
+                        <span class="instructor-title">Defensive Tactics Specialist</span>
+                        <p>Former law enforcement officer with specialized training in personal protection and women's self-defense. Certified in multiple defensive combat systems and threat assessment.</p>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Training Path Section -->
+    <section class="training-path">
+        <div class="container">
+            <header class="section-header">
+                <h2>Our 8-Level Training System</h2>
+                <p>A clear path from beginner to elite-level defensive skills</p>
+            </header>
+            <div class="path-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Fundamentals</h3>
+                    <p>Master essential safety and handling skills</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Defensive</h3>
+                    <p>Develop core protection techniques</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Tactical</h3>
+                    <p>Learn advanced positioning skills</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Scenario</h3>
+                    <p>Practice in realistic simulations</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <h3>Advanced</h3>
+                    <p>Execute complex defense strategies</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">6</div>
+                    <h3>Mastery</h3>
+                    <p>Achieve expert-level certification</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section (New) -->
+    <section id="pricing" class="pricing-section">
+        <div class="container">
+            <header class="section-header">
+                <h2>Training Packages</h2>
+                <p>Flexible options to fit your goals and schedule</p>
+            </header>
+            
+            <div class="price-toggle">
+                <span>Monthly</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="pricing-toggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span>Annual (Save 20%)</span>
+            </div>
+            
+            <div class="pricing-plans">
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3 class="pricing-title">Basic Defense</h3>
+                        <div class="price-monthly">
+                            <span class="pricing-price">$149</span>
+                            <span class="pricing-period">/month</span>
+                        </div>
+                        <div class="price-yearly" style="display: none;">
+                            <span class="pricing-original">$1,788</span>
+                            <span class="pricing-price">$1,430</span>
+                            <span class="pricing-period">/year</span>
+                        </div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>2 Training Sessions Per Week</li>
+                        <li>Fundamentals & Defensive Skills</li>
+                        <li>Basic Equipment Provided</li>
+                        <li>Online Learning Resources</li>
+                        <li>Monthly Skill Assessment</li>
+                    </ul>
+                    <a href="#free-class" class="btn btn-secondary btn-full">CLAIM FREE CLASS</a>
+                </div>
+                
+                <div class="pricing-card featured">
+                    <div class="featured-badge">Most Popular</div>
+                    <div class="pricing-header">
+                        <h3 class="pricing-title">Tactical Defender</h3>
+                        <div class="price-monthly">
+                            <span class="pricing-price">$249</span>
+                            <span class="pricing-period">/month</span>
+                        </div>
+                        <div class="price-yearly" style="display: none;">
+                            <span class="pricing-original">$2,988</span>
+                            <span class="pricing-price">$2,390</span>
+                            <span class="pricing-period">/year</span>
+                        </div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>Unlimited Training Sessions</li>
+                        <li>All Basic Defense Features</li>
+                        <li>Advanced Scenario Training</li>
+                        <li>Simulation Range Access</li>
+                        <li>Quarterly Private Lessons</li>
+                        <li>Equipment Discounts</li>
+                    </ul>
+                    <a href="#free-class" class="btn btn-primary btn-full">CLAIM FREE CLASS</a>
+                </div>
+                
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3 class="pricing-title">Elite Operator</h3>
+                        <div class="price-monthly">
+                            <span class="pricing-price">$399</span>
+                            <span class="pricing-period">/month</span>
+                        </div>
+                        <div class="price-yearly" style="display: none;">
+                            <span class="pricing-original">$4,788</span>
+                            <span class="pricing-price">$3,830</span>
+                            <span class="pricing-period">/year</span>
+                        </div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>All Tactical Defender Features</li>
+                        <li>VIP Priority Scheduling</li>
+                        <li>Monthly Private Lessons</li>
+                        <li>Elite Equipment Package</li>
+                        <li>Advanced Force-on-Force Training</li>
+                        <li>Exclusive Workshops & Events</li>
+                        <li>Personalized Training Plan</li>
+                    </ul>
+                    <a href="#free-class" class="btn btn-secondary btn-full">CLAIM FREE CLASS</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section (New) -->
+    <section class="faq-section">
+        <div class="container">
+            <header class="section-header">
+                <h2>Frequently Asked Questions</h2>
+                <p>Everything you need to know before starting your training</p>
+            </header>
+            
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Do I need to have any prior experience with firearms? <span>+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Absolutely not. Our training programs are designed for all experience levels, from complete beginners to advanced shooters. Our Level 1 classes assume no prior knowledge and start with essential safety and handling fundamentals. Our instructors are expert at working with first-time shooters.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Do I need to bring my own firearm or equipment? <span>+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>For beginner classes, we provide all necessary equipment, including firearms, holsters, and safety gear. As you advance in your training, you may prefer to use your own equipment, but it's never required. For specialized courses, we'll provide a detailed equipment list ahead of time.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How long does it take to become proficient? <span>+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Most students develop solid foundational skills within 2-3 months of consistent training (at least once per week). Becoming truly proficient takes approximately 6 months of dedicated practice. Our structured 8-level program ensures clear progression and skill development benchmarks at each stage.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Is the training physically demanding? <span>+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Our programs accommodate various fitness levels. Basic classes focus on fundamental skills with minimal physical demands. Advanced training incorporates more movement and stress-induced scenarios. We can modify exercises based on your physical capabilities while still providing valuable training.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Can I upgrade my membership later? <span>+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes, you can upgrade your membership at any time. The difference in price will be prorated based on your current subscription. Many members start with the Basic Defense package and upgrade as they advance in their skills and want access to more specialized training.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Do you offer women-only classes? <span>+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes, we offer women-only classes led by our female instructors. These classes cover the same curriculum as our standard classes but in an environment many women find more comfortable, especially when first learning firearms and self-defense skills. Our Women's Defensive Academy meets twice weekly.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Free Class Section -->
+    <section id="free-class" class="free-class">
+        <div class="container">
+            <header class="section-header">
+                <h2>Start With A Free Class</h2>
+                <p>Experience our training with zero risk or obligation</p>
+            </header>
+            <form id="free-class-form" class="signup-form">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="experience">Experience Level</label>
+                    <select id="experience" required>
+                        <option value="" disabled selected>Select your experience level</option>
+                        <option value="beginner">Complete Beginner</option>
+                        <option value="some">Some Experience</option>
+                        <option value="experienced">Experienced</option>
+                        <option value="advanced">Advanced</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">CLAIM YOUR FREE CLASS NOW</button>
+                <p class="form-disclaimer">We respect your privacy and will never share your information.</p>
+            </form>
+        </div>
+    </section>
+
+    <!-- Location Section -->
+    <section id="contact" class="location">
+        <div class="container">
+            <header class="section-header">
+                <h2>Visit Our Facility</h2>
+                <p>Train in our state-of-the-art center in Anaheim Hills</p>
+            </header>
+            <div class="location-details">
+                <address>
+                    <h3>Contact Information</h3>
+                    <p>160 S Old Springs Road #155<br>Anaheim Hills, CA 92808</p>
+                    <a href="tel:6572760457">(657) 276-0457</a>
+                    <a href="mailto:anaheimhills@uniteddefensetactical.com">anaheimhills@uniteddefensetactical.com</a>
+                    
+                    <h4>Hours of Operation</h4>
+                    <p><strong>Monday-Friday:</strong> 9:00 AM - 8:00 PM<br>
+                    <strong>Saturday:</strong> 9:00 AM - 6:00 PM<br>
+                    <strong>Sunday:</strong> 10:00 AM - 4:00 PM</p>
+                </address>
+                <div class="map-container">
+                    <!-- Map will be added via JavaScript -->
+                    <div id="map"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <h3>United Defense Tactical</h3>
+                    <p>Orange County's premier reality-based firearms and self-defense training facility. Providing immersive training for civilians, law enforcement, and military personnel since 2019.</p>
+                </div>
+                <div class="footer-links">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#programs">Training Programs</a></li>
+                        <li><a href="#instructors">Our Instructors</a></li>
+                        <li><a href="#pricing">Pricing</a></li>
+                        <li><a href="#testimonials">Testimonials</a></li>
+                        <li><a href="#free-class">Free First Class</a></li>
+                        <li><a href="#contact">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h3>Contact Us</h3>
+                    <p><strong>Phone:</strong> (657) 276-0457</p>
+                    <p><strong>Email:</strong> anaheimhills@uniteddefensetactical.com</p>
+                    <p><strong>Address:</strong> 160 S Old Springs Road #155, Anaheim Hills, CA 92808</p>
+                </div>
+                <div class="footer-hours">
+                    <h3>Hours of Operation</h3>
+                    <ul>
+                        <li><span>Monday-Friday:</span> 9:00 AM - 8:00 PM</li>
+                        <li><span>Saturday:</span> 9:00 AM - 6:00 PM</li>
+                        <li><span>Sunday:</span> 10:00 AM - 4:00 PM</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="copyright">&copy; 2025 United Defense Tactical. All rights reserved.</p>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook"><i class="icon-facebook">FB</i></a>
+                    <a href="#" aria-label="Instagram"><i class="icon-instagram">IG</i></a>
+                    <a href="#" aria-label="Twitter"><i class="icon-twitter">TW</i></a>
+                    <a href="#" aria-label="YouTube"><i class="icon-youtube">YT</i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/main.js"></script>
+    <link rel="stylesheet" href="css/chatbot.css">
+    <script src="js/chatbot.js"></script>
+</body>
 </html>
