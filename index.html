@@ -536,13 +536,10 @@
         <div class="modal-container">
             <button class="modal-close" id="close-modal">&times;</button>
             <div class="modal-video">
-                <video autoplay muted loop>
-                    <source src="videos/tactical-training.mp4" type="video/mp4">
-                    <!-- Fallback if video doesn't load -->
-                    <div class="video-fallback">
-                        <img src="images/training-handgun.jpg" alt="Tactical Training">
-                    </div>
-                </video>
+                <div class="modal-image-slider">
+                    <!-- Images will cycle through here via JavaScript -->
+                    <img src="images/udt1.jpg" alt="Tactical Training" class="active-slide">
+                </div>
                 <div class="modal-overlay-text">
                     <div class="overlay-content">
                         <h3>Train With The Best</h3>
@@ -552,8 +549,16 @@
             </div>
             <div class="modal-form">
                 <div class="form-header">
-                    <h2>Claim Your Free Training Session</h2>
-                    <p>Start your journey with expert instructors in a safe environment</p>
+                    <h2>How would you REACT?</h2>
+                    <p class="caption-text">In a split second, your life can change. Imagine facing an unexpected threat—would you know what to do</p>
+                    <div class="reaction-points">
+                        <p><strong>· THINK DYNAMICALLY.</strong></p>
+                        <p><strong>· MOVE STRATEGICALLY.</strong></p>
+                        <p><strong>· REACT WITH CONFIDENCE.</strong></p>
+                    </div>
+                    <p class="mission-text">At United Defense Tactical in Anaheim Hills, we offer immersive and dynamic, reality-based self-defense and firearm training programs at our state-of-the-art facility. Our one-of-a-kind, reality-based, self-defense and firearm curriculum was created by former military special forces operators and law enforcement.</p>
+                    <p class="mission-text">We'll teach you how to de-escalate a situation, and confidently react with precision under high-stress, realistic scenarios in a safe and encouraging training environment.</p>
+                    <p class="mission-text">Are you ready to challenge yourself, feel empowered, and learn how to confidently keep you and your family safe? Come in and experience it for yourself for FREE! Let us show you around and we know you'll be blown away by our state-of-the-art training facility.</p>
                 </div>
                 <form id="free-class-form" class="signup-form">
                     <div class="form-group">
@@ -578,7 +583,7 @@
                             <option value="advanced">Advanced</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-full">CLAIM YOUR FREE CLASS NOW</button>
+                    <button type="submit" class="btn btn-primary btn-full">BOOK YOUR FREE INTRODUCTORY CLASS</button>
                     <div class="form-benefits">
                         <div class="benefit-item">
                             <span class="benefit-icon">✓</span>

@@ -172,6 +172,68 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  // Image slider for modal
+  function setupModalImageSlider() {
+    const modal = document.getElementById('free-class-modal');
+    if (!modal) return;
+
+    const imageSlider = modal.querySelector('.modal-image-slider');
+    if (!imageSlider) return;
+
+    // Images to cycle through
+    const imageUrls = [
+      'images/udt1.jpg',
+      'images/udt2.jpg',
+      'images/udt3.jpg',
+      'images/udt5.jpg'
+    ];
+
+    // Create image elements and add to slider
+    imageSlider.innerHTML = '';
+    imageUrls.forEach((url, index) => {
+      const img = document.createElement('img');
+      img.src = url;
+      img.alt = 'Tactical Training';
+      img.className = index === 0 ? 'active-slide' : '';
+      imageSlider.appendChild(img);
+    });
+
+    // Set up the image rotation
+    let currentIndex = 0;
+    const slides = imageSlider.querySelectorAll('img');
+
+    function rotateImages() {
+      slides[currentIndex].classList.remove('active-slide');
+      currentIndex = (currentIndex + 1) % slides.length;
+      slides[currentIndex].classList.add('active-slide');
+    }
+
+    // Start the rotation when modal is visible
+    let slideInterval;
+
+    // Setup observer to watch modal visibility
+    modal.addEventListener('transitionend', function() {
+      if (modal.classList.contains('active')) {
+        // Start rotation when modal becomes visible
+        slideInterval = setInterval(rotateImages, 4000);
+      } else {
+        // Stop rotation when modal is hidden
+        clearInterval(slideInterval);
+      }
+    });
+
+    // Clear interval when modal is closed
+    const closeBtn = modal.querySelector('#close-modal');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function() {
+        clearInterval(slideInterval);
+      });
+    }
+  }
+
+  // Initialize image slider when the page loads
+  setupModalImageSlider();
+
   // Handle form submission
   const freeClassForm = document.getElementById('free-class-form');
 
