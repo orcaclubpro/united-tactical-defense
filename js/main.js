@@ -672,6 +672,41 @@ document.addEventListener('DOMContentLoaded', function() {
           modalTitle.innerHTML = "WAIT! DON'T MISS YOUR FREE TRAINING";
         }
 
+        // Add social proof to exit intent popup
+        const modalDescription = document.querySelector('.caption-text');
+        if (modalDescription) {
+          modalDescription.innerHTML = "Join the <strong>34 people who signed up today</strong>. Limited spots available for this week's free classes!";
+        }
+
+        // Add countdown timer for urgency
+        const reactionPoints = document.querySelector('.reaction-points');
+        if (reactionPoints) {
+          const countdownDiv = document.createElement('div');
+          countdownDiv.className = 'exit-countdown';
+          countdownDiv.innerHTML = `
+            <p>This offer expires in:</p>
+            <div class="countdown-timer">
+              <span id="countdown-minutes">15</span>:<span id="countdown-seconds">00</span>
+            </div>
+          `;
+          reactionPoints.parentNode.insertBefore(countdownDiv, reactionPoints);
+
+          // Start countdown
+          let totalSeconds = 15 * 60;
+          const countdownInterval = setInterval(() => {
+            totalSeconds--;
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+
+            document.getElementById('countdown-minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('countdown-seconds').textContent = seconds.toString().padStart(2, '0');
+
+            if (totalSeconds <= 0) {
+              clearInterval(countdownInterval);
+            }
+          }, 1000);
+        }
+
         exitIntentShown = true;
 
         // Add analytics tracking
@@ -699,6 +734,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
       lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
     }, { passive: true });
+
+    // Add time-based trigger (show after 45 seconds if user hasn't interacted with modal)
+    setTimeout(() => {
+      if (!exitIntentShown && !document.getElementById('free-class-modal').classList.contains('active')) {
+        document.getElementById('free-class-modal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+        exitIntentShown = true;
+
+        // Add analytics tracking
+        if (window.gtag) {
+          window.gtag('event', 'time_based_popup_shown');
+        }
+      }
+    }, 45000); // 45 seconds
   }
 
   // Setup exit intent
