@@ -132,6 +132,8 @@ document.addEventListener('DOMContentLoaded', function() {
     freeClassButtons.forEach(button => {
       button.addEventListener('click', function(e) {
         e.preventDefault();
+        // Prevent default navigation to the #free-class section
+        e.stopPropagation(); // Stop the event from bubbling up
         modal.classList.add('active');
         document.body.style.overflow = 'hidden'; // Prevent scrolling behind modal
       });
@@ -140,7 +142,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Also handle the dedicated button in free class section
     const openModalBtn = document.getElementById('open-free-class-modal');
     if (openModalBtn) {
-      openModalBtn.addEventListener('click', function() {
+      openModalBtn.addEventListener('click', function(e) {
+        if (e) e.preventDefault(); // Prevent any default behavior
         modal.classList.add('active');
         document.body.style.overflow = 'hidden'; // Prevent scrolling behind modal
       });
