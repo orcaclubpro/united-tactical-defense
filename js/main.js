@@ -305,21 +305,83 @@ document.addEventListener('DOMContentLoaded', function() {
     element.classList.add('animate-on-scroll');
   });
 
-  // Add CSS for animation
+  // Add CSS for modern animations
   const style = document.createElement('style');
   style.textContent = `
     .animate-on-scroll {
       opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
+      transform: translateY(40px);
+      transition: opacity 0.7s cubic-bezier(0.165, 0.84, 0.44, 1), 
+                  transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
     }
 
     .animate-in {
       opacity: 1;
       transform: translateY(0);
     }
+
+    .fade-in-left {
+      opacity: 0;
+      transform: translateX(-40px);
+      transition: opacity 0.7s cubic-bezier(0.165, 0.84, 0.44, 1),
+                  transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    .fade-in-right {
+      opacity: 0;
+      transform: translateX(40px);
+      transition: opacity 0.7s cubic-bezier(0.165, 0.84, 0.44, 1),
+                  transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    .fade-in-left.animate-in,
+    .fade-in-right.animate-in {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .scale-in {
+      opacity: 0;
+      transform: scale(0.9);
+      transition: opacity 0.7s cubic-bezier(0.165, 0.84, 0.44, 1),
+                  transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    .scale-in.animate-in {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .stagger-item {
+      transition-delay: calc(var(--item-index) * 0.1s);
+    }
   `;
   document.head.appendChild(style);
+
+  // Assign animation types based on element types
+  document.querySelectorAll('.instructor-card').forEach((el, index) => {
+    el.classList.add('fade-in-left', 'stagger-item');
+    el.style.setProperty('--item-index', index);
+  });
+
+  document.querySelectorAll('.category-card').forEach((el, index) => {
+    el.classList.add('fade-in-right', 'stagger-item');
+    el.style.setProperty('--item-index', index);
+  });
+
+  document.querySelectorAll('.pricing-card').forEach((el, index) => {
+    el.classList.add('scale-in', 'stagger-item');
+    el.style.setProperty('--item-index', index);
+  });
+
+  document.querySelectorAll('.testimonial-card').forEach((el, index) => {
+    el.classList.add('fade-in-left', 'stagger-item');
+    el.style.setProperty('--item-index', index);
+  });
+
+  document.querySelectorAll('.section-header').forEach(el => {
+    el.classList.add('scale-in');
+  });
 
   // Listen for scroll events
   window.addEventListener('scroll', animateOnScroll);
