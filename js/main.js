@@ -28,6 +28,35 @@ document.addEventListener('DOMContentLoaded', function() {
       navLinks.classList.toggle('active');
       body.classList.toggle('menu-open');
 
+  // Handle video loading
+  const trainingVideo = document.querySelector('.training-video');
+  if (trainingVideo) {
+    // Add animation class to video container
+    const videoContainer = document.querySelector('.video-container');
+    if (videoContainer) {
+      videoContainer.classList.add('animate-on-scroll');
+    }
+    
+    // Lazy load video for better performance
+    trainingVideo.addEventListener('loadeddata', function() {
+      console.log('Video loaded successfully');
+    });
+    
+    trainingVideo.addEventListener('error', function(e) {
+      console.error('Error loading video:', e);
+      // Fallback if video doesn't load
+      const videoContainer = document.querySelector('.video-container');
+      if (videoContainer) {
+        videoContainer.innerHTML = `
+          <div class="video-fallback">
+            <p>Video unavailable. Please check back later.</p>
+          </div>
+        `;
+      }
+    });
+  }
+
+
       // Accessibility - Toggle aria-expanded
       const expanded = navLinks.classList.contains('active');
       menuToggle.setAttribute('aria-expanded', expanded);

@@ -67,6 +67,19 @@
 
   /* Path Steps Layout */
   .path-steps {
+
+  /* Video responsiveness */
+  .video-container {
+    max-width: 100%;
+    margin-left: var(--spacing-md);
+    margin-right: var(--spacing-md);
+  }
+
+  .training-video {
+    width: 100%;
+    height: auto;
+  }
+
     justify-content: center;
     gap: clamp(1.5rem, 3vw, 3rem);
   }

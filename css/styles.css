@@ -55,6 +55,29 @@
 /* Base Elements */
 body {
   background-color: var(--color-light);
+
+/* Video Section */
+.video-section {
+  background-color: var(--color-light);
+  padding: var(--spacing-xl) 0;
+}
+
+.video-container {
+  max-width: 900px;
+  margin: 0 auto var(--spacing-lg);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.training-video {
+  width: 100%;
+  display: block;
+  aspect-ratio: 16 / 9;
+  background-color: #000;
+}
+
+
   color: var(--color-dark);
   font-family: var(--font-body);
   line-height: 1.6;
