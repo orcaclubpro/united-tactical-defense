@@ -1,275 +1,30 @@
 /**
- * United Defense Tactical - Lead Generation Dashboard
+ * United Defense Tactical - Website Analytics Dashboard
  * 
- * This code implements a dashboard for tracking lead generation metrics
- * using Google Analytics 4, Google Tag Manager, and custom event tracking.
+ * This code implements a general website statistics dashboard to track:
+ * - Daily, weekly, monthly visitor traffic
+ * - Conversion rates (form submissions)
+ * - Traffic sources
+ * - User engagement metrics
  */
 
-// GTM Implementation Script - Add to <head> section of index.html
-function installGTM() {
-  const gtmCode = `
-  <!-- Google Tag Manager -->
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-  })(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
-  <!-- End Google Tag Manager -->
-  `;
-
-  // Code to insert in <body>
-  const gtmNoScript = `
-  <!-- Google Tag Manager (noscript) -->
-  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX"
-  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-  <!-- End Google Tag Manager (noscript) -->
-  `;
-
-  console.log("Add the GTM code to your site's <head> and the noscript version after <body>");
-}
-
-// Lead Tracking Module
-class LeadTrackingModule {
+// Dashboard Implementation
+class WebsiteAnalyticsDashboard {
   constructor() {
-    this.setupEventListeners();
-    this.setupDataLayer();
-  }
-
-  setupDataLayer() {
-    // Initialize data layer if it doesn't exist
-    window.dataLayer = window.dataLayer || [];
-
-    // Push initial page data
-    window.dataLayer.push({
-      'pageTitle': document.title,
-      'pagePath': window.location.pathname,
-      'websiteSection': this.getCurrentSection()
-    });
-  }
-
-  getCurrentSection() {
-    // Determine current section based on URL or page content
-    const path = window.location.pathname;
-    if (path.includes('programs')) return 'programs';
-    if (path.includes('instructors')) return 'instructors';
-    if (path.includes('pricing')) return 'pricing';
-    if (path.includes('contact')) return 'contact';
-    return 'home';
-  }
-
-  setupEventListeners() {
-    // Track form submissions
-    const freeClassForm = document.getElementById('free-class-form');
-    if (freeClassForm) {
-      freeClassForm.addEventListener('submit', (e) => {
-        this.trackFormSubmission(e, 'free_class');
-      });
-    }
-
-    // Track chat interactions
-    this.setupChatTracking();
-
-    // Track CTA button clicks
-    this.trackCTAClicks();
-
-    // Track outbound links
-    this.trackOutboundLinks();
-
-    // Track video engagements
-    this.trackVideoEngagement();
-  }
-
-  trackFormSubmission(event, formType) {
-    // Capture form data
-    const formData = new FormData(event.target);
-    const formFieldsUsed = Array.from(formData.keys()).length;
-
-    // Get lead source from URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const utmSource = urlParams.get('utm_source') || 'direct';
-    const utmMedium = urlParams.get('utm_medium') || 'none';
-    const utmCampaign = urlParams.get('utm_campaign') || 'none';
-
-    // Push form submission event to dataLayer
-    window.dataLayer.push({
-      'event': 'form_submission',
-      'formType': formType,
-      'formFieldsUsed': formFieldsUsed,
-      'leadSource': utmSource,
-      'leadMedium': utmMedium,
-      'leadCampaign': utmCampaign,
-      'conversionValue': this.estimateLeadValue(formType)
-    });
-
-    // Store lead data in localStorage for cross-session tracking
-    this.storeLeadData(formType, utmSource, utmMedium, utmCampaign);
-  }
-
-  estimateLeadValue(formType) {
-    // Assign estimated value based on form type
-    switch(formType) {
-      case 'free_class':
-        return 75;  // Average value of a free class lead
-      case 'contact':
-        return 50;  // Average value of a contact form submission
-      case 'subscription':
-        return 100; // Average value of a subscription lead
-      default:
-        return 25;  // Default value for other interactions
-    }
-  }
-
-  storeLeadData(formType, source, medium, campaign) {
-    // Create lead data object
-    const leadData = {
-      timestamp: new Date().toISOString(),
-      formType: formType,
-      source: source,
-      medium: medium,
-      campaign: campaign,
-      pageUrl: window.location.href
-    };
-
-    // Get existing leads or initialize empty array
-    const existingLeads = JSON.parse(localStorage.getItem('udtLeads') || '[]');
-
-    // Add new lead and store back in localStorage
-    existingLeads.push(leadData);
-    localStorage.setItem('udtLeads', JSON.stringify(existingLeads));
-
-    // Set lead cookie for cross-domain tracking if needed
-    document.cookie = `udtLeadSource=${source}; path=/; max-age=2592000`; // 30 days
-  }
-
-  setupChatTracking() {
-    // Track chat open events
-    const chatToggle = document.getElementById('chat-toggle');
-    if (chatToggle) {
-      chatToggle.addEventListener('click', () => {
-        window.dataLayer.push({
-          'event': 'chat_open',
-          'chatInteraction': 'open'
-        });
-      });
-    }
-
-    // Track chat message sent events
-    const chatSend = document.getElementById('chat-send');
-    if (chatSend) {
-      chatSend.addEventListener('click', () => {
-        const chatInput = document.getElementById('chat-input');
-        if (chatInput && chatInput.value.trim()) {
-          window.dataLayer.push({
-            'event': 'chat_message',
-            'chatInteraction': 'message_sent',
-            'chatMessageLength': chatInput.value.trim().length
-          });
-        }
-      });
-    }
-  }
-
-  trackCTAClicks() {
-    // Track clicks on all primary and secondary buttons
-    const ctaButtons = document.querySelectorAll('.btn-primary, .btn-secondary');
-    ctaButtons.forEach(button => {
-      button.addEventListener('click', (e) => {
-        const buttonText = e.target.textContent.trim();
-        const buttonType = e.target.classList.contains('btn-primary') ? 'primary' : 'secondary';
-
-        window.dataLayer.push({
-          'event': 'cta_click',
-          'ctaText': buttonText,
-          'ctaType': buttonType,
-          'ctaLocation': this.getCurrentSection()
-        });
-      });
-    });
-  }
-
-  trackOutboundLinks() {
-    // Track clicks on external links
-    const links = document.querySelectorAll('a');
-    links.forEach(link => {
-      if (link.hostname && link.hostname !== window.location.hostname) {
-        link.addEventListener('click', (e) => {
-          window.dataLayer.push({
-            'event': 'outbound_click',
-            'linkUrl': link.href,
-            'linkText': link.textContent.trim()
-          });
-        });
-      }
-    });
-  }
-
-  trackVideoEngagement() {
-    // Track video engagement if hero video exists
-    const heroVideo = document.querySelector('.hero-video');
-    if (heroVideo) {
-      // Track video start
-      heroVideo.addEventListener('play', () => {
-        window.dataLayer.push({
-          'event': 'video_start',
-          'videoName': 'hero-video',
-          'videoSection': 'hero'
-        });
-      });
-
-      // Track video complete
-      heroVideo.addEventListener('ended', () => {
-        window.dataLayer.push({
-          'event': 'video_complete',
-          'videoName': 'hero-video',
-          'videoSection': 'hero'
-        });
-      });
-
-      // Track video progress at 25%, 50%, 75%
-      heroVideo.addEventListener('timeupdate', () => {
-        const progress = (heroVideo.currentTime / heroVideo.duration) * 100;
-        if (progress >= 25 && progress < 26 && !heroVideo.tracked25) {
-          heroVideo.tracked25 = true;
-          window.dataLayer.push({
-            'event': 'video_progress',
-            'videoName': 'hero-video',
-            'videoProgress': 25
-          });
-        } else if (progress >= 50 && progress < 51 && !heroVideo.tracked50) {
-          heroVideo.tracked50 = true;
-          window.dataLayer.push({
-            'event': 'video_progress',
-            'videoName': 'hero-video',
-            'videoProgress': 50
-          });
-        } else if (progress >= 75 && progress < 76 && !heroVideo.tracked75) {
-          heroVideo.tracked75 = true;
-          window.dataLayer.push({
-            'event': 'video_progress',
-            'videoName': 'hero-video',
-            'videoProgress': 75
-          });
-        }
-      });
-    }
-  }
-}
-
-// Custom Dashboard Implementation
-class LeadDashboard {
-  constructor(containerId) {
-    // No need to create the UI elements as they're now in the HTML
+    this.currentPeriod = 'daily';
     this.setupEventListeners();
     this.fetchData();
     this.setupRefreshInterval();
     this.charts = {};
+    this.addTableStyles();
   }
 
   setupEventListeners() {
-    // Setup event listeners for dashboard controls
+    // Date range selector
     const dateRange = document.getElementById('date-range');
     const customDateInputs = document.getElementById('custom-date-inputs');
     const refreshButton = document.getElementById('refresh-data');
+    const periodButtons = document.querySelectorAll('.btn-period');
 
     if (dateRange) {
       dateRange.addEventListener('change', (e) => {
@@ -285,7 +40,6 @@ class LeadDashboard {
     if (refreshButton) {
       refreshButton.addEventListener('click', () => {
         this.fetchData();
-        // Add animation to the refresh button
         refreshButton.classList.add('rotating');
         setTimeout(() => {
           refreshButton.classList.remove('rotating');
@@ -293,7 +47,20 @@ class LeadDashboard {
       });
     }
 
-    // Initialize today's date for date inputs
+    // Period toggle buttons (daily, weekly, monthly)
+    periodButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        periodButtons.forEach(btn => btn.classList.remove('active'));
+        e.target.classList.add('active');
+        this.currentPeriod = e.target.dataset.period;
+        this.updateTrafficChart();
+      });
+    });
+
+    // Set daily as default active
+    document.getElementById('daily-view').classList.add('active');
+
+    // Initialize date inputs
     const dateStart = document.getElementById('date-start');
     const dateEnd = document.getElementById('date-end');
     if (dateStart && dateEnd) {
@@ -304,51 +71,52 @@ class LeadDashboard {
       dateStart.valueAsDate = oneWeekAgo;
       dateEnd.valueAsDate = today;
 
-      // Add event listeners to fetch data when dates change
       dateStart.addEventListener('change', () => this.fetchData());
       dateEnd.addEventListener('change', () => this.fetchData());
     }
 
-    // Add event listeners to table action buttons
-    document.querySelectorAll('.btn-table-action').forEach(button => {
-      button.addEventListener('click', () => {
-        alert('Export functionality would go here');
-      });
+    // Export buttons
+    document.querySelectorAll('.btn-chart-action').forEach(button => {
+      if (button.querySelector('i.fas.fa-download')) {
+        button.addEventListener('click', () => {
+          this.exportChart(button.closest('.chart-container').querySelector('canvas').id);
+        });
+      }
     });
 
-    // Add event listeners to chart action buttons
-    document.querySelectorAll('.btn-chart-action').forEach(button => {
+    document.querySelectorAll('.btn-table-action').forEach(button => {
       button.addEventListener('click', () => {
-        const icon = button.querySelector('i');
-        if (icon.classList.contains('fa-download')) {
-          alert('Download chart functionality would go here');
-        } else if (icon.classList.contains('fa-expand')) {
-          alert('Expand chart functionality would go here');
-        }
+        const tableId = button.closest('.table-container').querySelector('table').id;
+        this.exportTable(tableId);
       });
     });
   }
 
   fetchData() {
-    // In a real implementation, this would fetch data from GA4 or your backend
-    // For demo purposes, we'll use mock data
+    console.log('Fetching website analytics data...');
+    // In a production environment, this would fetch real analytics data
+    // For demo purposes, we're using mock data
 
+    // Update all dashboard components with mock data
     this.updateSummaryMetrics(this.getMockSummaryData());
-    this.updateCharts(this.getMockChartData());
+    this.updateTrafficChart();
+    this.updateSourceChart(this.getMockSourceData());
+    this.updateFunnelChart(this.getMockFunnelData());
     this.updateTables(this.getMockTableData());
   }
 
   updateSummaryMetrics(data) {
-    document.querySelector('#total-leads .metric-value').textContent = data.totalLeads;
+    // Update the summary metrics cards
+    document.querySelector('#total-visitors .metric-value').textContent = data.visitors.toLocaleString();
+    document.querySelector('#page-views .metric-value').textContent = data.pageViews.toLocaleString();
     document.querySelector('#conversion-rate .metric-value').textContent = data.conversionRate + '%';
-    document.querySelector('#cost-per-lead .metric-value').textContent = '$' + data.costPerLead;
-    document.querySelector('#lead-value .metric-value').textContent = '$' + data.leadValue;
+    document.querySelector('#avg-time .metric-value').textContent = data.avgSessionTime;
 
     // Update change indicators
-    this.updateChangeIndicator('#total-leads .metric-change', data.totalLeadsChange);
+    this.updateChangeIndicator('#total-visitors .metric-change', data.visitorsChange);
+    this.updateChangeIndicator('#page-views .metric-change', data.pageViewsChange);
     this.updateChangeIndicator('#conversion-rate .metric-change', data.conversionRateChange);
-    this.updateChangeIndicator('#cost-per-lead .metric-change', data.costPerLeadChange, true);
-    this.updateChangeIndicator('#lead-value .metric-change', data.leadValueChange);
+    this.updateChangeIndicator('#avg-time .metric-change', data.avgTimeChange);
   }
 
   updateChangeIndicator(selector, value, inverse = false) {
@@ -358,7 +126,6 @@ class LeadDashboard {
     const prefix = value > 0 ? '+' : '';
     element.textContent = `${prefix}${value}% vs previous`;
 
-    // For metrics like cost-per-lead, a decrease is positive (inverse)
     if ((value > 0 && !inverse) || (value < 0 && inverse)) {
       element.classList.add('positive');
       element.classList.remove('negative');
@@ -370,88 +137,26 @@ class LeadDashboard {
     }
   }
 
-  updateCharts(data) {
-    console.log('Campaign data for charts:', data);
+  updateTrafficChart() {
+    // Get data based on the selected period (daily, weekly, monthly)
+    const data = this.getTrafficData(this.currentPeriod);
 
-    // Clean up any existing charts
-    if (this.charts.campaign) {
-      this.charts.campaign.destroy();
-    }
-    if (this.charts.trend) {
-      this.charts.trend.destroy();
+    // Clean up existing chart if it exists
+    if (this.charts.traffic) {
+      this.charts.traffic.destroy();
     }
 
-    // Campaign source chart (doughnut)
-    const campaignCtx = document.getElementById('campaign-chart');
-    if (campaignCtx) {
-      this.charts.campaign = new Chart(campaignCtx, {
-        type: 'doughnut',
-        data: {
-          labels: data.campaigns.map(item => item.source),
-          datasets: [{
-            data: data.campaigns.map(item => item.leads),
-            backgroundColor: [
-              '#D10000', // Primary red
-              '#333333', // Dark gray
-              '#4A90E2', // Blue
-              '#F5A623', // Orange
-              '#7ED321'  // Green
-            ],
-            borderWidth: 2,
-            borderColor: '#FFFFFF'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '70%',
-          plugins: {
-            legend: {
-              position: 'right',
-              labels: {
-                padding: 20,
-                font: {
-                  size: 12,
-                  family: "'Inter', sans-serif"
-                }
-              }
-            },
-            tooltip: {
-              backgroundColor: 'rgba(0,0,0,0.8)',
-              padding: 12,
-              titleFont: {
-                size: 14,
-                family: "'Inter', sans-serif"
-              },
-              bodyFont: {
-                size: 13,
-                family: "'Inter', sans-serif"
-              },
-              callbacks: {
-                label: function(context) {
-                  const label = context.label || '';
-                  const value = context.raw || 0;
-                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                  const percentage = Math.round((value / total) * 100);
-                  return `${label}: ${value} leads (${percentage}%)`;
-                }
-              }
-            }
-          }
-        }
-      });
-    }
+    const ctx = document.getElementById('traffic-chart');
+    if (!ctx) return;
 
-    // Trend chart (line)
-    const trendCtx = document.getElementById('trend-chart');
-    if (trendCtx) {
-      this.charts.trend = new Chart(trendCtx, {
-        type: 'line',
-        data: {
-          labels: data.trend.map(item => item.date),
-          datasets: [{
-            label: 'Leads',
-            data: data.trend.map(item => item.leads),
+    this.charts.traffic = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: data.labels,
+        datasets: [
+          {
+            label: 'Visitors',
+            data: data.visitors,
             borderColor: '#D10000',
             backgroundColor: 'rgba(209, 0, 0, 0.1)',
             tension: 0.3,
@@ -460,61 +165,223 @@ class LeadDashboard {
             pointBackgroundColor: '#FFFFFF',
             pointBorderColor: '#D10000',
             pointBorderWidth: 2,
-            pointRadius: 5,
-            pointHoverRadius: 7
-          }]
+            pointRadius: 4,
+            pointHoverRadius: 6
+          },
+          {
+            label: 'Page Views',
+            data: data.pageViews,
+            borderColor: '#333333',
+            backgroundColor: 'rgba(51, 51, 51, 0.05)',
+            borderDash: [5, 5],
+            tension: 0.3,
+            fill: false,
+            borderWidth: 2,
+            pointBackgroundColor: '#FFFFFF',
+            pointBorderColor: '#333333',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false,
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: {
-              beginAtZero: true,
-              grid: {
-                color: 'rgba(0,0,0,0.05)'
-              },
-              ticks: {
-                font: {
-                  family: "'Inter', sans-serif"
-                }
-              }
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0,0,0,0.05)'
             },
-            x: {
-              grid: {
-                color: 'rgba(0,0,0,0.05)'
-              },
-              ticks: {
-                font: {
-                  family: "'Inter', sans-serif"
-                }
+            ticks: {
+              font: {
+                family: "'Inter', sans-serif"
               }
             }
           },
-          plugins: {
-            legend: {
+          x: {
+            grid: {
               display: false
             },
-            tooltip: {
-              backgroundColor: 'rgba(0,0,0,0.8)',
-              padding: 12,
-              titleFont: {
-                size: 14,
+            ticks: {
+              font: {
                 family: "'Inter', sans-serif"
-              },
-              bodyFont: {
-                size: 13,
+              }
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            position: 'top',
+            align: 'end',
+            labels: {
+              boxWidth: 12,
+              padding: 20,
+              font: {
                 family: "'Inter', sans-serif"
-              },
-              callbacks: {
-                label: function(context) {
-                  return `Leads: ${context.raw}`;
-                }
+              }
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            padding: 12,
+            titleFont: {
+              size: 14,
+              family: "'Inter', sans-serif"
+            },
+            bodyFont: {
+              size: 13,
+              family: "'Inter', sans-serif"
+            }
+          }
+        }
+      }
+    });
+  }
+
+  updateSourceChart(data) {
+    if (this.charts.source) {
+      this.charts.source.destroy();
+    }
+
+    const ctx = document.getElementById('source-chart');
+    if (!ctx) return;
+
+    this.charts.source = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: data.labels,
+        datasets: [{
+          data: data.values,
+          backgroundColor: [
+            '#D10000', // Primary red
+            '#4A90E2', // Blue
+            '#F5A623', // Orange  
+            '#7ED321', // Green
+            '#333333', // Dark gray
+            '#9B9B9B'  // Light gray
+          ],
+          borderWidth: 2,
+          borderColor: '#FFFFFF'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '65%',
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: {
+              padding: 15,
+              font: {
+                size: 12,
+                family: "'Inter', sans-serif"
+              }
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            padding: 12,
+            titleFont: {
+              size: 14,
+              family: "'Inter', sans-serif"
+            },
+            bodyFont: {
+              size: 13,
+              family: "'Inter', sans-serif"
+            },
+            callbacks: {
+              label: function(context) {
+                const label = context.label || '';
+                const value = context.raw || 0;
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = Math.round((value / total) * 100);
+                return `${label}: ${value} visitors (${percentage}%)`;
               }
             }
           }
         }
-      });
+      }
+    });
+  }
+
+  updateFunnelChart(data) {
+    if (this.charts.funnel) {
+      this.charts.funnel.destroy();
     }
+
+    const ctx = document.getElementById('funnel-chart');
+    if (!ctx) return;
+
+    // Create horizontal bar chart to simulate a funnel
+    this.charts.funnel = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: data.labels,
+        datasets: [{
+          axis: 'y',
+          data: data.values,
+          backgroundColor: [
+            'rgba(209, 0, 0, 0.9)',
+            'rgba(209, 0, 0, 0.7)',
+            'rgba(209, 0, 0, 0.5)',
+            'rgba(209, 0, 0, 0.3)'
+          ],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              font: {
+                family: "'Inter', sans-serif"
+              }
+            }
+          },
+          y: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              font: {
+                family: "'Inter', sans-serif",
+                weight: 'bold'
+              }
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            padding: 12,
+            callbacks: {
+              label: function(context) {
+                const value = context.raw;
+                const total = data.values[0]; // First value is total visitors
+                const percentage = Math.round((value / total) * 100);
+                return `${value} users (${percentage}% of visitors)`;
+              }
+            }
+          }
+        }
+      }
+    });
   }
 
   updateTables(data) {
@@ -525,81 +392,74 @@ class LeadDashboard {
         <tr>
           <td><strong>${page.path}</strong></td>
           <td>${page.visitors.toLocaleString()}</td>
-          <td>${page.leads}</td>
+          <td>${page.pageViews.toLocaleString()}</td>
+          <td>${page.avgTime}</td>
           <td>
-            <div class="conversion-badge ${this.getConversionClass(page.conversionRate)}">
-              ${page.conversionRate}%
+            <div class="bounce-badge ${this.getBounceRateClass(page.bounceRate)}">
+              ${page.bounceRate}%
             </div>
           </td>
-          <td>
-            <button class="btn-action" title="View Details"><i class="fas fa-eye"></i></button>
-            <button class="btn-action" title="Edit"><i class="fas fa-pencil-alt"></i></button>
-          </td>
         </tr>
       `).join('');
     }
 
-    // Update recent leads table
-    const leadsTableBody = document.querySelector('#leads-table tbody');
-    if (leadsTableBody) {
-      leadsTableBody.innerHTML = data.recentLeads.map(lead => `
+    // Update recent conversions table
+    const conversionsTableBody = document.querySelector('#conversions-table tbody');
+    if (conversionsTableBody) {
+      conversionsTableBody.innerHTML = data.recentConversions.map(conversion => `
         <tr>
-          <td>${lead.datetime}</td>
+          <td>${conversion.datetime}</td>
           <td>
-            <span class="source-badge">${lead.source}</span>
+            <span class="source-badge">${conversion.source}</span>
           </td>
-          <td>${lead.page}</td>
-          <td>${lead.type}</td>
+          <td>${conversion.page}</td>
+          <td>${conversion.formType}</td>
           <td>
-            <button class="btn-action" title="View Details"><i class="fas fa-eye"></i></button>
-            <button class="btn-action" title="Contact"><i class="fas fa-envelope"></i></button>
+            <i class="fas fa-${this.getDeviceIcon(conversion.device)}"></i> ${conversion.device}
           </td>
         </tr>
       `).join('');
     }
-
-    // Add event listeners to action buttons
-    document.querySelectorAll('.btn-action').forEach(button => {
-      button.addEventListener('click', (e) => {
-        e.preventDefault();
-        const action = button.getAttribute('title');
-        alert(`${action} functionality would go here`);
-      });
-    });
-
-    // Add CSS for new elements
-    this.addTableStyles();
   }
 
-  getConversionClass(rate) {
-    if (rate >= 5) return 'high';
-    if (rate >= 3) return 'medium';
-    return 'low';
+  getDeviceIcon(device) {
+    switch(device.toLowerCase()) {
+      case 'desktop': return 'desktop';
+      case 'tablet': return 'tablet-alt';
+      case 'mobile': return 'mobile-alt';
+      default: return 'question-circle';
+    }
+  }
+
+  getBounceRateClass(rate) {
+    if (rate <= 30) return 'low';
+    if (rate <= 60) return 'medium';
+    return 'high';
   }
 
   addTableStyles() {
-    // Check if styles are already added
+    // Add dynamic styles for tables and badges
     if (document.getElementById('dashboard-dynamic-styles')) return;
 
     const styleElement = document.createElement('style');
     styleElement.id = 'dashboard-dynamic-styles';
     styleElement.textContent = `
-      .conversion-badge {
+      .bounce-badge {
         display: inline-block;
         padding: 4px 8px;
         border-radius: 4px;
         font-weight: 600;
         font-size: 1.2rem;
       }
-      .conversion-badge.high {
+      .bounce-badge.low {
         background-color: rgba(40, 167, 69, 0.1);
         color: #28a745;
       }
-      .conversion-badge.medium {
+      .bounce-badge.medium {
         background-color: rgba(255, 193, 7, 0.1);
         color: #ffc107;
       }
-      .conversion-badge.low {
+      .bounce-badge.high {
         background-color: rgba(220, 53, 69, 0.1);
         color: #dc3545;
       }
@@ -610,21 +470,32 @@ class LeadDashboard {
         font-size: 1.2rem;
         background-color: rgba(0, 0, 0, 0.05);
       }
-      .btn-action {
-        width: 30px;
-        height: 30px;
-        border-radius: 4px;
+      .btn-period {
         background-color: transparent;
-        border: 1px solid var(--color-border);
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
+        border: 1px solid #ddd;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 1.2rem;
         cursor: pointer;
         margin-right: 5px;
-        transition: all 0.2s;
       }
-      .btn-action:hover {
-        background-color: var(--color-border);
+      .btn-period.active {
+        background-color: #D10000;
+        color: white;
+        border-color: #D10000;
+      }
+      .full-width {
+        grid-column: 1 / -1;
+      }
+      .two-column {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+      @media (max-width: 992px) {
+        .two-column {
+          grid-template-columns: 1fr;
+        }
       }
       @keyframes rotate {
         from { transform: rotate(0deg); }
@@ -633,167 +504,136 @@ class LeadDashboard {
       .rotating {
         animation: rotate 1s linear;
       }
+      .chart-container {
+        min-height: 300px;
+      }
     `;
     document.head.appendChild(styleElement);
   }
 
+  exportChart(chartId) {
+    console.log(`Exporting chart: ${chartId}`);
+    const chart = this.charts[chartId.replace('-chart', '')];
+    if (!chart) return;
+
+    const canvas = document.getElementById(chartId);
+    const link = document.createElement('a');
+    link.download = `${chartId}-export-${new Date().toISOString().split('T')[0]}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }
+
+  exportTable(tableId) {
+    console.log(`Exporting table: ${tableId}`);
+    const table = document.getElementById(tableId);
+    if (!table) return;
+
+    // Simple CSV export example
+    let csv = [];
+    const rows = table.querySelectorAll('tr');
+
+    rows.forEach(row => {
+      const cols = row.querySelectorAll('td, th');
+      const rowData = [];
+
+      cols.forEach(col => {
+        // Remove HTML and use only text content
+        let cellContent = col.textContent.trim().replace(/"/g, '""');
+        rowData.push(`"${cellContent}"`);
+      });
+
+      csv.push(rowData.join(','));
+    });
+
+    const csvContent = csv.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = `${tableId}-export-${new Date().toISOString().split('T')[0]}.csv`;
+    link.href = url;
+    link.click();
+  }
+
   setupRefreshInterval() {
-    // Auto-refresh every 5 minutes
+    // Auto-refresh every 5 minutes in a real implementation
     setInterval(() => {
       this.fetchData();
     }, 5 * 60 * 1000);
   }
 
-  // Mock data methods for demonstration
+  // MOCK DATA METHODS
+  getTrafficData(period) {
+    let labels, visitors, pageViews;
+
+    switch(period) {
+      case 'weekly':
+        labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8'];
+        visitors = [1450, 1680, 1590, 2100, 1800, 2400, 2100, 2580];
+        pageViews = [4200, 4850, 4680, 6300, 5400, 7100, 6300, 7800];
+        break;
+      case 'monthly':
+        labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        visitors = [5800, 6700, 7800, 8200, 7600, 7100, 8500, 9200, 8700, 9600, 10800, 11400];
+        pageViews = [17400, 20100, 23400, 24600, 22800, 21300, 25500, 27600, 26100, 28800, 32400, 34200];
+        break;
+      default: // daily
+        labels = ['Mar 22', 'Mar 23', 'Mar 24', 'Mar 25', 'Mar 26', 'Mar 27', 'Mar 28', 'Mar 29', 'Mar 30', 'Mar 31', 'Apr 1', 'Apr 2', 'Apr 3', 'Apr 4'];
+        visitors = [320, 295, 310, 345, 280, 270, 305, 340, 350, 370, 390, 410, 380, 420];
+        pageViews = [960, 885, 930, 1035, 840, 810, 915, 1020, 1050, 1110, 1170, 1230, 1140, 1260];
+    }
+
+    return { labels, visitors, pageViews };
+  }
+
   getMockSummaryData() {
     return {
-      totalLeads: 143,
-      totalLeadsChange: 12.4,
-      conversionRate: 4.7,
-      conversionRateChange: 0.8,
-      costPerLead: 42.75,
-      costPerLeadChange: -6.3,
-      leadValue: 85.50,
-      leadValueChange: 5.2
+      visitors: 4825,
+      visitorsChange: 12.4,
+      pageViews: 14475,
+      pageViewsChange: 15.8,
+      conversionRate: 4.2,
+      conversionRateChange: 0.5,
+      avgSessionTime: '2m 45s',
+      avgTimeChange: 8.3
     };
   }
 
-  getMockChartData() {
+  getMockSourceData() {
     return {
-      campaigns: [
-        { source: 'Google Ads', leads: 62 },
-        { source: 'Facebook', leads: 41 },
-        { source: 'Organic', leads: 23 },
-        { source: 'Direct', leads: 10 },
-        { source: 'Referral', leads: 7 }
-      ],
-      trend: [
-        { date: '3/22', leads: 18 },
-        { date: '3/23', leads: 15 },
-        { date: '3/24', leads: 21 },
-        { date: '3/25', leads: 24 },
-        { date: '3/26', leads: 19 },
-        { date: '3/27', leads: 22 },
-        { date: '3/28', leads: 24 }
-      ]
+      labels: ['Organic Search', 'Direct', 'Social Media', 'Referral', 'Email', 'Other'],
+      values: [1850, 1200, 850, 450, 350, 125]
+    };
+  }
+
+  getMockFunnelData() {
+    return {
+      labels: ['Website Visitors', 'Page Scroll >50%', 'Form View', 'Form Submission'],
+      values: [4825, 3380, 1205, 203]
     };
   }
 
   getMockTableData() {
     return {
       topPages: [
-        { path: 'Home Page', visitors: 1250, leads: 45, conversionRate: 3.6 },
-        { path: '/free-class', visitors: 583, leads: 38, conversionRate: 6.5 },
-        { path: '/programs', visitors: 892, leads: 29, conversionRate: 3.3 },
-        { path: '/pricing', visitors: 745, leads: 21, conversionRate: 2.8 },
-        { path: '/instructors', visitors: 512, leads: 10, conversionRate: 2.0 }
+        { path: 'Home Page', visitors: 2250, pageViews: 3100, avgTime: '2m 10s', bounceRate: 35 },
+        { path: '/free-class', visitors: 1150, pageViews: 1680, avgTime: '3m 45s', bounceRate: 22 },
+        { path: '/programs', visitors: 950, pageViews: 2400, avgTime: '4m 20s', bounceRate: 18 },
+        { path: '/pricing', visitors: 780, pageViews: 1100, avgTime: '2m 30s', bounceRate: 42 },
+        { path: '/instructors', visitors: 620, pageViews: 890, avgTime: '1m 55s', bounceRate: 38 }
       ],
-      recentLeads: [
-        { datetime: '3/28/2025 14:23', source: 'Google Ads', page: '/free-class', type: 'Free Class Form' },
-        { datetime: '3/28/2025 13:11', source: 'Facebook', page: '/pricing', type: 'Chatbot' },
-        { datetime: '3/28/2025 11:47', source: 'Organic', page: '/programs', type: 'Free Class Form' },
-        { datetime: '3/28/2025 10:32', source: 'Direct', page: '/home', type: 'Contact Form' },
-        { datetime: '3/28/2025 09:15', source: 'Google Ads', page: '/free-class', type: 'Free Class Form' }
+      recentConversions: [
+        { datetime: '2023-04-04 14:23', source: 'Organic', page: '/free-class', formType: 'Free Class Form', device: 'Desktop' },
+        { datetime: '2023-04-04 13:11', source: 'Facebook', page: '/pricing', formType: 'Contact Form', device: 'Mobile' },
+        { datetime: '2023-04-04 11:47', source: 'Google Ads', page: '/programs', formType: 'Free Class Form', device: 'Desktop' },
+        { datetime: '2023-04-04 10:32', source: 'Direct', page: '/home', formType: 'Newsletter', device: 'Tablet' },
+        { datetime: '2023-04-04 09:15', source: 'Instagram', page: '/free-class', formType: 'Free Class Form', device: 'Mobile' }
       ]
     };
   }
 }
 
-// UTM Parameter Helper
-function createUTMLinks() {
-  const campaignMap = {
-    'google': {
-      name: 'Google Ads',
-      medium: 'cpc',
-      campaigns: ['search_brand', 'search_tactical', 'display_training']
-    },
-    'facebook': {
-      name: 'Facebook',
-      medium: 'social',
-      campaigns: ['feed_prospecting', 'feed_retargeting', 'story_ads']
-    },
-    'email': {
-      name: 'Email',
-      medium: 'email',
-      campaigns: ['newsletter', 'promotion', 'welcome_series']
-    },
-    'instagram': {
-      name: 'Instagram',
-      medium: 'social',
-      campaigns: ['feed', 'story', 'reels']
-    }
-  };
-
-  // Example URL builder
-  const siteUrl = 'https://uniteddefensetactical.com';
-  const pages = ['/', '/programs', '/pricing', '/free-class'];
-
-  const utmUrls = [];
-
-  for (const [source, sourceData] of Object.entries(campaignMap)) {
-    for (const campaign of sourceData.campaigns) {
-      for (const page of pages) {
-        const utmUrl = `${siteUrl}${page}?utm_source=${source}&utm_medium=${sourceData.medium}&utm_campaign=${campaign}`;
-        utmUrls.push({ source: sourceData.name, campaign, page, url: utmUrl });
-      }
-    }
-  }
-
-  console.table(utmUrls);
-  return utmUrls;
-}
-
-// Implementation guide
-function implementationGuide() {
-  console.log(`
-    United Defense Tactical - Lead Tracking Implementation Guide
-
-    1. Set up Google Analytics 4:
-       - Create a GA4 property
-       - Add the GA4 tag to your website via Google Tag Manager
-       - Configure events for form submissions, chatbot interactions, etc.
-
-    2. Set up UTM parameter tracking:
-       - Use the createUTMLinks() function to generate campaign URLs
-       - Ensure all marketing campaigns use proper UTM parameters
-
-    3. Implement the Lead Tracking Module:
-       - Add the LeadTrackingModule to main.js
-       - Initialize it on page load
-
-    4. Create the dashboard:
-       - Add a new dashboard.html page to your site
-       - Initialize the LeadDashboard class with proper container
-       - Connect to your GA4 data source (requires additional API setup)
-
-    5. Set up goal tracking in GA4:
-       - Configure conversion events for form submissions
-       - Set values for different lead types
-
-    For more detailed implementation, contact your web developer.
-  `);
-}
-
-// Initialize tracking on DOM ready
+// Initialize dashboard on DOM ready
 document.addEventListener('DOMContentLoaded', function() {
-    // Create a new dashboard instance targeting the container element
-    new LeadDashboard('dashboard-container');
-
-    // Optional: Add basic access protection
-    function checkAccess() {
-        // In production, replace with proper authentication
-        const accessKey = localStorage.getItem('udt_dashboard_access');
-        if (!accessKey) {
-            const password = prompt("Enter dashboard password:");
-            if (password === "udt2025") { // Change this!
-                localStorage.setItem('udt_dashboard_access', Date.now());
-            } else {
-                alert("Access denied");
-                window.location.href = "index.html";
-            }
-        }
-    }
-
-    // Uncomment to enable password protection
-    // checkAccess();
+  // Create a new dashboard instance
+  new WebsiteAnalyticsDashboard();
 });

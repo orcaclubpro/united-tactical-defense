@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UDT Analytics Dashboard</title>
+    <title>UDT Website Analytics</title>
     <!-- CSS -->
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/styles.css">
@@ -27,9 +27,9 @@
             <nav class="sidebar-nav">
                 <ul>
                     <li class="active"><a href="#"><i class="fas fa-chart-line"></i> Overview</a></li>
-                    <li><a href="#"><i class="fas fa-bullseye"></i> Campaigns</a></li>
-                    <li><a href="#"><i class="fas fa-users"></i> Leads</a></li>
-                    <li><a href="#"><i class="fas fa-dollar-sign"></i> ROI</a></li>
+                    <li><a href="#"><i class="fas fa-users"></i> Audience</a></li>
+                    <li><a href="#"><i class="fas fa-globe"></i> Acquisition</a></li>
+                    <li><a href="#"><i class="fas fa-bullseye"></i> Conversions</a></li>
                     <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
                 </ul>
             </nav>
@@ -42,8 +42,8 @@
         <main class="dashboard-main">
             <header class="dashboard-header">
                 <div class="header-title">
-                    <h1>Lead Analytics Dashboard</h1>
-                    <p>Performance metrics and lead generation analysis</p>
+                    <h1>Website Analytics Dashboard</h1>
+                    <p>Track visitor engagement and conversion performance</p>
                 </div>
                 <div class="header-actions">
                     <div class="date-range-selector">
@@ -52,6 +52,7 @@
                             <option value="yesterday">Yesterday</option>
                             <option value="7days" selected>Last 7 Days</option>
                             <option value="30days">Last 30 Days</option>
+                            <option value="90days">Last 90 Days</option>
                             <option value="custom">Custom Range</option>
                         </select>
                         <div id="custom-date-inputs" class="custom-date-container" style="display: none;">
@@ -65,12 +66,22 @@
 
             <!-- Key Metrics Cards -->
             <section class="metrics-overview">
-                <div class="metric-card" id="total-leads">
+                <div class="metric-card" id="total-visitors">
                     <div class="metric-icon">
-                        <i class="fas fa-user-plus"></i>
+                        <i class="fas fa-users"></i>
                     </div>
                     <div class="metric-content">
-                        <h3>Total Leads</h3>
+                        <h3>Total Visitors</h3>
+                        <div class="metric-value">0</div>
+                        <div class="metric-change">+0% vs previous</div>
+                    </div>
+                </div>
+                <div class="metric-card" id="page-views">
+                    <div class="metric-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h3>Page Views</h3>
                         <div class="metric-value">0</div>
                         <div class="metric-change">+0% vs previous</div>
                     </div>
@@ -85,52 +96,58 @@
                         <div class="metric-change">+0% vs previous</div>
                     </div>
                 </div>
-                <div class="metric-card" id="cost-per-lead">
+                <div class="metric-card" id="avg-time">
                     <div class="metric-icon">
-                        <i class="fas fa-tags"></i>
+                        <i class="fas fa-clock"></i>
                     </div>
                     <div class="metric-content">
-                        <h3>Cost Per Lead</h3>
-                        <div class="metric-value">$0.00</div>
-                        <div class="metric-change">+0% vs previous</div>
-                    </div>
-                </div>
-                <div class="metric-card" id="lead-value">
-                    <div class="metric-icon">
-                        <i class="fas fa-gem"></i>
-                    </div>
-                    <div class="metric-content">
-                        <h3>Est. Lead Value</h3>
-                        <div class="metric-value">$0.00</div>
+                        <h3>Avg. Session Time</h3>
+                        <div class="metric-value">0m 0s</div>
                         <div class="metric-change">+0% vs previous</div>
                     </div>
                 </div>
             </section>
 
-            <!-- Charts Section -->
+            <!-- Traffic Overview Chart -->
             <section class="dashboard-charts">
-                <div class="chart-container">
+                <div class="chart-container full-width">
                     <div class="chart-header">
-                        <h3><i class="fas fa-chart-pie"></i> Leads by Campaign Source</h3>
+                        <h3><i class="fas fa-chart-line"></i> Traffic Overview</h3>
                         <div class="chart-actions">
+                            <button class="btn-chart-action btn-period" data-period="daily" id="daily-view">Daily</button>
+                            <button class="btn-chart-action btn-period" data-period="weekly">Weekly</button>
+                            <button class="btn-chart-action btn-period" data-period="monthly">Monthly</button>
                             <button class="btn-chart-action"><i class="fas fa-download"></i></button>
-                            <button class="btn-chart-action"><i class="fas fa-expand"></i></button>
                         </div>
                     </div>
                     <div class="chart-body">
-                        <canvas id="campaign-chart"></canvas>
+                        <canvas id="traffic-chart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Two-column charts layout -->
+            <section class="dashboard-charts two-column">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-globe"></i> Traffic Sources</h3>
+                        <div class="chart-actions">
+                            <button class="btn-chart-action"><i class="fas fa-download"></i></button>
+                        </div>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="source-chart"></canvas>
                     </div>
                 </div>
                 <div class="chart-container">
                     <div class="chart-header">
-                        <h3><i class="fas fa-chart-line"></i> Daily Lead Trend</h3>
+                        <h3><i class="fas fa-bullseye"></i> Conversion Funnel</h3>
                         <div class="chart-actions">
                             <button class="btn-chart-action"><i class="fas fa-download"></i></button>
-                            <button class="btn-chart-action"><i class="fas fa-expand"></i></button>
                         </div>
                     </div>
                     <div class="chart-body">
-                        <canvas id="trend-chart"></canvas>
+                        <canvas id="funnel-chart"></canvas>
                     </div>
                 </div>
             </section>
@@ -139,7 +156,7 @@
             <section class="dashboard-tables">
                 <div class="table-container">
                     <div class="table-header">
-                        <h3><i class="fas fa-file-alt"></i> Top Performing Pages</h3>
+                        <h3><i class="fas fa-file-alt"></i> Top Pages</h3>
                         <div class="table-actions">
                             <button class="btn-table-action"><i class="fas fa-download"></i> Export</button>
                         </div>
@@ -150,9 +167,9 @@
                                 <tr>
                                     <th>Page</th>
                                     <th>Visitors</th>
-                                    <th>Leads</th>
-                                    <th>Conv. Rate</th>
-                                    <th>Actions</th>
+                                    <th>Views</th>
+                                    <th>Avg. Time</th>
+                                    <th>Bounce Rate</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -161,23 +178,23 @@
                         </table>
                     </div>
                 </div>
-                
+
                 <div class="table-container">
                     <div class="table-header">
-                        <h3><i class="fas fa-users"></i> Recent Leads</h3>
+                        <h3><i class="fas fa-list"></i> Recent Conversions</h3>
                         <div class="table-actions">
                             <button class="btn-table-action"><i class="fas fa-download"></i> Export</button>
                         </div>
                     </div>
                     <div class="table-responsive">
-                        <table id="leads-table" class="data-table">
+                        <table id="conversions-table" class="data-table">
                             <thead>
                                 <tr>
                                     <th>Date/Time</th>
                                     <th>Source</th>
                                     <th>Page</th>
-                                    <th>Type</th>
-                                    <th>Actions</th>
+                                    <th>Form Type</th>
+                                    <th>Device</th>
                                 </tr>
                             </thead>
                             <tbody>
