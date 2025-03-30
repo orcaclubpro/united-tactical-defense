@@ -14,23 +14,26 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
 // Create and initialize the database
-const db = new sqlite3.Database('./appointments.db', (err) => {
+const db = new sqlite3.Database('./unitedDT.db', (err) => {
   if (err) {
     console.error('Error connecting to database:', err.message);
   } else {
-    console.log('Connected to the appointments database.');
+    console.log('Connected to the unitedDT database.');
 
-    // Create appointments table if it doesn't exist
+    // Create newLeads table if it doesn't exist
     db.run(`
-      CREATE TABLE IF NOT EXISTS appointments (
+      CREATE TABLE IF NOT EXISTS newLeads (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        first_name TEXT NOT NULL,
-        last_name TEXT NOT NULL,
+        firstName TEXT NOT NULL,
+        lastName TEXT NOT NULL,
         email TEXT NOT NULL,
         phone TEXT NOT NULL,
-        lead_source TEXT,
-        appointment_time TEXT,
-        notes TEXT,
+        source TEXT,
+        potentialValue TEXT,
+        appointmentTime TEXT,
+        appointmentTitle TEXT,
+        appointmentNotes TEXT,
+        duration INTEGER,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
@@ -39,15 +42,29 @@ const db = new sqlite3.Database('./appointments.db', (err) => {
 
 // API endpoint to submit a new appointment
 app.post('/api/appointments', (req, res) => {
-  const { first_name, last_name, email, phone, appointment_time, lead_source, notes } = req.body;
+  const { first_name, last_name, email, phone, appointment_date, appointment_time, lead_source, notes } = req.body;
+
+  // Format the appointment time as ISO string
+  const appointmentISO = new Date(`${appointment_date}T${appointment_time}`).toISOString();
 
   // Insert new appointment into database
   const query = `
-    INSERT INTO appointments (first_name, last_name, email, phone, appointment_time, lead_source, notes)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO newLeads (firstName, lastName, email, phone, appointmentTime, source, appointmentNotes, potentialValue, appointmentTitle, duration)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
-  db.run(query, [first_name, last_name, email, phone, appointment_time, lead_source || 'Website Form', notes || ''], function(err) {
+  db.run(query, [
+    first_name, 
+    last_name, 
+    email, 
+    phone, 
+    appointmentISO, 
+    lead_source || 'Website Form', 
+    notes || '',
+    '$399', // Default potential value
+    'Free Introductory Class', // Default appointment title
+    60 // Default duration (60 minutes)
+  ], function(err) {
     if (err) {
       console.error('Error inserting appointment:', err.message);
       return res.status(500).json({ success: false, message: 'Failed to create appointment' });
