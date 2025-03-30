@@ -393,7 +393,6 @@ class WebsiteAnalyticsDashboard {
           <td><strong>${page.path}</strong></td>
           <td>${page.visitors.toLocaleString()}</td>
           <td>${page.pageViews.toLocaleString()}</td>
-          <td>${page.avgTime}</td>
           <td>
             <div class="bounce-badge ${this.getBounceRateClass(page.bounceRate)}">
               ${page.bounceRate}%
