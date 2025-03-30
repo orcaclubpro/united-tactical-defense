@@ -304,6 +304,87 @@
     height: 30px;
     margin: var(--spacing-xxs);
   }
+
+  /* Sticky mobile CTA */
+  .sticky-cta {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(26, 26, 26, 0.95);
+    padding: 1rem;
+    z-index: 999;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease-in-out;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .sticky-cta.hidden {
+    transform: translateY(100%);
+  }
+
+  .btn-sticky {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    padding: 1.4rem;
+    font-weight: 700;
+    font-size: 1.8rem;
+  }
+
+  .btn-sticky .arrow {
+    margin-left: 1rem;
+    transition: transform 0.2s ease;
+  }
+
+  .btn-sticky:hover .arrow {
+    transform: translateX(5px);
+  }
+
+  /* Mobile optimized tap targets */
+  .btn, 
+  button,
+  .nav-links a,
+  input, 
+  select {
+    min-height: 44px; /* Recommended minimum touch target size */
+  }
+
+  .hero {
+    padding-top: 8rem; /* Add padding to account for fixed header */
+  }
+
+  /* Improve readability on small screens */
+  p, li {
+    font-size: clamp(1.6rem, 4vw, 1.8rem);
+  }
+
+  /* Make modals more mobile-friendly */
+  .modal-container {
+    width: 98%;
+    max-height: 90vh;
+  }
+
+  /* Improve form usability on mobile */
+  .form-group {
+    margin-bottom: 2.5rem;
+  }
+
+  input, select {
+    font-size: 1.6rem; /* Prevent iOS zoom on focus */
+  }
+
+  /* Enhanced mobile card layout */
+  .instructor-card,
+  .category-card,
+  .testimonial-card,
+  .pricing-card {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+  }
 }
 
 /* Extra Small Devices (up to 576px) */
@@ -398,6 +479,19 @@
   .hero-video {
     width: auto;
     height: 100%;
+  }
+
+  .nav-links.active {
+    padding-top: 8rem;
+  }
+
+  .mobile-menu-toggle {
+    padding: 1rem;
+  }
+
+  /* Fix mobile hero image for better mobile UX */
+  .mobile-hero {
+    background-position: top center !important;
   }
 }
 

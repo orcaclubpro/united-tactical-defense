@@ -63,21 +63,38 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initial check
   handleScroll();
 
-  // Mobile Menu Toggle
+  // Mobile Menu Toggle with improved animation and accessibility
   const menuToggle = document.querySelector('.mobile-menu-toggle');
   const navLinks = document.querySelector('.nav-links');
   const body = document.body;
 
   if (menuToggle && navLinks) {
-    menuToggle.addEventListener('click', function() {
-      navLinks.classList.toggle('active');
-      body.classList.toggle('menu-open');
+    // Add mobile menu helper class to body if mobile size
+    if (window.innerWidth < 768) {
+      body.classList.add('is-mobile');
+    }
+
+    // Function to handle mobile menu toggle
+    function toggleMobileMenu(expanded) {
+      navLinks.classList.toggle('active', expanded);
+      body.classList.toggle('menu-open', expanded);
+
+      // Prevent background scrolling when menu is open
+      if (expanded) {
+        body.style.overflow = 'hidden';
+        // Add a slight delay for smoother animation
+        setTimeout(() => {
+          navLinks.classList.add('visible');
+        }, 50);
+      } else {
+        body.style.overflow = '';
+        navLinks.classList.remove('visible');
+      }
 
       // Accessibility - Toggle aria-expanded
-      const expanded = navLinks.classList.contains('active');
       menuToggle.setAttribute('aria-expanded', expanded);
 
-      // Change burger icon to X when menu is open (visual indicator)
+      // Enhanced burger to X animation
       const spans = menuToggle.querySelectorAll('span');
       if (expanded) {
         spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
@@ -88,20 +105,47 @@ document.addEventListener('DOMContentLoaded', function() {
         spans[1].style.opacity = '1';
         spans[2].style.transform = 'none';
       }
+    }
+
+    // Toggle menu when clicking the button
+    menuToggle.addEventListener('click', function() {
+      const willBeExpanded = !navLinks.classList.contains('active');
+      toggleMobileMenu(willBeExpanded);
     });
 
     // Close mobile menu when clicking a link
     navLinks.querySelectorAll('a').forEach(link => {
       link.addEventListener('click', function() {
-        navLinks.classList.remove('active');
-        body.classList.remove('menu-open');
-        menuToggle.setAttribute('aria-expanded', 'false');
-
-        const spans = menuToggle.querySelectorAll('span');
-        spans[0].style.transform = 'none';
-        spans[1].style.opacity = '1';
-        spans[2].style.transform = 'none';
+        toggleMobileMenu(false);
       });
+    });
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(event) {
+      const isMenuOpen = navLinks.classList.contains('active');
+      const clickedInsideNav = navLinks.contains(event.target);
+      const clickedOnToggle = menuToggle.contains(event.target);
+
+      if (isMenuOpen && !clickedInsideNav && !clickedOnToggle) {
+        toggleMobileMenu(false);
+      }
+    });
+
+    // Close mobile menu on escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && navLinks.classList.contains('active')) {
+        toggleMobileMenu(false);
+      }
+    });
+
+    // Update mobile status on resize
+    window.addEventListener('resize', function() {
+      body.classList.toggle('is-mobile', window.innerWidth < 768);
+
+      // Close mobile menu if screen size changes to desktop
+      if (window.innerWidth >= 768 && navLinks.classList.contains('active')) {
+        toggleMobileMenu(false);
+      }
     });
   }
 
@@ -195,54 +239,108 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Modal functionality
+  // Enhanced modal functionality with mobile optimizations
   const modal = document.getElementById('free-class-modal');
   const closeModalBtn = document.getElementById('close-modal');
   const freeClassButtons = document.querySelectorAll('.free-class-btn');
 
   if (modal && closeModalBtn) {
+    // Function to handle modal visibility
+    function toggleModal(show) {
+      if (show) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling behind modal
+
+        // Save scroll position
+        document.body.dataset.scrollY = window.scrollY;
+
+        // Adjust for mobile devices
+        if (window.innerWidth < 768) {
+          // Add mobile-specific class
+          modal.classList.add('mobile-view');
+
+          // Scroll to top of modal on mobile
+          setTimeout(() => {
+            const modalForm = modal.querySelector('.modal-form');
+            if (modalForm) modalForm.scrollTop = 0;
+          }, 100);
+        }
+      } else {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+        modal.classList.remove('mobile-view');
+
+        // Restore scroll position
+        if (document.body.dataset.scrollY) {
+          window.scrollTo(0, parseInt(document.body.dataset.scrollY));
+        }
+      }
+    }
+
     // Open modal for all free class buttons
     freeClassButtons.forEach(button => {
       button.addEventListener('click', function(e) {
         e.preventDefault();
-        // Prevent default navigation to the #free-class section
         e.stopPropagation(); // Stop the event from bubbling up
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Prevent scrolling behind modal
+        toggleModal(true);
       });
     });
 
-    // Also handle the dedicated button in free class section
+    // Handle the dedicated button in free class section
     const openModalBtn = document.getElementById('open-free-class-modal');
     if (openModalBtn) {
       openModalBtn.addEventListener('click', function(e) {
-        if (e) e.preventDefault(); // Prevent any default behavior
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Prevent scrolling behind modal
+        if (e) e.preventDefault();
+        toggleModal(true);
       });
     }
 
     // Close modal
     closeModalBtn.addEventListener('click', function() {
-      modal.classList.remove('active');
-      document.body.style.overflow = '';
+      toggleModal(false);
     });
 
     // Close modal on click outside
     modal.addEventListener('click', function(e) {
       if (e.target === modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
+        toggleModal(false);
       }
     });
 
     // Close modal on escape key
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape' && modal.classList.contains('active')) {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
+        toggleModal(false);
       }
     });
+
+    // Handle modal on device rotation
+    window.addEventListener('orientationchange', function() {
+      if (modal.classList.contains('active')) {
+        // Adjustments needed when device rotates
+        setTimeout(() => {
+          if (window.innerWidth < 768) {
+            modal.classList.add('mobile-view');
+          } else {
+            modal.classList.remove('mobile-view');
+          }
+        }, 200); // Small delay to allow orientation change to complete
+      }
+    });
+
+    // Prevent iOS bouncing/scrolling issues
+    if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+      modal.addEventListener('touchmove', function(e) {
+        const modalForm = modal.querySelector('.modal-form');
+        const target = e.target;
+
+        // Allow scrolling only inside modal form
+        if (!modalForm.contains(target) || 
+            (modalForm.scrollHeight <= modalForm.clientHeight)) {
+          e.preventDefault();
+        }
+      }, { passive: false });
+    }
   }
 
   // Image slider for modal with controlled timing
@@ -340,12 +438,158 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize image slider when the page loads
   setupModalImageSlider();
 
-  // Handle form submission
+  // Enhanced form handling with mobile optimizations
   const freeClassForm = document.getElementById('free-class-form');
 
   if (freeClassForm) {
+    // Add input masking for phone field
+    const phoneInput = document.getElementById('phone');
+    if (phoneInput) {
+      phoneInput.addEventListener('input', function(e) {
+        // Format phone number as (XXX) XXX-XXXX
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 0) {
+          if (value.length <= 3) {
+            value = `(${value}`;
+          } else if (value.length <= 6) {
+            value = `(${value.substring(0, 3)}) ${value.substring(3)}`;
+          } else {
+            value = `(${value.substring(0, 3)}) ${value.substring(3, 6)}-${value.substring(6, 10)}`;
+          }
+        }
+        e.target.value = value;
+      });
+
+      // Add specific keyboard type for mobile
+      phoneInput.setAttribute('inputmode', 'tel');
+    }
+
+    // Add email input optimization
+    const emailInput = document.getElementById('email');
+    if (emailInput) {
+      emailInput.setAttribute('inputmode', 'email');
+      emailInput.setAttribute('autocomplete', 'email');
+    }
+
+    // Add name input optimization
+    const nameInput = document.getElementById('name');
+    if (nameInput) {
+      nameInput.setAttribute('autocomplete', 'name');
+    }
+
+    // Improve form validation with better user feedback
+    function validateForm() {
+      let isValid = true;
+      const inputs = freeClassForm.querySelectorAll('input, select');
+
+      inputs.forEach(input => {
+        // Remove any existing error messages
+        const existingError = input.parentNode.querySelector('.input-error');
+        if (existingError) existingError.remove();
+
+        input.classList.remove('input-invalid');
+
+        if (!input.value.trim()) {
+          isValid = false;
+          input.classList.add('input-invalid');
+
+          // Add error message
+          const errorMsg = document.createElement('div');
+          errorMsg.className = 'input-error';
+          errorMsg.textContent = `${input.labels[0].textContent} is required`;
+          input.parentNode.appendChild(errorMsg);
+
+          // Scroll to first error on mobile
+          if (window.innerWidth < 768 && input === inputs[0]) {
+            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+
+        // Email validation
+        if (input.id === 'email' && input.value) {
+          const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailPattern.test(input.value)) {
+            isValid = false;
+            input.classList.add('input-invalid');
+
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'input-error';
+            errorMsg.textContent = 'Please enter a valid email address';
+            input.parentNode.appendChild(errorMsg);
+          }
+        }
+
+        // Phone validation (simple pattern)
+        if (input.id === 'phone' && input.value) {
+          if (input.value.replace(/\D/g, '').length < 10) {
+            isValid = false;
+            input.classList.add('input-invalid');
+
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'input-error';
+            errorMsg.textContent = 'Please enter a complete phone number';
+            input.parentNode.appendChild(errorMsg);
+          }
+        }
+      });
+
+      return isValid;
+    }
+
+    // Add inline validation on blur
+    freeClassForm.querySelectorAll('input, select').forEach(input => {
+      input.addEventListener('blur', function() {
+        // Only validate if user has entered something
+        if (input.value.trim()) {
+          const existingError = input.parentNode.querySelector('.input-error');
+          if (existingError) existingError.remove();
+
+          input.classList.remove('input-invalid');
+
+          // Email validation
+          if (input.id === 'email') {
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(input.value)) {
+              input.classList.add('input-invalid');
+
+              const errorMsg = document.createElement('div');
+              errorMsg.className = 'input-error';
+              errorMsg.textContent = 'Please enter a valid email address';
+              input.parentNode.appendChild(errorMsg);
+            }
+          }
+
+          // Phone validation
+          if (input.id === 'phone') {
+            if (input.value.replace(/\D/g, '').length < 10) {
+              input.classList.add('input-invalid');
+
+              const errorMsg = document.createElement('div');
+              errorMsg.className = 'input-error';
+              errorMsg.textContent = 'Please enter a complete phone number';
+              input.parentNode.appendChild(errorMsg);
+            }
+          }
+        }
+      });
+
+      // Clear error on focus
+      input.addEventListener('focus', function() {
+        const existingError = input.parentNode.querySelector('.input-error');
+        if (existingError) existingError.remove();
+        input.classList.remove('input-invalid');
+      });
+    });
+
+    // Form submission handler
     freeClassForm.addEventListener('submit', function(e) {
       e.preventDefault();
+
+      // Enhanced validation
+      if (!validateForm()) {
+        // Form not valid, stop submission
+        return;
+      }
 
       // Get form values
       const name = document.getElementById('name').value;
@@ -353,18 +597,13 @@ document.addEventListener('DOMContentLoaded', function() {
       const phone = document.getElementById('phone').value;
       const experience = document.getElementById('experience').value;
 
-      // Validate form (simple validation)
-      if (!name || !email || !phone || !experience) {
-        alert('Please fill out all fields');
-        return;
-      }
-
       // Format data for sending
       const formData = {
         name,
         email,
         phone,
         experience,
+        device: window.innerWidth < 768 ? 'mobile' : 'desktop',
         date: new Date().toISOString()
       };
 
@@ -374,18 +613,23 @@ document.addEventListener('DOMContentLoaded', function() {
       // Show success message
       freeClassForm.innerHTML = `
         <div class="success-message">
+          <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="success-icon">
+            <circle cx="12" cy="12" r="10" stroke="#2E7D32" stroke-width="2"/>
+            <path d="M8 12L11 15L16 9" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
           <h3>Thank You!</h3>
           <p>We've received your request for a free class. One of our instructors will contact you within 24 hours to schedule your session.</p>
         </div>
       `;
 
-      // Auto-close modal after success (3 seconds)
+      // Auto-close modal after success (mobile takes longer to read)
+      const closeDelay = window.innerWidth < 768 ? 4000 : 3000;
       setTimeout(() => {
         if (modal.classList.contains('active')) {
           modal.classList.remove('active');
           document.body.style.overflow = '';
         }
-      }, 3000);
+      }, closeDelay);
     });
   }
 
@@ -656,21 +900,62 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
 
-    // Hide sticky CTA when footer is visible
+    // Hide sticky CTA when footer is visible or when user is scrolling up
     const footer = document.querySelector('.site-footer');
-    if (footer) {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            stickyCTA.classList.add('hidden');
-          } else {
-            stickyCTA.classList.remove('hidden');
-          }
-        });
-      }, { threshold: 0.1 });
+    let lastScrollTop = 0;
+    let isVisible = true;
 
-      observer.observe(footer);
+    // Function to check scroll direction and footer visibility
+    function checkVisibility() {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+      // Check if user has scrolled past 300px (show CTA only after some content)
+      if (scrollTop < 300) {
+        stickyCTA.classList.add('hidden');
+        return;
+      }
+
+      // Check if footer is in view
+      const footerRect = footer.getBoundingClientRect();
+      const footerVisible = footerRect.top < window.innerHeight;
+
+      if (footerVisible) {
+        stickyCTA.classList.add('hidden');
+        return;
+      }
+
+      // Check scroll direction (hide when scrolling up)
+      if (scrollTop > lastScrollTop + 10) {
+        // Scrolling down
+        if (!isVisible) {
+          stickyCTA.classList.remove('hidden');
+          isVisible = true;
+        }
+      } else if (scrollTop < lastScrollTop - 10) {
+        // Scrolling up
+        if (isVisible) {
+          stickyCTA.classList.add('hidden');
+          isVisible = false;
+        }
+      }
+
+      lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
     }
+
+    // Use throttled scroll event instead of IntersectionObserver for better control
+    let ticking = false;
+    window.addEventListener('scroll', function() {
+      if (!ticking) {
+        window.requestAnimationFrame(function() {
+          checkVisibility();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
+
+    // Initial check
+    checkVisibility();
   }
 
   // Initialize sticky CTA
