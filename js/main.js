@@ -73,35 +73,6 @@ document.addEventListener('DOMContentLoaded', function() {
       navLinks.classList.toggle('active');
       body.classList.toggle('menu-open');
 
-  // Handle video loading
-  const trainingVideo = document.querySelector('.training-video');
-  if (trainingVideo) {
-    // Add animation class to video container
-    const videoContainer = document.querySelector('.video-container');
-    if (videoContainer) {
-      videoContainer.classList.add('animate-on-scroll');
-    }
-
-    // Lazy load video for better performance
-    trainingVideo.addEventListener('loadeddata', function() {
-      console.log('Video loaded successfully');
-    });
-
-    trainingVideo.addEventListener('error', function(e) {
-      console.error('Error loading video:', e);
-      // Fallback if video doesn't load
-      const videoContainer = document.querySelector('.video-container');
-      if (videoContainer) {
-        videoContainer.innerHTML = `
-          <div class="video-fallback">
-            <p>Video unavailable. Please check back later.</p>
-          </div>
-        `;
-      }
-    });
-  }
-
-
       // Accessibility - Toggle aria-expanded
       const expanded = navLinks.classList.contains('active');
       menuToggle.setAttribute('aria-expanded', expanded);
@@ -131,6 +102,34 @@ document.addEventListener('DOMContentLoaded', function() {
         spans[1].style.opacity = '1';
         spans[2].style.transform = 'none';
       });
+    });
+  }
+
+  // Handle video loading
+  const trainingVideo = document.querySelector('.training-video');
+  if (trainingVideo) {
+    // Add animation class to video container
+    const videoContainer = document.querySelector('.video-container');
+    if (videoContainer) {
+      videoContainer.classList.add('animate-on-scroll');
+    }
+
+    // Lazy load video for better performance
+    trainingVideo.addEventListener('loadeddata', function() {
+      console.log('Video loaded successfully');
+    });
+
+    trainingVideo.addEventListener('error', function(e) {
+      console.error('Error loading video:', e);
+      // Fallback if video doesn't load
+      const videoContainer = document.querySelector('.video-container');
+      if (videoContainer) {
+        videoContainer.innerHTML = `
+          <div class="video-fallback">
+            <p>Video unavailable. Please check back later.</p>
+          </div>
+        `;
+      }
     });
   }
 
@@ -246,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Image slider for modal
+  // Image slider for modal with controlled timing
   function setupModalImageSlider() {
     const modal = document.getElementById('free-class-modal');
     if (!modal) return;
@@ -272,9 +271,10 @@ document.addEventListener('DOMContentLoaded', function() {
       imageSlider.appendChild(img);
     });
 
-    // Set up the image rotation
+    // Set up the image rotation with fixed interval
     let currentIndex = 0;
     const slides = imageSlider.querySelectorAll('img');
+    let slideInterval;
 
     function rotateImages() {
       slides[currentIndex].classList.remove('active-slide');
@@ -282,27 +282,59 @@ document.addEventListener('DOMContentLoaded', function() {
       slides[currentIndex].classList.add('active-slide');
     }
 
-    // Start the rotation when modal is visible
-    let slideInterval;
-
-    // Setup observer to watch modal visibility
-    modal.addEventListener('transitionend', function() {
-      if (modal.classList.contains('active')) {
-        // Start rotation when modal becomes visible
-        slideInterval = setInterval(rotateImages, 3000); // Changed to 3 seconds
-      } else {
-        // Stop rotation when modal is hidden
+    function startSlideshow() {
+      // Clear any existing interval first to prevent multiple intervals
+      if (slideInterval) {
         clearInterval(slideInterval);
+      }
+      // Start a new interval with fixed timing
+      slideInterval = setInterval(rotateImages, 5000); // 5 seconds for more stability
+    }
+
+    function stopSlideshow() {
+      if (slideInterval) {
+        clearInterval(slideInterval);
+        slideInterval = null;
+      }
+    }
+
+    // Start/stop rotation based on modal visibility
+    modal.addEventListener('click', function(e) {
+      // Only handle direct click on modal or overlay
+      if (e.target === modal || e.target.classList.contains('modal-overlay')) {
+        stopSlideshow();
       }
     });
 
-    // Clear interval when modal is closed
+    // Better event listeners for modal visibility
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.attributeName === 'class') {
+          if (modal.classList.contains('active')) {
+            startSlideshow();
+          } else {
+            stopSlideshow();
+          }
+        }
+      });
+    });
+
+    observer.observe(modal, { attributes: true });
+
+    // Clear interval when modal is closed via button click
     const closeBtn = modal.querySelector('#close-modal');
     if (closeBtn) {
-      closeBtn.addEventListener('click', function() {
-        clearInterval(slideInterval);
-      });
+      closeBtn.addEventListener('click', stopSlideshow);
     }
+
+    // Handle page visibility changes
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden) {
+        stopSlideshow();
+      } else if (modal.classList.contains('active')) {
+        startSlideshow();
+      }
+    });
   }
 
   // Initialize image slider when the page loads
@@ -645,109 +677,99 @@ document.addEventListener('DOMContentLoaded', function() {
   addStickyCTA();
 
 
-  // Exit intent popup
+  // Exit intent popup with improved user experience
   function setupExitIntentPopup() {
     let exitIntentShown = false;
+    let popupDisplayed = false;
+
+    // Store session state in localStorage to avoid repeated popups
+    if (sessionStorage.getItem('exitIntentShown')) {
+      exitIntentShown = true;
+    }
+
+    // More reliable exit intent detection
+    function handleExitIntent() {
+      if (exitIntentShown || popupDisplayed) return;
+
+      const modal = document.getElementById('free-class-modal');
+      if (!modal || modal.classList.contains('active')) return;
+
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      popupDisplayed = true;
+
+      // Update modal title for better conversion
+      const modalTitle = document.querySelector('.form-header h2');
+      if (modalTitle) {
+        modalTitle.innerHTML = "CLAIM YOUR FREE TRAINING CLASS";
+      }
+
+      // Add social proof without being too aggressive
+      const modalDescription = document.querySelector('.caption-text');
+      if (modalDescription) {
+        modalDescription.innerHTML = "Join our community of trained individuals. Limited spots available each week!";
+      }
+
+      // Track in session storage to prevent repeated popups
+      sessionStorage.setItem('exitIntentShown', 'true');
+
+      // Analytics tracking
+      if (window.gtag) {
+        window.gtag('event', 'exit_intent_popup_shown');
+      }
+    }
+
+    // Desktop exit intent detection
     let mouseY;
+    let mouseLeft = false;
 
-    // Track mouse position
-    document.addEventListener('mousemove', function(e) {
-      mouseY = e.clientY;
-    });
-
-    // Detect when mouse leaves the window from the top
-    document.addEventListener('mouseout', function(e) {
-      if (!exitIntentShown && 
-          e.clientY <= 0 && 
-          !e.relatedTarget && 
-          !document.getElementById('free-class-modal').classList.contains('active')) {
-
-        // Show exit modal
-        document.getElementById('free-class-modal').classList.add('active');
-        document.body.style.overflow = 'hidden';
-
-        // Update modal title to create urgency
-        const modalTitle = document.querySelector('.form-header h2');
-        if (modalTitle) {
-          modalTitle.innerHTML = "WAIT! DON'T MISS YOUR FREE TRAINING";
-        }
-
-        // Add social proof to exit intent popup
-        const modalDescription = document.querySelector('.caption-text');
-        if (modalDescription) {
-          modalDescription.innerHTML = "Join the <strong>34 people who signed up today</strong>. Limited spots available for this week's free classes!";
-        }
-
-        // Add countdown timer for urgency
-        const reactionPoints = document.querySelector('.reaction-points');
-        if (reactionPoints) {
-          const countdownDiv = document.createElement('div');
-          countdownDiv.className = 'exit-countdown';
-          countdownDiv.innerHTML = `
-            <p>This offer expires in:</p>
-            <div class="countdown-timer">
-              <span id="countdown-minutes">15</span>:<span id="countdown-seconds">00</span>
-            </div>
-          `;
-          reactionPoints.parentNode.insertBefore(countdownDiv, reactionPoints);
-
-          // Start countdown
-          let totalSeconds = 15 * 60;
-          const countdownInterval = setInterval(() => {
-            totalSeconds--;
-            const minutes = Math.floor(totalSeconds / 60);
-            const seconds = totalSeconds % 60;
-
-            document.getElementById('countdown-minutes').textContent = minutes.toString().padStart(2, '0');
-            document.getElementById('countdown-seconds').textContent = seconds.toString().padStart(2, '0');
-
-            if (totalSeconds <= 0) {
-              clearInterval(countdownInterval);
-            }
-          }, 1000);
-        }
-
-        exitIntentShown = true;
-
-        // Add analytics tracking
-        if (window.gtag) {
-          window.gtag('event', 'exit_intent_popup_shown');
-        }
+    document.addEventListener('mouseleave', function(e) {
+      if (e.clientY <= 0 && !e.relatedTarget) {
+        mouseLeft = true;
+        setTimeout(() => {
+          if (mouseLeft) {
+            handleExitIntent();
+          }
+        }, 1000); // Small delay to prevent accidental triggers
       }
     });
 
-    // Also trigger for mobile scroll up (simulating exit intent)
+    document.addEventListener('mouseenter', function() {
+      mouseLeft = false;
+    });
+
+    // More reliable scroll detection for mobile
     let lastScrollTop = 0;
+    let scrollDirectionChangeCount = 0;
+
     window.addEventListener('scroll', function() {
       const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
-      if (scrollTop < lastScrollTop && scrollTop < 300 && !exitIntentShown) {
-        // User is scrolling up near the top - likely leaving
-        setTimeout(() => {
-          if (!document.getElementById('free-class-modal').classList.contains('active')) {
-            document.getElementById('free-class-modal').classList.add('active');
-            document.body.style.overflow = 'hidden';
-            exitIntentShown = true;
-          }
-        }, 500);
-      }
+      // Only track significant scrolling near the top
+      if (Math.abs(scrollTop - lastScrollTop) > 10) {
+        if (scrollTop < lastScrollTop && scrollTop < 300) {
+          scrollDirectionChangeCount++;
 
-      lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+          // After a few direction changes, user is likely trying to leave
+          if (scrollDirectionChangeCount >= 3 && !exitIntentShown) {
+            handleExitIntent();
+          }
+        }
+
+        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+      }
     }, { passive: true });
 
-    // Add time-based trigger (show after 45 seconds if user hasn't interacted with modal)
+    // More user-friendly time-based trigger (60 seconds instead of 45)
     setTimeout(() => {
-      if (!exitIntentShown && !document.getElementById('free-class-modal').classList.contains('active')) {
-        document.getElementById('free-class-modal').classList.add('active');
-        document.body.style.overflow = 'hidden';
-        exitIntentShown = true;
+      if (!exitIntentShown && !popupDisplayed) {
+        handleExitIntent();
 
-        // Add analytics tracking
         if (window.gtag) {
           window.gtag('event', 'time_based_popup_shown');
         }
       }
-    }, 45000); // 45 seconds
+    }, 60000); // 60 seconds
   }
 
   // Setup exit intent
@@ -791,56 +813,5 @@ document.addEventListener('DOMContentLoaded', function() {
   optimizeContentLoading();
 
 
-  // CSS optimization
-  function optimizeCSS() {
-    // Check if styles are already consolidated
-    if (document.querySelector('link[href="css/combined.min.css"]')) return;
-
-    // Create a single style element for critical CSS
-    const criticalStyles = document.createElement('style');
-    criticalStyles.id = 'critical-css';
-
-    // Function to fetch and inject CSS
-    function fetchAndInjectCSS(files) {
-      const promises = files.map(file => 
-        fetch(file)
-          .then(response => response.text())
-          .catch(error => console.error(`Error loading ${file}:`, error))
-      );
-
-      Promise.all(promises).then(cssContents => {
-        // Combine all CSS
-        const combinedCSS = cssContents.join('\n');
-
-        // Inject critical CSS directly
-        criticalStyles.textContent = combinedCSS;
-        document.head.appendChild(criticalStyles);
-
-        // Remove individual CSS files
-        document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
-          if (files.includes(link.href) || link.href.includes('fonts.googleapis.com')) {
-            link.disabled = true;
-            link.parentNode.removeChild(link);
-          }
-        });
-      });
-    }
-
-    // Files to consolidate (order matters)
-    const cssFiles = [
-      'css/reset.css',
-      'css/styles.css',
-      'css/responsive.css',
-      'css/chatbot.css'
-    ];
-
-    // Load the combined CSS after initial render
-    window.addEventListener('load', () => {
-      fetchAndInjectCSS(cssFiles);
-    });
-  }
-
-  // Run CSS optimization if in production
-  if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    optimizeCSS();
-  }
+  // We've removed the CSS optimization function as it's not necessary
+  // and can cause issues with stylesheet loading
