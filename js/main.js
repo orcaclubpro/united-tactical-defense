@@ -1,1189 +1,1190 @@
-        /**
-         * United Defense Tactical - Main JavaScript
-         */
+/**
+ * United Defense Tactical - Main JavaScript
+ */
 
-        document.addEventListener('DOMContentLoaded', function() {
-          // Implement lazy loading for images
-          function setupLazyLoading() {
-            // Create a new IntersectionObserver instance
-            const imageObserver = new IntersectionObserver((entries, observer) => {
-              entries.forEach(entry => {
-                // If the image is in the viewport
-                if (entry.isIntersecting) {
-                  const img = entry.target;
-                  // Replace the src with the data-src value
-                  if (img.dataset.src) {
-                    img.src = img.dataset.src;
-                    img.removeAttribute('data-src');
-                  }
-                  // Stop observing the image
-                  observer.unobserve(img);
-                }
-              });
-            }, {
-              rootMargin: '50px 0px', // Start loading images when they're 50px from viewport
-              threshold: 0.01 // Trigger when even 1% of the image is visible
-            });
-
-            // Find all images with data-src attribute and observe them
-            document.querySelectorAll('img[data-src]').forEach(img => {
-              imageObserver.observe(img);
-            });
+document.addEventListener('DOMContentLoaded', function() {
+  // Implement lazy loading for images
+  function setupLazyLoading() {
+    // Create a new IntersectionObserver instance
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        // If the image is in the viewport
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          // Replace the src with the data-src value
+          if (img.dataset.src) {
+            img.src = img.dataset.src;
+            img.removeAttribute('data-src');
           }
+          // Stop observing the image
+          observer.unobserve(img);
+        }
+      });
+    }, {
+      rootMargin: '50px 0px', // Start loading images when they're 50px from viewport
+      threshold: 0.01 // Trigger when even 1% of the image is visible
+    });
 
-          // Apply lazy loading to existing images
-          function convertToLazyLoad() {
-            const images = document.querySelectorAll('img:not([data-src])');
-            images.forEach(img => {
-              // Skip images that are already lazy loaded or don't have a src
-              if (!img.src || img.hasAttribute('data-src') || img.src.includes('data:image')) return;
+    // Find all images with data-src attribute and observe them
+    document.querySelectorAll('img[data-src]').forEach(img => {
+      imageObserver.observe(img);
+    });
+  }
 
-              // Set data-src and use a placeholder
-              img.dataset.src = img.src;
-              img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"%3E%3C/svg%3E';
-            });
-            setupLazyLoading();
+  // Apply lazy loading to existing images
+  function convertToLazyLoad() {
+    const images = document.querySelectorAll('img:not([data-src])');
+    images.forEach(img => {
+      // Skip images that are already lazy loaded or don't have a src
+      if (!img.src || img.hasAttribute('data-src') || img.src.includes('data:image')) return;
+
+      // Set data-src and use a placeholder
+      img.dataset.src = img.src;
+      img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"%3E%3C/svg%3E';
+    });
+    setupLazyLoading();
+  }
+
+  // Run lazy loading setup
+  convertToLazyLoad();
+
+  // Header scroll effect
+  const header = document.querySelector('.site-header');
+
+  function handleScroll() {
+    if (window.scrollY > 100) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
+    }
+  }
+
+  window.addEventListener('scroll', handleScroll);
+  // Initial check
+  handleScroll();
+
+  // Mobile Menu Toggle with improved animation and accessibility
+  const menuToggle = document.querySelector('.mobile-menu-toggle');
+  const navLinks = document.querySelector('.nav-links');
+  const body = document.body;
+
+  if (menuToggle && navLinks) {
+    // Add mobile menu helper class to body if mobile size
+    if (window.innerWidth < 768) {
+      body.classList.add('is-mobile');
+    }
+
+    // Function to handle mobile menu toggle
+    function toggleMobileMenu(expanded) {
+      navLinks.classList.toggle('active', expanded);
+      body.classList.toggle('menu-open', expanded);
+
+      // Prevent background scrolling when menu is open
+      if (expanded) {
+        body.style.overflow = 'hidden';
+        // Add a slight delay for smoother animation
+        setTimeout(() => {
+          navLinks.classList.add('visible');
+        }, 50);
+      } else {
+        body.style.overflow = '';
+        navLinks.classList.remove('visible');
+      }
+
+      // Accessibility - Toggle aria-expanded
+      menuToggle.setAttribute('aria-expanded', expanded);
+
+      // Enhanced burger to X animation
+      const spans = menuToggle.querySelectorAll('span');
+      if (expanded) {
+        spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+        spans[1].style.opacity = '0';
+        spans[2].style.transform = 'rotate(-45deg) translate(7px, -6px)';
+      } else {
+        spans[0].style.transform = 'none';
+        spans[1].style.opacity = '1';
+        spans[2].style.transform = 'none';
+      }
+    }
+
+    // Toggle menu when clicking the button
+    menuToggle.addEventListener('click', function() {
+      const willBeExpanded = !navLinks.classList.contains('active');
+      toggleMobileMenu(willBeExpanded);
+    });
+
+    // Close mobile menu when clicking a link
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', function() {
+        toggleMobileMenu(false);
+      });
+    });
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(event) {
+      const isMenuOpen = navLinks.classList.contains('active');
+      const clickedInsideNav = navLinks.contains(event.target);
+      const clickedOnToggle = menuToggle.contains(event.target);
+
+      if (isMenuOpen && !clickedInsideNav && !clickedOnToggle) {
+        toggleMobileMenu(false);
+      }
+    });
+
+    // Close mobile menu on escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && navLinks.classList.contains('active')) {
+        toggleMobileMenu(false);
+      }
+    });
+
+    // Update mobile status on resize
+    window.addEventListener('resize', function() {
+      body.classList.toggle('is-mobile', window.innerWidth < 768);
+
+      // Close mobile menu if screen size changes to desktop
+      if (window.innerWidth >= 768 && navLinks.classList.contains('active')) {
+        toggleMobileMenu(false);
+      }
+    });
+  }
+
+  // Handle video loading
+  const trainingVideo = document.querySelector('.training-video');
+  if (trainingVideo) {
+    // Add animation class to video container
+    const videoContainer = document.querySelector('.video-container');
+    if (videoContainer) {
+      videoContainer.classList.add('animate-on-scroll');
+    }
+
+    // Lazy load video for better performance
+    trainingVideo.addEventListener('loadeddata', function() {
+      console.log('Video loaded successfully');
+    });
+
+    trainingVideo.addEventListener('error', function(e) {
+      console.error('Error loading video:', e);
+      // Fallback if video doesn't load
+      const videoContainer = document.querySelector('.video-container');
+      if (videoContainer) {
+        videoContainer.innerHTML = `
+          <div class="video-fallback">
+            <p>Video unavailable. Please check back later.</p>
+          </div>
+        `;
+      }
+    });
+  }
+
+  // Counter Animation
+  function animateCounters() {
+    const counterElements = document.querySelectorAll('.counter-value');
+
+    counterElements.forEach(counter => {
+      const target = parseInt(counter.getAttribute('data-target'));
+      const duration = 2000; // 2 seconds
+      const step = target / (duration / 16); // 60fps
+      let current = 0;
+
+      const updateCounter = () => {
+        current += step;
+        if (current < target) {
+          counter.textContent = Math.ceil(current).toLocaleString();
+          requestAnimationFrame(updateCounter);
+        } else {
+          counter.textContent = target.toLocaleString();
+        }
+      };
+
+      updateCounter();
+    });
+  }
+
+  // FAQ Accordions
+  const faqItems = document.querySelectorAll('.faq-item');
+
+  faqItems.forEach(item => {
+    const question = item.querySelector('.faq-question');
+
+    question.addEventListener('click', () => {
+      // Close all other items
+      faqItems.forEach(otherItem => {
+        if (otherItem !== item && otherItem.classList.contains('active')) {
+          otherItem.classList.remove('active');
+        }
+      });
+
+      // Toggle current item
+      item.classList.toggle('active');
+    });
+  });
+
+  // Pricing Toggle
+  const pricingToggle = document.querySelector('#pricing-toggle');
+  const monthlyPrices = document.querySelectorAll('.price-monthly');
+  const yearlyPrices = document.querySelectorAll('.price-yearly');
+
+  if (pricingToggle) {
+    pricingToggle.addEventListener('change', function() {
+      if (this.checked) {
+        // Yearly pricing
+        monthlyPrices.forEach(price => price.style.display = 'none');
+        yearlyPrices.forEach(price => price.style.display = 'block');
+      } else {
+        // Monthly pricing
+        monthlyPrices.forEach(price => price.style.display = 'block');
+        yearlyPrices.forEach(price => price.style.display = 'none');
+      }
+    });
+  }
+
+  // Enhanced modal functionality with mobile optimizations
+  const modal = document.getElementById('free-class-modal');
+  const closeModalBtn = document.getElementById('close-modal');
+  const freeClassButtons = document.querySelectorAll('.free-class-btn');
+
+  if (modal && closeModalBtn) {
+    // Function to handle modal visibility
+    function toggleModal(show) {
+      if (show) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling behind modal
+
+        // Save scroll position
+        document.body.dataset.scrollY = window.scrollY;
+
+        // Adjust for mobile devices
+        if (window.innerWidth < 768) {
+          // Add mobile-specific class
+          modal.classList.add('mobile-view');
+
+          // Scroll to top of modal on mobile
+          setTimeout(() => {
+            const modalForm = modal.querySelector('.modal-form');
+            if (modalForm) modalForm.scrollTop = 0;
+          }, 100);
+        }
+      } else {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+        modal.classList.remove('mobile-view');
+
+        // Restore scroll position
+        if (document.body.dataset.scrollY) {
+          window.scrollTo(0, parseInt(document.body.dataset.scrollY));
+        }
+      }
+    }
+
+    // Open modal for all free class buttons
+    freeClassButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation(); // Stop the event from bubbling up
+        toggleModal(true);
+        console.log('Free class button clicked, opening modal');
+      });
+    });
+
+    // Handle the dedicated button in free class section
+    const openModalBtn = document.getElementById('open-free-class-modal');
+    if (openModalBtn) {
+      openModalBtn.addEventListener('click', function(e) {
+        if (e) e.preventDefault();
+        toggleModal(true);
+      });
+    }
+
+    // Close modal
+    closeModalBtn.addEventListener('click', function() {
+      toggleModal(false);
+    });
+
+    // Close modal on click outside
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        toggleModal(false);
+      }
+    });
+
+    // Close modal on escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        toggleModal(false);
+      }
+    });
+
+    // Handle modal on device rotation
+    window.addEventListener('orientationchange', function() {
+      if (modal.classList.contains('active')) {
+        // Adjustments needed when device rotates
+        setTimeout(() => {
+          if (window.innerWidth < 768) {
+            modal.classList.add('mobile-view');
+          } else {
+            modal.classList.remove('mobile-view');
           }
+        }, 200); // Small delay to allow orientation change to complete
+      }
+    });
 
-          // Run lazy loading setup
-          convertToLazyLoad();
+    // Prevent iOS bouncing/scrolling issues
+    if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+      modal.addEventListener('touchmove', function(e) {
+        const modalForm = modal.querySelector('.modal-form');
+        const target = e.target;
 
-          // Header scroll effect
-          const header = document.querySelector('.site-header');
+        // Allow scrolling only inside modal form
+        if (!modalForm.contains(target) || 
+            (modalForm.scrollHeight <= modalForm.clientHeight)) {
+          e.preventDefault();
+        }
+      }, { passive: false });
+    }
+  }
 
-          function handleScroll() {
-            if (window.scrollY > 100) {
-              header.classList.add('scrolled');
-            } else {
-              header.classList.remove('scrolled');
-            }
+  // Image slider for modal with controlled timing
+  function setupModalImageSlider() {
+    const modal = document.getElementById('free-class-modal');
+    if (!modal) return;
+
+    const imageSlider = modal.querySelector('.modal-image-slider');
+    if (!imageSlider) return;
+
+    // Images to cycle through
+    const imageUrls = [
+      'images/udt1.jpg',
+      'images/udt2.jpg',
+      'images/udt3.jpg',
+      'images/udt5.jpg'
+    ];
+
+    // Create image elements and add to slider
+    imageSlider.innerHTML = '';
+    imageUrls.forEach((url, index) => {
+      const img = document.createElement('img');
+      img.src = url;
+      img.alt = 'Tactical Training';
+      img.className = index === 0 ? 'active-slide' : '';
+      imageSlider.appendChild(img);
+    });
+
+    // Set up the image rotation with fixed interval
+    let currentIndex = 0;
+    const slides = imageSlider.querySelectorAll('img');
+    let slideInterval;
+
+    function rotateImages() {
+      slides[currentIndex].classList.remove('active-slide');
+      currentIndex = (currentIndex + 1) % slides.length;
+      slides[currentIndex].classList.add('active-slide');
+    }
+
+    function startSlideshow() {
+      // Clear any existing interval first to prevent multiple intervals
+      if (slideInterval) {
+        clearInterval(slideInterval);
+      }
+      // Start a new interval with fixed timing
+      slideInterval = setInterval(rotateImages, 5000); // 5 seconds for more stability
+    }
+
+    function stopSlideshow() {
+      if (slideInterval) {
+        clearInterval(slideInterval);
+        slideInterval = null;
+      }
+    }
+
+    // Start/stop rotation based on modal visibility
+    modal.addEventListener('click', function(e) {
+      // Only handle direct click on modal or overlay
+      if (e.target === modal || e.target.classList.contains('modal-overlay')) {
+        stopSlideshow();
+      }
+    });
+
+    // Better event listeners for modal visibility
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.attributeName === 'class') {
+          if (modal.classList.contains('active')) {
+            startSlideshow();
+          } else {
+            stopSlideshow();
           }
+        }
+      });
+    });
 
-          window.addEventListener('scroll', handleScroll);
-          // Initial check
-          handleScroll();
+    observer.observe(modal, { attributes: true });
 
-          // Mobile Menu Toggle with improved animation and accessibility
-          const menuToggle = document.querySelector('.mobile-menu-toggle');
-          const navLinks = document.querySelector('.nav-links');
-          const body = document.body;
+    // Clear interval when modal is closed via button click
+    const closeBtn = modal.querySelector('#close-modal');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', stopSlideshow);
+    }
 
-          if (menuToggle && navLinks) {
-            // Add mobile menu helper class to body if mobile size
-            if (window.innerWidth < 768) {
-              body.classList.add('is-mobile');
-            }
+    // Handle page visibility changes
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden) {
+        stopSlideshow();
+      } else if (modal.classList.contains('active')) {
+        startSlideshow();
+      }
+    });
+  }
 
-            // Function to handle mobile menu toggle
-            function toggleMobileMenu(expanded) {
-              navLinks.classList.toggle('active', expanded);
-              body.classList.toggle('menu-open', expanded);
+  // Initialize image slider when the page loads
+  setupModalImageSlider();
 
-              // Prevent background scrolling when menu is open
-              if (expanded) {
-                body.style.overflow = 'hidden';
-                // Add a slight delay for smoother animation
-                setTimeout(() => {
-                  navLinks.classList.add('visible');
-                }, 50);
-              } else {
-                body.style.overflow = '';
-                navLinks.classList.remove('visible');
-              }
+  // Enhanced form handling with mobile optimizations
+  const freeClassForm = document.getElementById('free-class-form');
+  const formSuccess = document.getElementById('form-success');
+  const closeSuccess = document.getElementById('close-success');
 
-              // Accessibility - Toggle aria-expanded
-              menuToggle.setAttribute('aria-expanded', expanded);
+  // Set minimum date to today for date picker
+  if (document.getElementById('appointment_date')) {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('appointment_date').min = today;
+  }
 
-              // Enhanced burger to X animation
-              const spans = menuToggle.querySelectorAll('span');
-              if (expanded) {
-                spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
-                spans[1].style.opacity = '0';
-                spans[2].style.transform = 'rotate(-45deg) translate(7px, -6px)';
-              } else {
-                spans[0].style.transform = 'none';
-                spans[1].style.opacity = '1';
-                spans[2].style.transform = 'none';
-              }
-            }
+  if (freeClassForm) {
+    freeClassForm.addEventListener('submit', function(e) {
+      e.preventDefault();
 
-            // Toggle menu when clicking the button
-            menuToggle.addEventListener('click', function() {
-              const willBeExpanded = !navLinks.classList.contains('active');
-              toggleMobileMenu(willBeExpanded);
-            });
+      const formData = {
+        first_name: document.getElementById('first_name').value,
+        last_name: document.getElementById('last_name').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        appointment_date: document.getElementById('appointment_date').value,
+        appointment_time: document.getElementById('appointment_time').value,
+        lead_source: document.getElementById('lead_source').value
+      };
 
-            // Close mobile menu when clicking a link
-            navLinks.querySelectorAll('a').forEach(link => {
-              link.addEventListener('click', function() {
-                toggleMobileMenu(false);
-              });
-            });
+      // Send data to backend API
+      fetch('/api/appointments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Hide form and show success message
+          freeClassForm.style.display = 'none';
+          formSuccess.style.display = 'block';
+        } else {
+          alert('There was an error submitting your form. Please try again.');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('There was an error submitting your form. Please try again.');
+      });
+    });
+  }
 
-            // Close mobile menu when clicking outside
-            document.addEventListener('click', function(event) {
-              const isMenuOpen = navLinks.classList.contains('active');
-              const clickedInsideNav = navLinks.contains(event.target);
-              const clickedOnToggle = menuToggle.contains(event.target);
+  if (closeSuccess) {
+    closeSuccess.addEventListener('click', function() {
+      document.getElementById('free-class-modal').classList.remove('active');
+      // Reset for next time
+      setTimeout(() => {
+        freeClassForm.style.display = 'block';
+        formSuccess.style.display = 'none';
+        freeClassForm.reset();
+      }, 300);
+    });
+  }
 
-              if (isMenuOpen && !clickedInsideNav && !clickedOnToggle) {
-                toggleMobileMenu(false);
-              }
-            });
-
-            // Close mobile menu on escape key
-            document.addEventListener('keydown', function(e) {
-              if (e.key === 'Escape' && navLinks.classList.contains('active')) {
-                toggleMobileMenu(false);
-              }
-            });
-
-            // Update mobile status on resize
-            window.addEventListener('resize', function() {
-              body.classList.toggle('is-mobile', window.innerWidth < 768);
-
-              // Close mobile menu if screen size changes to desktop
-              if (window.innerWidth >= 768 && navLinks.classList.contains('active')) {
-                toggleMobileMenu(false);
-              }
-            });
+  // Add input masking for phone field
+    const phoneInput = document.getElementById('phone');
+    if (phoneInput) {
+      phoneInput.addEventListener('input', function(e) {
+        // Format phone number as (XXX) XXX-XXXX
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 0) {
+          if (value.length <= 3) {
+            value = `(${value}`;
+          } else if (value.length <= 6) {
+            value = `(${value.substring(0, 3)}) ${value.substring(3)}`;
+          } else {
+            value = `(${value.substring(0, 3)}) ${value.substring(3, 6)}-${value.substring(6, 10)}`;
           }
+        }
+        e.target.value = value;
+      });
 
-          // Handle video loading
-          const trainingVideo = document.querySelector('.training-video');
-          if (trainingVideo) {
-            // Add animation class to video container
-            const videoContainer = document.querySelector('.video-container');
-            if (videoContainer) {
-              videoContainer.classList.add('animate-on-scroll');
-            }
+      // Add specific keyboard type for mobile
+      phoneInput.setAttribute('inputmode', 'tel');
+    }
 
-            // Lazy load video for better performance
-            trainingVideo.addEventListener('loadeddata', function() {
-              console.log('Video loaded successfully');
-            });
+    // Add email input optimization
+    const emailInput = document.getElementById('email');
+    if (emailInput) {
+      emailInput.setAttribute('inputmode', 'email');
+      emailInput.setAttribute('autocomplete', 'email');
+    }
 
-            trainingVideo.addEventListener('error', function(e) {
-              console.error('Error loading video:', e);
-              // Fallback if video doesn't load
-              const videoContainer = document.querySelector('.video-container');
-              if (videoContainer) {
-                videoContainer.innerHTML = `
-                  <div class="video-fallback">
-                    <p>Video unavailable. Please check back later.</p>
-                  </div>
-                `;
-              }
-            });
+    // Add name input optimization
+    const nameInput = document.getElementById('name');
+    if (nameInput) {
+      nameInput.setAttribute('autocomplete', 'name');
+    }
+
+    // Improve form validation with better user feedback
+    function validateForm() {
+      let isValid = true;
+      const inputs = freeClassForm.querySelectorAll('input:not([type="hidden"]), select');
+
+      inputs.forEach(input => {
+        // Remove any existing error messages
+        const existingError = input.parentNode.querySelector('.input-error');
+        if (existingError) existingError.remove();
+
+        input.classList.remove('input-invalid');
+
+        if (!input.value.trim()) {
+          isValid = false;
+          input.classList.add('input-invalid');
+
+          // Add error message
+          const errorMsg = document.createElement('div');
+          errorMsg.className = 'input-error';
+          errorMsg.textContent = `${input.labels[0].textContent} is required`;
+          input.parentNode.appendChild(errorMsg);
+
+          // Scroll to first error on mobile
+          if (window.innerWidth < 768 && input === inputs[0]) {
+            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
+        }
 
-          // Counter Animation
-          function animateCounters() {
-            const counterElements = document.querySelectorAll('.counter-value');
+        // Email validation
+        if (input.id === 'email' && input.value) {
+          const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailPattern.test(input.value)) {
+            isValid = false;
+            input.classList.add('input-invalid');
 
-            counterElements.forEach(counter => {
-              const target = parseInt(counter.getAttribute('data-target'));
-              const duration = 2000; // 2 seconds
-              const step = target / (duration / 16); // 60fps
-              let current = 0;
-
-              const updateCounter = () => {
-                current += step;
-                if (current < target) {
-                  counter.textContent = Math.ceil(current).toLocaleString();
-                  requestAnimationFrame(updateCounter);
-                } else {
-                  counter.textContent = target.toLocaleString();
-                }
-              };
-
-              updateCounter();
-            });
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'input-error';
+            errorMsg.textContent = 'Please enter a valid email address';
+            input.parentNode.appendChild(errorMsg);
           }
+        }
 
-          // FAQ Accordions
-          const faqItems = document.querySelectorAll('.faq-item');
+        // Phone validation (simple pattern)
+        if (input.id === 'phone' && input.value) {
+          if (input.value.replace(/\D/g, '').length < 10) {
+            isValid = false;
+            input.classList.add('input-invalid');
 
-          faqItems.forEach(item => {
-            const question = item.querySelector('.faq-question');
-
-            question.addEventListener('click', () => {
-              // Close all other items
-              faqItems.forEach(otherItem => {
-                if (otherItem !== item && otherItem.classList.contains('active')) {
-                  otherItem.classList.remove('active');
-                }
-              });
-
-              // Toggle current item
-              item.classList.toggle('active');
-            });
-          });
-
-          // Pricing Toggle
-          const pricingToggle = document.querySelector('#pricing-toggle');
-          const monthlyPrices = document.querySelectorAll('.price-monthly');
-          const yearlyPrices = document.querySelectorAll('.price-yearly');
-
-          if (pricingToggle) {
-            pricingToggle.addEventListener('change', function() {
-              if (this.checked) {
-                // Yearly pricing
-                monthlyPrices.forEach(price => price.style.display = 'none');
-                yearlyPrices.forEach(price => price.style.display = 'block');
-              } else {
-                // Monthly pricing
-                monthlyPrices.forEach(price => price.style.display = 'block');
-                yearlyPrices.forEach(price => price.style.display = 'none');
-              }
-            });
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'input-error';
+            errorMsg.textContent = 'Please enter a complete phone number';
+            input.parentNode.appendChild(errorMsg);
           }
-
-          // Enhanced modal functionality with mobile optimizations
-          const modal = document.getElementById('free-class-modal');
-          const closeModalBtn = document.getElementById('close-modal');
-          const freeClassButtons = document.querySelectorAll('.free-class-btn');
-
-          if (modal && closeModalBtn) {
-            // Function to handle modal visibility
-            function toggleModal(show) {
-              if (show) {
-                modal.classList.add('active');
-                document.body.style.overflow = 'hidden'; // Prevent scrolling behind modal
-
-                // Save scroll position
-                document.body.dataset.scrollY = window.scrollY;
-
-                // Adjust for mobile devices
-                if (window.innerWidth < 768) {
-                  // Add mobile-specific class
-                  modal.classList.add('mobile-view');
-
-                  // Scroll to top of modal on mobile
-                  setTimeout(() => {
-                    const modalForm = modal.querySelector('.modal-form');
-                    if (modalForm) modalForm.scrollTop = 0;
-                  }, 100);
-                }
-              } else {
-                modal.classList.remove('active');
-                document.body.style.overflow = '';
-                modal.classList.remove('mobile-view');
-
-                // Restore scroll position
-                if (document.body.dataset.scrollY) {
-                  window.scrollTo(0, parseInt(document.body.dataset.scrollY));
-                }
-              }
-            }
-
-            // Open modal for all free class buttons
-            freeClassButtons.forEach(button => {
-              button.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation(); // Stop the event from bubbling up
-                toggleModal(true);
-              });
-            });
-
-            // Handle the dedicated button in free class section
-            const openModalBtn = document.getElementById('open-free-class-modal');
-            if (openModalBtn) {
-              openModalBtn.addEventListener('click', function(e) {
-                if (e) e.preventDefault();
-                toggleModal(true);
-              });
-            }
-
-            // Close modal
-            closeModalBtn.addEventListener('click', function() {
-              toggleModal(false);
-            });
-
-            // Close modal on click outside
-            modal.addEventListener('click', function(e) {
-              if (e.target === modal) {
-                toggleModal(false);
-              }
-            });
-
-            // Close modal on escape key
-            document.addEventListener('keydown', function(e) {
-              if (e.key === 'Escape' && modal.classList.contains('active')) {
-                toggleModal(false);
-              }
-            });
-
-            // Handle modal on device rotation
-            window.addEventListener('orientationchange', function() {
-              if (modal.classList.contains('active')) {
-                // Adjustments needed when device rotates
-                setTimeout(() => {
-                  if (window.innerWidth < 768) {
-                    modal.classList.add('mobile-view');
-                  } else {
-                    modal.classList.remove('mobile-view');
-                  }
-                }, 200); // Small delay to allow orientation change to complete
-              }
-            });
-
-            // Prevent iOS bouncing/scrolling issues
-            if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-              modal.addEventListener('touchmove', function(e) {
-                const modalForm = modal.querySelector('.modal-form');
-                const target = e.target;
-
-                // Allow scrolling only inside modal form
-                if (!modalForm.contains(target) || 
-                    (modalForm.scrollHeight <= modalForm.clientHeight)) {
-                  e.preventDefault();
-                }
-              }, { passive: false });
-            }
-          }
-
-          // Image slider for modal with controlled timing
-          function setupModalImageSlider() {
-            const modal = document.getElementById('free-class-modal');
-            if (!modal) return;
-
-            const imageSlider = modal.querySelector('.modal-image-slider');
-            if (!imageSlider) return;
-
-            // Images to cycle through
-            const imageUrls = [
-              'images/udt1.jpg',
-              'images/udt2.jpg',
-              'images/udt3.jpg',
-              'images/udt5.jpg'
-            ];
-
-            // Create image elements and add to slider
-            imageSlider.innerHTML = '';
-            imageUrls.forEach((url, index) => {
-              const img = document.createElement('img');
-              img.src = url;
-              img.alt = 'Tactical Training';
-              img.className = index === 0 ? 'active-slide' : '';
-              imageSlider.appendChild(img);
-            });
-
-            // Set up the image rotation with fixed interval
-            let currentIndex = 0;
-            const slides = imageSlider.querySelectorAll('img');
-            let slideInterval;
-
-            function rotateImages() {
-              slides[currentIndex].classList.remove('active-slide');
-              currentIndex = (currentIndex + 1) % slides.length;
-              slides[currentIndex].classList.add('active-slide');
-            }
-
-            function startSlideshow() {
-              // Clear any existing interval first to prevent multiple intervals
-              if (slideInterval) {
-                clearInterval(slideInterval);
-              }
-              // Start a new interval with fixed timing
-              slideInterval = setInterval(rotateImages, 5000); // 5 seconds for more stability
-            }
-
-            function stopSlideshow() {
-              if (slideInterval) {
-                clearInterval(slideInterval);
-                slideInterval = null;
-              }
-            }
-
-            // Start/stop rotation based on modal visibility
-            modal.addEventListener('click', function(e) {
-              // Only handle direct click on modal or overlay
-              if (e.target === modal || e.target.classList.contains('modal-overlay')) {
-                stopSlideshow();
-              }
-            });
-
-            // Better event listeners for modal visibility
-            const observer = new MutationObserver(function(mutations) {
-              mutations.forEach(function(mutation) {
-                if (mutation.attributeName === 'class') {
-                  if (modal.classList.contains('active')) {
-                    startSlideshow();
-                  } else {
-                    stopSlideshow();
-                  }
-                }
-              });
-            });
-
-            observer.observe(modal, { attributes: true });
-
-            // Clear interval when modal is closed via button click
-            const closeBtn = modal.querySelector('#close-modal');
-            if (closeBtn) {
-              closeBtn.addEventListener('click', stopSlideshow);
-            }
-
-            // Handle page visibility changes
-            document.addEventListener('visibilitychange', function() {
-              if (document.hidden) {
-                stopSlideshow();
-              } else if (modal.classList.contains('active')) {
-                startSlideshow();
-              }
-            });
-          }
-
-          // Initialize image slider when the page loads
-          setupModalImageSlider();
-
-          // Enhanced form handling with mobile optimizations
-          const freeClassForm = document.getElementById('free-class-form');
-          const formSuccess = document.getElementById('form-success');
-          const closeSuccess = document.getElementById('close-success');
-
-          // Set minimum date to today for date picker
-          if (document.getElementById('appointment_date')) {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('appointment_date').min = today;
-          }
-
-          if (freeClassForm) {
-            freeClassForm.addEventListener('submit', function(e) {
-              e.preventDefault();
-
-              const formData = {
-                first_name: document.getElementById('first_name').value,
-                last_name: document.getElementById('last_name').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                appointment_date: document.getElementById('appointment_date').value,
-                appointment_time: document.getElementById('appointment_time').value,
-                lead_source: document.getElementById('lead_source').value
-              };
-
-              // Send data to backend API
-              fetch('/api/appointments', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-              })
-              .then(response => response.json())
-              .then(data => {
-                if (data.success) {
-                  // Hide form and show success message
-                  freeClassForm.style.display = 'none';
-                  formSuccess.style.display = 'block';
-                } else {
-                  alert('There was an error submitting your form. Please try again.');
-                }
-              })
-              .catch(error => {
-                console.error('Error:', error);
-                alert('There was an error submitting your form. Please try again.');
-              });
-            });
-          }
-
-          if (closeSuccess) {
-            closeSuccess.addEventListener('click', function() {
-              document.getElementById('free-class-modal').classList.remove('active');
-              // Reset for next time
-              setTimeout(() => {
-                freeClassForm.style.display = 'block';
-                formSuccess.style.display = 'none';
-                freeClassForm.reset();
-              }, 300);
-            });
-          }
-
-          // Add input masking for phone field
-            const phoneInput = document.getElementById('phone');
-            if (phoneInput) {
-              phoneInput.addEventListener('input', function(e) {
-                // Format phone number as (XXX) XXX-XXXX
-                let value = e.target.value.replace(/\D/g, '');
-                if (value.length > 0) {
-                  if (value.length <= 3) {
-                    value = `(${value}`;
-                  } else if (value.length <= 6) {
-                    value = `(${value.substring(0, 3)}) ${value.substring(3)}`;
-                  } else {
-                    value = `(${value.substring(0, 3)}) ${value.substring(3, 6)}-${value.substring(6, 10)}`;
-                  }
-                }
-                e.target.value = value;
-              });
-
-              // Add specific keyboard type for mobile
-              phoneInput.setAttribute('inputmode', 'tel');
-            }
-
-            // Add email input optimization
-            const emailInput = document.getElementById('email');
-            if (emailInput) {
-              emailInput.setAttribute('inputmode', 'email');
-              emailInput.setAttribute('autocomplete', 'email');
-            }
-
-            // Add name input optimization
-            const nameInput = document.getElementById('name');
-            if (nameInput) {
-              nameInput.setAttribute('autocomplete', 'name');
-            }
-
-            // Improve form validation with better user feedback
-            function validateForm() {
-              let isValid = true;
-              const inputs = freeClassForm.querySelectorAll('input:not([type="hidden"]), select');
-
-              inputs.forEach(input => {
-                // Remove any existing error messages
-                const existingError = input.parentNode.querySelector('.input-error');
-                if (existingError) existingError.remove();
-
-                input.classList.remove('input-invalid');
-
-                if (!input.value.trim()) {
-                  isValid = false;
-                  input.classList.add('input-invalid');
-
-                  // Add error message
-                  const errorMsg = document.createElement('div');
-                  errorMsg.className = 'input-error';
-                  errorMsg.textContent = `${input.labels[0].textContent} is required`;
-                  input.parentNode.appendChild(errorMsg);
-
-                  // Scroll to first error on mobile
-                  if (window.innerWidth < 768 && input === inputs[0]) {
-                    input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  }
-                }
-
-                // Email validation
-                if (input.id === 'email' && input.value) {
-                  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                  if (!emailPattern.test(input.value)) {
-                    isValid = false;
-                    input.classList.add('input-invalid');
-
-                    const errorMsg = document.createElement('div');
-                    errorMsg.className = 'input-error';
-                    errorMsg.textContent = 'Please enter a valid email address';
-                    input.parentNode.appendChild(errorMsg);
-                  }
-                }
-
-                // Phone validation (simple pattern)
-                if (input.id === 'phone' && input.value) {
-                  if (input.value.replace(/\D/g, '').length < 10) {
-                    isValid = false;
-                    input.classList.add('input-invalid');
-
-                    const errorMsg = document.createElement('div');
-                    errorMsg.className = 'input-error';
-                    errorMsg.textContent = 'Please enter a complete phone number';
-                    input.parentNode.appendChild(errorMsg);
-                  }
-                }
-              });
-
-              return isValid;
-            }
-
-            // Add inline validation on blur
-            freeClassForm.querySelectorAll('input, select').forEach(input => {
-              input.addEventListener('blur', function() {
-                // Only validate if user has entered something
-                if (input.value.trim()) {
-                  const existingError = input.parentNode.querySelector('.input-error');
-                  if (existingError) existingError.remove();
-
-                  input.classList.remove('input-invalid');
-
-                  // Email validation
-                  if (input.id === 'email') {
-                    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    if (!emailPattern.test(input.value)) {
-                      input.classList.add('input-invalid');
-
-                      const errorMsg = document.createElement('div');
-                      errorMsg.className = 'input-error';
-                      errorMsg.textContent = 'Please enter a valid email address';
-                      input.parentNode.appendChild(errorMsg);
-                    }
-                  }
-
-                  // Phone validation
-                  if (input.id === 'phone') {
-                    if (input.value.replace(/\D/g, '').length < 10) {
-                      input.classList.add('input-invalid');
-
-                      const errorMsg = document.createElement('div');
-                      errorMsg.className = 'input-error';
-                      errorMsg.textContent = 'Please enter a complete phone number';
-                      input.parentNode.appendChild(errorMsg);
-                    }
-                  }
-                }
-              });
-
-              // Clear error on focus
-              input.addEventListener('focus', function() {
-                const existingError = input.parentNode.querySelector('.input-error');
-                if (existingError) existingError.remove();
-                input.classList.remove('input-invalid');
-              });
-            });
-
-            // Form submission handler
-            freeClassForm.addEventListener('submit', function(e) {
-              e.preventDefault();
-
-              // Enhanced validation
-              if (!validateForm()) {
-                // Form not valid, stop submission
-                return;
-              }
-
-              // Get form values
-              const first_name = document.getElementById('first_name').value;
-              const last_name = document.getElementById('last_name').value;
-              const email = document.getElementById('email').value;
-              const phone = document.getElementById('phone').value;
-              const appointment_time = document.getElementById('appointment_time').value;
-              const lead_source = document.getElementById('lead_source').value;
-
-              // Format data for sending
-              const formData = {
-                first_name,
-                last_name,
-                email,
-                phone,
-                appointment_time,
-                lead_source,
-                notes: `Device: ${window.innerWidth < 768 ? 'mobile' : 'desktop'}, Date submitted: ${new Date().toISOString()}`
-              };
-
-              // Send data to our backend
-              fetch('/api/appointments', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-              })
-              .then(response => response.json())
-              .then(data => {
-                if (data.success) {
-                  // Show success message
-                  freeClassForm.innerHTML = `
-                    <div class="success-message">
-                      <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="success-icon">
-                        <circle cx="12" cy="12" r="10" stroke="#2E7D32" stroke-width="2"/>
-                        <path d="M8 12L11 15L16 9" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                      <h3>Thank You, ${first_name}!</h3>
-                      <p>We've scheduled your free class during ${appointment_time}. One of our instructors will contact you shortly to confirm your appointment.</p>
-                    </div>
-                  `;
-
-                  // Auto-close modal after success (mobile takes longer to read)
-                  const closeDelay = window.innerWidth < 768 ? 4000 : 3000;
-                  setTimeout(() => {
-                    if (modal.classList.contains('active')) {
-                      modal.classList.remove('active');
-                      document.body.style.overflow = '';
-                    }
-                  }, closeDelay);
-                } else {
-                  // Show error message
-                  const errorMsg = document.createElement('div');
-                  errorMsg.className = 'error-message';
-                  errorMsg.textContent = 'There was a problem submitting your request. Please try again.';
-                  freeClassForm.prepend(errorMsg);
-                }
-              })
-              .catch(error => {
-                console.error('Error submitting form:', error);
-                // Show error message
-                const errorMsg = document.createElement('div');
-                errorMsg.className = 'error-message';
-                errorMsg.textContent = 'There was a problem submitting your request. Please try again.';
-                freeClassForm.prepend(errorMsg);
-              });
-            });
-          }
-
-          // Video background with mobile optimization
-          const videoContainer = document.querySelector('.hero-video-container');
-          if (videoContainer) {
-            // Check if device is mobile
-            const isMobile = window.innerWidth < 768 || 
-                             /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-            if (isMobile) {
-              // Use static image for mobile
-              videoContainer.style.backgroundImage = 'url("images/hero-bg.jpg")';
-              videoContainer.style.backgroundSize = 'cover';
-              videoContainer.style.backgroundPosition = 'center';
-
-              // Add a class for mobile-specific styling
-              videoContainer.classList.add('mobile-hero');
-            } else {
-              // Use video for desktop
-              const video = document.createElement('video');
-              video.className = 'hero-video';
-              video.autoplay = true;
-              video.loop = true;
-              video.muted = true;
-              video.playsInline = true;
-              video.setAttribute('loading', 'lazy');
-
-              // Add source element
-              const source = document.createElement('source');
-              source.src = 'videos/tactical-training.mp4';
-              source.type = 'video/mp4';
-
-              video.appendChild(source);
-              videoContainer.appendChild(video);
-
-              // Fallback if video can't play
-              video.addEventListener('error', function() {
-                videoContainer.style.backgroundImage = 'url("images/hero-bg.jpg")';
-                videoContainer.style.backgroundSize = 'cover';
-                videoContainer.style.backgroundPosition = 'center';
-              });
+        }
+      });
+
+      return isValid;
+    }
+
+    // Add inline validation on blur
+    freeClassForm.querySelectorAll('input, select').forEach(input => {
+      input.addEventListener('blur', function() {
+        // Only validate if user has entered something
+        if (input.value.trim()) {
+          const existingError = input.parentNode.querySelector('.input-error');
+          if (existingError) existingError.remove();
+
+          input.classList.remove('input-invalid');
+
+          // Email validation
+          if (input.id === 'email') {
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(input.value)) {
+              input.classList.add('input-invalid');
+
+              const errorMsg = document.createElement('div');
+              errorMsg.className = 'input-error';
+              errorMsg.textContent = 'Please enter a valid email address';
+              input.parentNode.appendChild(errorMsg);
             }
           }
 
-          // Initialize Google Map
-          function initMap() {
-            // Coordinates for Anaheim Hills (updated coordinates for Old Springs Road)
-            const location = { lat: 33.8529, lng: -117.7544 };
+          // Phone validation
+          if (input.id === 'phone') {
+            if (input.value.replace(/\D/g, '').length < 10) {
+              input.classList.add('input-invalid');
 
-            // Check if Google Maps API is loaded and element exists
-            if (window.google && document.getElementById('map')) {
-              const map = new google.maps.Map(document.getElementById('map'), {
-                center: location,
-                zoom: 15,
-                styles: [
-                  {
-                    "featureType": "all",
-                    "elementType": "geometry",
-                    "stylers": [{ "color": "#1A1A1A" }]
-                  },
-                  {
-                    "featureType": "road",
-                    "elementType": "geometry",
-                    "stylers": [{ "color": "#333333" }]
-                  },
-                  {
-                    "featureType": "water",
-                    "elementType": "geometry",
-                    "stylers": [{ "color": "#111111" }]
-                  }
-                ]
-              });
-
-              // Add marker for location
-              new google.maps.Marker({
-                position: location,
-                map: map,
-                title: 'United Defense Tactical'
-              });
-            } else {
-              // Fallback if Google Maps isn't available
-              const mapContainer = document.getElementById('map');
-              if (mapContainer) {
-                mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; background-color: var(--color-gunmetal); color: white; text-align: center; padding: 2rem;"><div><p style="margin-bottom: 1rem; font-weight: bold;">United Defense Tactical</p><p>160 S Old Springs Road #155, Anaheim Hills, CA 92808</p></div></div>';
-              }
+              const errorMsg = document.createElement('div');
+              errorMsg.className = 'input-error';
+              errorMsg.textContent = 'Please enter a complete phone number';
+              input.parentNode.appendChild(errorMsg);
             }
           }
+        }
+      });
 
-          // This would call the map initialization if Google Maps was included
-          // Uncomment the below line if you add the Google Maps API
-          // window.initMap = initMap;
+      // Clear error on focus
+      input.addEventListener('focus', function() {
+        const existingError = input.parentNode.querySelector('.input-error');
+        if (existingError) existingError.remove();
+        input.classList.remove('input-invalid');
+      });
+    });
 
-          // For demonstration, add a placeholder implementation
-          const mapElement = document.getElementById('map');
-          if (mapElement) {
-            mapElement.innerHTML = `
-              <div style="height: 100%; display: flex; align-items: center; justify-content: center; background-color: var(--color-navy); color: white; text-align: center; padding: 2rem;">
-                <div>
-                  <p style="margin-bottom: 1rem; font-weight: bold;">United Defense Tactical</p>
-                  <p>160 S Old Springs Road #155, Anaheim Hills, CA 92808</p>
-                </div>
-              </div>
-            `;
-          }
+    // Form submission handler
+    freeClassForm.addEventListener('submit', function(e) {
+      e.preventDefault();
 
-          // Smooth scrolling for anchor links
-          document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-              e.preventDefault();
+      // Enhanced validation
+      if (!validateForm()) {
+        // Form not valid, stop submission
+        return;
+      }
 
-              const targetId = this.getAttribute('href');
-              if (targetId === '#') return;
+      // Get form values
+      const first_name = document.getElementById('first_name').value;
+      const last_name = document.getElementById('last_name').value;
+      const email = document.getElementById('email').value;
+      const phone = document.getElementById('phone').value;
+      const appointment_time = document.getElementById('appointment_time').value;
+      const lead_source = document.getElementById('lead_source').value;
 
-              const targetElement = document.querySelector(targetId);
-              if (targetElement) {
-                // Get header height for offset (sticky header)
-                const headerHeight = document.querySelector('.site-header').offsetHeight;
+      // Format data for sending
+      const formData = {
+        first_name,
+        last_name,
+        email,
+        phone,
+        appointment_time,
+        lead_source,
+        notes: `Device: ${window.innerWidth < 768 ? 'mobile' : 'desktop'}, Date submitted: ${new Date().toISOString()}`
+      };
 
-                window.scrollTo({
-                  top: targetElement.offsetTop - headerHeight,
-                  behavior: 'smooth'
-                });
-
-                // Update URL hash without jumping (modern browsers)
-                history.pushState(null, null, targetId);
-              }
-            });
-          });
-
-          // Add animation on scroll
-          function animateOnScroll() {
-            const elements = document.querySelectorAll('.animate-on-scroll');
-            const windowHeight = window.innerHeight;
-
-            elements.forEach(element => {
-              const position = element.getBoundingClientRect();
-              const offset = 100; // Only animate when a specific amount of the element is visible
-
-              // If element is in viewport
-              if (position.top - windowHeight + offset < 0) {
-                element.classList.add('animate-in');
-
-                // If it's a counter element, start animation
-                if (element.classList.contains('counter-container') && !element.classList.contains('counted')) {
-                  animateCounters();
-                  element.classList.add('counted'); // Prevent re-counting
-                }
-              }
-            });
-          }
-
-          // Add animate-on-scroll class to elements we want to animate
-          const animatableElements = document.querySelectorAll('.instructor-card, .category-card, .testimonial-card, .step, .pricing-card, .counter-container, .section-header');
-          animatableElements.forEach(element => {
-            element.classList.add('animate-on-scroll');
-          });
-
-          // Add CSS for modern animations
-          const style = document.createElement('style');
-          style.textContent = `
-            .animate-on-scroll {
-              opacity: 0;
-              transform: translateY(40px);
-              transition: opacity 0.7s cubic-bezier(0.165, 0.84, 0.44, 1), 
-                          transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
-            }
-
-            .animate-in {
-              opacity: 1;
-              transform: translateY(0);
-            }
-
-            .fade-in-left {
-              opacity: 0;
-              transform: translateX(-40px);
-              transition: opacity 0.7s cubic-bezier(0.165, 0.84, 0.44, 1),
-                          transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
-            }
-
-            .fade-in-right {
-              opacity: 0;
-              transform: translateX(40px);
-              transition: opacity 0.7s cubic-bezier(0.165, 0.84, 0.44, 1),
-                          transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
-            }
-
-            .fade-in-left.animate-in,
-            .fade-in-right.animate-in {
-              opacity: 1;
-              transform: translateX(0);
-            }
-
-            .scale-in {
-              opacity: 0;
-              transform: scale(0.9);
-              transition: opacity 0.7s cubic-bezier(0.165, 0.84, 0.44, 1),
-                          transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
-            }
-
-            .scale-in.animate-in {
-              opacity: 1;
-              transform: scale(1);
-            }
-
-            .stagger-item {
-              transition-delay: calc(var(--item-index) * 0.1s);
-            }
+      // Send data to our backend
+      fetch('/api/appointments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Show success message
+          freeClassForm.innerHTML = `
+            <div class="success-message">
+              <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="success-icon">
+                <circle cx="12" cy="12" r="10" stroke="#2E7D32" stroke-width="2"/>
+                <path d="M8 12L11 15L16 9" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <h3>Thank You, ${first_name}!</h3>
+              <p>We've scheduled your free class during ${appointment_time}. One of our instructors will contact you shortly to confirm your appointment.</p>
+            </div>
           `;
-          document.head.appendChild(style);
 
-          // Assign animation types based on element types
-          document.querySelectorAll('.instructor-card').forEach((el, index) => {
-            el.classList.add('fade-in-left', 'stagger-item');
-            el.style.setProperty('--item-index', index);
-          });
+          // Auto-close modal after success (mobile takes longer to read)
+          const closeDelay = window.innerWidth < 768 ? 4000 : 3000;
+          setTimeout(() => {
+            if (modal.classList.contains('active')) {
+              modal.classList.remove('active');
+              document.body.style.overflow = '';
+            }
+          }, closeDelay);
+        } else {
+          // Show error message
+          const errorMsg = document.createElement('div');
+          errorMsg.className = 'error-message';
+          errorMsg.textContent = 'There was a problem submitting your request. Please try again.';
+          freeClassForm.prepend(errorMsg);
+        }
+      })
+      .catch(error => {
+        console.error('Error submitting form:', error);
+        // Show error message
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'error-message';
+        errorMsg.textContent = 'There was a problem submitting your request. Please try again.';
+        freeClassForm.prepend(errorMsg);
+      });
+    });
+  }
 
-          document.querySelectorAll('.category-card').forEach((el, index) => {
-            el.classList.add('fade-in-right', 'stagger-item');
-            el.style.setProperty('--item-index', index);
-          });
+  // Video background with mobile optimization
+  const videoContainer = document.querySelector('.hero-video-container');
+  if (videoContainer) {
+    // Check if device is mobile
+    const isMobile = window.innerWidth < 768 || 
+                     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-          document.querySelectorAll('.pricing-card').forEach((el, index) => {
-            el.classList.add('scale-in', 'stagger-item');
-            el.style.setProperty('--item-index', index);
-          });
+    if (isMobile) {
+      // Use static image for mobile
+      videoContainer.style.backgroundImage = 'url("images/hero-bg.jpg")';
+      videoContainer.style.backgroundSize = 'cover';
+      videoContainer.style.backgroundPosition = 'center';
 
-          document.querySelectorAll('.testimonial-card').forEach((el, index) => {
-            el.classList.add('fade-in-left', 'stagger-item');
-            el.style.setProperty('--item-index', index);
-          });
+      // Add a class for mobile-specific styling
+      videoContainer.classList.add('mobile-hero');
+    } else {
+      // Use video for desktop
+      const video = document.createElement('video');
+      video.className = 'hero-video';
+      video.autoplay = true;
+      video.loop = true;
+      video.muted = true;
+      video.playsInline = true;
+      video.setAttribute('loading', 'lazy');
 
-          document.querySelectorAll('.section-header').forEach(el => {
-            el.classList.add('scale-in');
-          });
+      // Add source element
+      const source = document.createElement('source');
+      source.src = 'videos/tactical-training.mp4';
+      source.type = 'video/mp4';
 
-          // Listen for scroll events
-          window.addEventListener('scroll', animateOnScroll);
+      video.appendChild(source);
+      videoContainer.appendChild(video);
 
-          // Initial call to animate elements in view on page load
-          setTimeout(animateOnScroll, 100);
+      // Fallback if video can't play
+      video.addEventListener('error', function() {
+        videoContainer.style.backgroundImage = 'url("images/hero-bg.jpg")';
+        videoContainer.style.backgroundSize = 'cover';
+        videoContainer.style.backgroundPosition = 'center';
+      });
+    }
+  }
+
+  // Initialize Google Map
+  function initMap() {
+    // Coordinates for Anaheim Hills (updated coordinates for Old Springs Road)
+    const location = { lat: 33.8529, lng: -117.7544 };
+
+    // Check if Google Maps API is loaded and element exists
+    if (window.google && document.getElementById('map')) {
+      const map = new google.maps.Map(document.getElementById('map'), {
+        center: location,
+        zoom: 15,
+        styles: [
+          {
+            "featureType": "all",
+            "elementType": "geometry",
+            "stylers": [{ "color": "#1A1A1A" }]
+          },
+          {
+            "featureType": "road",
+            "elementType": "geometry",
+            "stylers": [{ "color": "#333333" }]
+          },
+          {
+            "featureType": "water",
+            "elementType": "geometry",
+            "stylers": [{ "color": "#111111" }]
+          }
+        ]
+      });
+
+      // Add marker for location
+      new google.maps.Marker({
+        position: location,
+        map: map,
+        title: 'United Defense Tactical'
+      });
+    } else {
+      // Fallback if Google Maps isn't available
+      const mapContainer = document.getElementById('map');
+      if (mapContainer) {
+        mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; background-color: var(--color-gunmetal); color: white; text-align: center; padding: 2rem;"><div><p style="margin-bottom: 1rem; font-weight: bold;">United Defense Tactical</p><p>160 S Old Springs Road #155, Anaheim Hills, CA 92808</p></div></div>';
+      }
+    }
+  }
+
+  // This would call the map initialization if Google Maps was included
+  // Uncomment the below line if you add the Google Maps API
+  // window.initMap = initMap;
+
+  // For demonstration, add a placeholder implementation
+  const mapElement = document.getElementById('map');
+  if (mapElement) {
+    mapElement.innerHTML = `
+      <div style="height: 100%; display: flex; align-items: center; justify-content: center; background-color: var(--color-navy); color: white; text-align: center; padding: 2rem;">
+        <div>
+          <p style="margin-bottom: 1rem; font-weight: bold;">United Defense Tactical</p>
+          <p>160 S Old Springs Road #155, Anaheim Hills, CA 92808</p>
+        </div>
+      </div>
+    `;
+  }
+
+  // Smooth scrolling for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      e.preventDefault();
+
+      const targetId = this.getAttribute('href');
+      if (targetId === '#') return;
+
+      const targetElement = document.querySelector(targetId);
+      if (targetElement) {
+        // Get header height for offset (sticky header)
+        const headerHeight = document.querySelector('.site-header').offsetHeight;
+
+        window.scrollTo({
+          top: targetElement.offsetTop - headerHeight,
+          behavior: 'smooth'
         });
 
-          // Add sticky mobile CTA
-          function addStickyCTA() {
-            if (window.innerWidth >= 768) return; // Only for mobile
+        // Update URL hash without jumping (modern browsers)
+        history.pushState(null, null, targetId);
+      }
+    });
+  });
 
-            // Create the sticky CTA element
-            const stickyCTA = document.createElement('div');
-            stickyCTA.className = 'sticky-cta';
-            stickyCTA.innerHTML = `
-              <button class="btn btn-primary btn-sticky free-class-btn">
-                CLAIM FREE CLASS <span class="arrow">→</span>
-              </button>
-            `;
+  // Add animation on scroll
+  function animateOnScroll() {
+    const elements = document.querySelectorAll('.animate-on-scroll');
+    const windowHeight = window.innerHeight;
 
-            // Append to body
-            document.body.appendChild(stickyCTA);
+    elements.forEach(element => {
+      const position = element.getBoundingClientRect();
+      const offset = 100; // Only animate when a specific amount of the element is visible
 
-            // Add event listener to the button
-            stickyCTA.querySelector('.free-class-btn').addEventListener('click', function(e) {
-              e.preventDefault();
-              // Open the free class modal
-              const modal = document.getElementById('free-class-modal');
-              if (modal) {
-                modal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-              }
-            });
+      // If element is in viewport
+      if (position.top - windowHeight + offset < 0) {
+        element.classList.add('animate-in');
 
-            // Hide sticky CTA when footer is visible or when user is scrolling up
-            const footer = document.querySelector('.site-footer');
-            let lastScrollTop = 0;
-            let isVisible = true;
+        // If it's a counter element, start animation
+        if (element.classList.contains('counter-container') && !element.classList.contains('counted')) {
+          animateCounters();
+          element.classList.add('counted'); // Prevent re-counting
+        }
+      }
+    });
+  }
 
-            // Function to check scroll direction and footer visibility
-            function checkVisibility() {
-              const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  // Add animate-on-scroll class to elements we want to animate
+  const animatableElements = document.querySelectorAll('.instructor-card, .category-card, .testimonial-card, .step, .pricing-card, .counter-container, .section-header');
+  animatableElements.forEach(element => {
+    element.classList.add('animate-on-scroll');
+  });
 
-              // Check if user has scrolled past 300px (show CTA only after some content)
-              if (scrollTop < 300) {
-                stickyCTA.classList.add('hidden');
-                return;
-              }
+  // Add CSS for modern animations
+  const style = document.createElement('style');
+  style.textContent = `
+    .animate-on-scroll {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.7s cubic-bezier(0.165, 0.84, 0.44, 1), 
+                  transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
 
-              // Check if footer is in view
-              const footerRect = footer.getBoundingClientRect();
-              const footerVisible = footerRect.top < window.innerHeight;
+    .animate-in {
+      opacity: 1;
+      transform: translateY(0);
+    }
 
-              if (footerVisible) {
-                stickyCTA.classList.add('hidden');
-                return;
-              }
+    .fade-in-left {
+      opacity: 0;
+      transform: translateX(-40px);
+      transition: opacity 0.7s cubic-bezier(0.165, 0.84, 0.44, 1),
+                  transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
 
-              // Check scroll direction (hide when scrolling up)
-              if (scrollTop > lastScrollTop + 10) {
-                // Scrolling down
-                if (!isVisible) {
-                  stickyCTA.classList.remove('hidden');
-                  isVisible = true;
-                }
-              } else if (scrollTop < lastScrollTop - 10) {
-                // Scrolling up
-                if (isVisible) {
-                  stickyCTA.classList.add('hidden');
-                  isVisible = false;
-                }
-              }
+    .fade-in-right {
+      opacity: 0;
+      transform: translateX(40px);
+      transition: opacity 0.7s cubic-bezier(0.165, 0.84, 0.44, 1),
+                  transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
 
-              lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-            }
+    .fade-in-left.animate-in,
+    .fade-in-right.animate-in {
+      opacity: 1;
+      transform: translateX(0);
+    }
 
-            // Use throttled scroll event instead of IntersectionObserver for better control
-            let ticking = false;
-            window.addEventListener('scroll', function() {
-              if (!ticking) {
-                window.requestAnimationFrame(function() {
-                  checkVisibility();
-                  ticking = false;
-                });
-                ticking = true;
-              }
-            }, { passive: true });
+    .scale-in {
+      opacity: 0;
+      transform: scale(0.9);
+      transition: opacity 0.7s cubic-bezier(0.165, 0.84, 0.44, 1),
+                  transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
 
-            // Initial check
-            checkVisibility();
-          }
+    .scale-in.animate-in {
+      opacity: 1;
+      transform: scale(1);
+    }
 
-          // Initialize sticky CTA
-          addStickyCTA();
+    .stagger-item {
+      transition-delay: calc(var(--item-index) * 0.1s);
+    }
+  `;
+  document.head.appendChild(style);
 
+  // Assign animation types based on element types
+  document.querySelectorAll('.instructor-card').forEach((el, index) => {
+    el.classList.add('fade-in-left', 'stagger-item');
+    el.style.setProperty('--item-index', index);
+  });
 
-          // Exit intent popup with improved user experience
-          function setupExitIntentPopup() {
-            let exitIntentShown = false;
-            let popupDisplayed = false;
+  document.querySelectorAll('.category-card').forEach((el, index) => {
+    el.classList.add('fade-in-right', 'stagger-item');
+    el.style.setProperty('--item-index', index);
+  });
 
-            // Store session state in localStorage to avoid repeated popups
-            if (sessionStorage.getItem('exitIntentShown')) {
-              exitIntentShown = true;
-            }
+  document.querySelectorAll('.pricing-card').forEach((el, index) => {
+    el.classList.add('scale-in', 'stagger-item');
+    el.style.setProperty('--item-index', index);
+  });
 
-            // More reliable exit intent detection
-            function handleExitIntent() {
-              if (exitIntentShown || popupDisplayed) return;
+  document.querySelectorAll('.testimonial-card').forEach((el, index) => {
+    el.classList.add('fade-in-left', 'stagger-item');
+    el.style.setProperty('--item-index', index);
+  });
 
-              const modal = document.getElementById('free-class-modal');
-              if (!modal || modal.classList.contains('active')) return;
+  document.querySelectorAll('.section-header').forEach(el => {
+    el.classList.add('scale-in');
+  });
 
-              modal.classList.add('active');
-              document.body.style.overflow = 'hidden';
-              popupDisplayed = true;
+  // Listen for scroll events
+  window.addEventListener('scroll', animateOnScroll);
 
-              // Update modal title for better conversion
-              const modalTitle = document.querySelector('.form-header h2');
-              if (modalTitle) {
-                modalTitle.innerHTML = "CLAIM YOUR FREE TRAINING CLASS";
-              }
+  // Initial call to animate elements in view on page load
+  setTimeout(animateOnScroll, 100);
+});
 
-              // Add social proof without being too aggressive
-              const modalDescription = document.querySelector('.caption-text');
-              if (modalDescription) {
-                modalDescription.innerHTML = "Join our community of trained individuals. Limited spots available each week!";
-              }
+  // Add sticky mobile CTA
+  function addStickyCTA() {
+    if (window.innerWidth >= 768) return; // Only for mobile
 
-              // Track in session storage to prevent repeated popups
-              sessionStorage.setItem('exitIntentShown', 'true');
+    // Create the sticky CTA element
+    const stickyCTA = document.createElement('div');
+    stickyCTA.className = 'sticky-cta';
+    stickyCTA.innerHTML = `
+      <button class="btn btn-primary btn-sticky free-class-btn">
+        CLAIM FREE CLASS <span class="arrow">→</span>
+      </button>
+    `;
 
-              // Analytics tracking
-              if (window.gtag) {
-                window.gtag('event', 'exit_intent_popup_shown');
-              }
-            }
+    // Append to body
+    document.body.appendChild(stickyCTA);
 
-            // Desktop exit intent detection
-            let mouseY;
-            let mouseLeft = false;
+    // Add event listener to the button
+    stickyCTA.querySelector('.free-class-btn').addEventListener('click', function(e) {
+      e.preventDefault();
+      // Open the free class modal
+      const modal = document.getElementById('free-class-modal');
+      if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+    });
 
-            document.addEventListener('mouseleave', function(e) {
-              if (e.clientY <= 0 && !e.relatedTarget) {
-                mouseLeft = true;
-                setTimeout(() => {
-                  if (mouseLeft) {
-                    handleExitIntent();
-                  }
-                }, 1000); // Small delay to prevent accidental triggers
-              }
-            });
+    // Hide sticky CTA when footer is visible or when user is scrolling up
+    const footer = document.querySelector('.site-footer');
+    let lastScrollTop = 0;
+    let isVisible = true;
 
-            document.addEventListener('mouseenter', function() {
-              mouseLeft = false;
-            });
+    // Function to check scroll direction and footer visibility
+    function checkVisibility() {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
-            // More reliable scroll detection for mobile
-            let lastScrollTop = 0;
-            let scrollDirectionChangeCount = 0;
+      // Check if user has scrolled past 300px (show CTA only after some content)
+      if (scrollTop < 300) {
+        stickyCTA.classList.add('hidden');
+        return;
+      }
 
-            window.addEventListener('scroll', function() {
-              const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      // Check if footer is in view
+      const footerRect = footer.getBoundingClientRect();
+      const footerVisible = footerRect.top < window.innerHeight;
 
-              // Only track significant scrolling near the top
-              if (Math.abs(scrollTop - lastScrollTop) > 10) {
-                if (scrollTop < lastScrollTop && scrollTop < 300) {
-                  scrollDirectionChangeCount++;
+      if (footerVisible) {
+        stickyCTA.classList.add('hidden');
+        return;
+      }
 
-                  // After a few direction changes, user is likely trying to leave
-                  if (scrollDirectionChangeCount >= 3 && !exitIntentShown) {
-                    handleExitIntent();
-                  }
-                }
+      // Check scroll direction (hide when scrolling up)
+      if (scrollTop > lastScrollTop + 10) {
+        // Scrolling down
+        if (!isVisible) {
+          stickyCTA.classList.remove('hidden');
+          isVisible = true;
+        }
+      } else if (scrollTop < lastScrollTop - 10) {
+        // Scrolling up
+        if (isVisible) {
+          stickyCTA.classList.add('hidden');
+          isVisible = false;
+        }
+      }
 
-                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-              }
-            }, { passive: true });
+      lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+    }
 
-            // More user-friendly time-based trigger (60 seconds instead of 45)
-            setTimeout(() => {
-              if (!exitIntentShown && !popupDisplayed) {
-                handleExitIntent();
-
-                if (window.gtag) {
-                  window.gtag('event', 'time_based_popup_shown');
-                }
-              }
-            }, 60000); // 60 seconds
-          }
-
-          // Setup exit intent
-          setupExitIntentPopup();
-
-
-          // Prioritize content loading
-          function optimizeContentLoading() {
-            // Move testimonials above program section on mobile
-            if (window.innerWidth < 768) {
-              const testimonialsSection = document.getElementById('testimonials');
-              const programsSection = document.getElementById('programs');
-
-              if (testimonialsSection && programsSection) {
-                const parent = programsSection.parentNode;
-                parent.insertBefore(testimonialsSection, programsSection);
-
-                // Add special class for mobile styling
-                testimonialsSection.classList.add('mobile-priority');
-              }
-            }
-
-            // Defer non-critical scripts
-            function deferScript(src) {
-              const script = document.createElement('script');
-              script.src = src;
-              script.defer = true;
-              document.body.appendChild(script);
-            }
-
-            // Defer non-essential scripts after page load
-            window.addEventListener('load', function() {
-              setTimeout(() => {
-                // Add any additional scripts that aren't critical for initial page load
-                deferScript('js/optimized-modal.js');
-              }, 2000);
-            });
-          }
-
-          // Run optimization
-          optimizeContentLoading();
-
-
-          // We've removed the CSS optimization function as it's not necessary
-          // and can cause issues with stylesheet loading
-
+    // Use throttled scroll event instead of IntersectionObserver for better control
+    let ticking = false;
+    window.addEventListener('scroll', function() {
+      if (!ticking) {
+        window.requestAnimationFrame(function() {
+          checkVisibility();
+          ticking = false;
         });
+        ticking = true;
+      }
+    }, { passive: true });
+
+    // Initial check
+    checkVisibility();
+  }
+
+  // Initialize sticky CTA
+  addStickyCTA();
+
+
+  // Exit intent popup with improved user experience
+  function setupExitIntentPopup() {
+    let exitIntentShown = false;
+    let popupDisplayed = false;
+
+    // Store session state in localStorage to avoid repeated popups
+    if (sessionStorage.getItem('exitIntentShown')) {
+      exitIntentShown = true;
+    }
+
+    // More reliable exit intent detection
+    function handleExitIntent() {
+      if (exitIntentShown || popupDisplayed) return;
+
+      const modal = document.getElementById('free-class-modal');
+      if (!modal || modal.classList.contains('active')) return;
+
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      popupDisplayed = true;
+
+      // Update modal title for better conversion
+      const modalTitle = document.querySelector('.form-header h2');
+      if (modalTitle) {
+        modalTitle.innerHTML = "CLAIM YOUR FREE TRAINING CLASS";
+      }
+
+      // Add social proof without being too aggressive
+      const modalDescription = document.querySelector('.caption-text');
+      if (modalDescription) {
+        modalDescription.innerHTML = "Join our community of trained individuals. Limited spots available each week!";
+      }
+
+      // Track in session storage to prevent repeated popups
+      sessionStorage.setItem('exitIntentShown', 'true');
+
+      // Analytics tracking
+      if (window.gtag) {
+        window.gtag('event', 'exit_intent_popup_shown');
+      }
+    }
+
+    // Desktop exit intent detection
+    let mouseY;
+    let mouseLeft = false;
+
+    document.addEventListener('mouseleave', function(e) {
+      if (e.clientY <= 0 && !e.relatedTarget) {
+        mouseLeft = true;
+        setTimeout(() => {
+          if (mouseLeft) {
+            handleExitIntent();
+          }
+        }, 1000); // Small delay to prevent accidental triggers
+      }
+    });
+
+    document.addEventListener('mouseenter', function() {
+      mouseLeft = false;
+    });
+
+    // More reliable scroll detection for mobile
+    let lastScrollTop = 0;
+    let scrollDirectionChangeCount = 0;
+
+    window.addEventListener('scroll', function() {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+      // Only track significant scrolling near the top
+      if (Math.abs(scrollTop - lastScrollTop) > 10) {
+        if (scrollTop < lastScrollTop && scrollTop < 300) {
+          scrollDirectionChangeCount++;
+
+          // After a few direction changes, user is likely trying to leave
+          if (scrollDirectionChangeCount >= 3 && !exitIntentShown) {
+            handleExitIntent();
+          }
+        }
+
+        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+      }
+    }, { passive: true });
+
+    // More user-friendly time-based trigger (60 seconds instead of 45)
+    setTimeout(() => {
+      if (!exitIntentShown && !popupDisplayed) {
+        handleExitIntent();
+
+        if (window.gtag) {
+          window.gtag('event', 'time_based_popup_shown');
+        }
+      }
+    }, 60000); // 60 seconds
+  }
+
+  // Setup exit intent
+  setupExitIntentPopup();
+
+
+  // Prioritize content loading
+  function optimizeContentLoading() {
+    // Move testimonials above program section on mobile
+    if (window.innerWidth < 768) {
+      const testimonialsSection = document.getElementById('testimonials');
+      const programsSection = document.getElementById('programs');
+
+      if (testimonialsSection && programsSection) {
+        const parent = programsSection.parentNode;
+        parent.insertBefore(testimonialsSection, programsSection);
+
+        // Add special class for mobile styling
+        testimonialsSection.classList.add('mobile-priority');
+      }
+    }
+
+    // Defer non-critical scripts
+    function deferScript(src) {
+      const script = document.createElement('script');
+      script.src = src;
+      script.defer = true;
+      document.body.appendChild(script);
+    }
+
+    // Defer non-essential scripts after page load
+    window.addEventListener('load', function() {
+      setTimeout(() => {
+        // Add any additional scripts that aren't critical for initial page load
+        deferScript('js/optimized-modal.js');
+      }, 2000);
+    });
+  }
+
+  // Run optimization
+  optimizeContentLoading();
+
+
+  // We've removed the CSS optimization function as it's not necessary
+  // and can cause issues with stylesheet loading
+
+});
