@@ -480,7 +480,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Improve form validation with better user feedback
     function validateForm() {
       let isValid = true;
-      const inputs = freeClassForm.querySelectorAll('input, select');
+      const inputs = freeClassForm.querySelectorAll('input:not([type="hidden"]), select');
 
       inputs.forEach(input => {
         // Remove any existing error messages
@@ -592,44 +592,71 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       // Get form values
-      const name = document.getElementById('name').value;
+      const first_name = document.getElementById('first_name').value;
+      const last_name = document.getElementById('last_name').value;
       const email = document.getElementById('email').value;
       const phone = document.getElementById('phone').value;
-      const experience = document.getElementById('experience').value;
+      const appointment_time = document.getElementById('appointment_time').value;
+      const lead_source = document.getElementById('lead_source').value;
 
       // Format data for sending
       const formData = {
-        name,
+        first_name,
+        last_name,
         email,
         phone,
-        experience,
-        device: window.innerWidth < 768 ? 'mobile' : 'desktop',
-        date: new Date().toISOString()
+        appointment_time,
+        lead_source,
+        notes: `Device: ${window.innerWidth < 768 ? 'mobile' : 'desktop'}, Date submitted: ${new Date().toISOString()}`
       };
 
-      // In a real implementation, you would send this data to a server
-      console.log('Form submitted:', formData);
+      // Send data to our backend
+      fetch('/api/appointments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Show success message
+          freeClassForm.innerHTML = `
+            <div class="success-message">
+              <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="success-icon">
+                <circle cx="12" cy="12" r="10" stroke="#2E7D32" stroke-width="2"/>
+                <path d="M8 12L11 15L16 9" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <h3>Thank You, ${first_name}!</h3>
+              <p>We've scheduled your free class during ${appointment_time}. One of our instructors will contact you shortly to confirm your appointment.</p>
+            </div>
+          `;
 
-      // Show success message
-      freeClassForm.innerHTML = `
-        <div class="success-message">
-          <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="success-icon">
-            <circle cx="12" cy="12" r="10" stroke="#2E7D32" stroke-width="2"/>
-            <path d="M8 12L11 15L16 9" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <h3>Thank You!</h3>
-          <p>We've received your request for a free class. One of our instructors will contact you within 24 hours to schedule your session.</p>
-        </div>
-      `;
-
-      // Auto-close modal after success (mobile takes longer to read)
-      const closeDelay = window.innerWidth < 768 ? 4000 : 3000;
-      setTimeout(() => {
-        if (modal.classList.contains('active')) {
-          modal.classList.remove('active');
-          document.body.style.overflow = '';
+          // Auto-close modal after success (mobile takes longer to read)
+          const closeDelay = window.innerWidth < 768 ? 4000 : 3000;
+          setTimeout(() => {
+            if (modal.classList.contains('active')) {
+              modal.classList.remove('active');
+              document.body.style.overflow = '';
+            }
+          }, closeDelay);
+        } else {
+          // Show error message
+          const errorMsg = document.createElement('div');
+          errorMsg.className = 'error-message';
+          errorMsg.textContent = 'There was a problem submitting your request. Please try again.';
+          freeClassForm.prepend(errorMsg);
         }
-      }, closeDelay);
+      })
+      .catch(error => {
+        console.error('Error submitting form:', error);
+        // Show error message
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'error-message';
+        errorMsg.textContent = 'There was a problem submitting your request. Please try again.';
+        freeClassForm.prepend(errorMsg);
+      });
     });
   }
 
