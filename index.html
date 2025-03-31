@@ -141,6 +141,219 @@
         </div>
     </section>
 
+    <!-- Training Assessment Section -->
+    <section id="training-assessment" class="training-assessment">
+        <div class="container">
+            <header class="section-header">
+                <h2>FIND YOUR IDEAL TRAINING PROGRAM</h2>
+                <p>Answer a few quick questions to get a personalized recommendation</p>
+            </header>
+
+            <div class="assessment-container">
+                <!-- Assessment progress bar -->
+                <div class="assessment-progress">
+                    <div class="progress-bar">
+                        <div class="progress-indicator" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-steps">
+                        <span class="step active" data-step="1">1</span>
+                        <span class="step" data-step="2">2</span>
+                        <span class="step" data-step="3">3</span>
+                        <span class="step" data-step="4">4</span>
+                        <span class="step" data-step="5">5</span>
+                    </div>
+                </div>
+
+                <!-- Assessment questions -->
+                <div class="assessment-questions">
+                    <!-- Step 1: Experience level -->
+                    <div class="question-step active" data-step="1">
+                        <h3>What's your current experience level with firearms?</h3>
+                        <div class="answer-options">
+                            <label class="answer-option">
+                                <input type="radio" name="experience" value="none">
+                                <div class="option-content">
+                                    <span class="option-title">Complete Beginner</span>
+                                    <span class="option-desc">I've never handled a firearm before</span>
+                                </div>
+                            </label>
+                            <label class="answer-option">
+                                <input type="radio" name="experience" value="limited">
+                                <div class="option-content">
+                                    <span class="option-title">Limited Experience</span>
+                                    <span class="option-desc">I've fired guns before but have little formal training</span>
+                                </div>
+                            </label>
+                            <label class="answer-option">
+                                <input type="radio" name="experience" value="moderate">
+                                <div class="option-content">
+                                    <span class="option-title">Moderate Experience</span>
+                                    <span class="option-desc">I've had some training and am comfortable with firearms</span>
+                                </div>
+                            </label>
+                            <label class="answer-option">
+                                <input type="radio" name="experience" value="experienced">
+                                <div class="option-content">
+                                    <span class="option-title">Experienced</span>
+                                    <span class="option-desc">I have extensive training and am seeking to advance my skills</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Primary goal -->
+                    <div class="question-step" data-step="2">
+                        <h3>What's your primary goal for seeking training?</h3>
+                        <div class="answer-options">
+                            <label class="answer-option">
+                                <input type="radio" name="goal" value="self-defense">
+                                <div class="option-content">
+                                    <span class="option-title">Personal Self-Defense</span>
+                                    <span class="option-desc">Learn how to protect myself in dangerous situations</span>
+                                </div>
+                            </label>
+                            <label class="answer-option">
+                                <input type="radio" name="goal" value="home-defense">
+                                <div class="option-content">
+                                    <span class="option-title">Home Defense</span>
+                                    <span class="option-desc">Protect my home and family from potential threats</span>
+                                </div>
+                            </label>
+                            <label class="answer-option">
+                                <input type="radio" name="goal" value="skill-development">
+                                <div class="option-content">
+                                    <span class="option-title">Skill Development</span>
+                                    <span class="option-desc">Improve my shooting and tactical abilities</span>
+                                </div>
+                            </label>
+                            <label class="answer-option">
+                                <input type="radio" name="goal" value="ccw">
+                                <div class="option-content">
+                                    <span class="option-title">Concealed Carry Preparation</span>
+                                    <span class="option-desc">Train for responsible everyday carry</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Specific interests -->
+                    <div class="question-step" data-step="3">
+                        <h3>Which training areas interest you most?</h3>
+                        <div class="answer-options checkbox-options">
+                            <label class="answer-option">
+                                <input type="checkbox" name="interests" value="handguns">
+                                <div class="option-content">
+                                    <span class="option-title">Handgun Training</span>
+                                    <span class="option-desc">Pistol safety, shooting, and handling</span>
+                                </div>
+                            </label>
+                            <label class="answer-option">
+                                <input type="checkbox" name="interests" value="tactical">
+                                <div class="option-content">
+                                    <span class="option-title">Tactical Training</span>
+                                    <span class="option-desc">Movement, positions, and combat scenarios</span>
+                                </div>
+                            </label>
+                            <label class="answer-option">
+                                <input type="checkbox" name="interests" value="non-firearm">
+                                <div class="option-content">
+                                    <span class="option-title">Non-Firearm Defense</span>
+                                    <span class="option-desc">Hand-to-hand combat and threat de-escalation</span>
+                                </div>
+                            </label>
+                            <label class="answer-option">
+                                <input type="checkbox" name="interests" value="stress-training">
+                                <div class="option-content">
+                                    <span class="option-title">Stress Response Training</span>
+                                    <span class="option-desc">Preparing for high-pressure situations</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Training frequency -->
+                    <div class="question-step" data-step="4">
+                        <h3>How often would you ideally like to train?</h3>
+                        <div class="answer-options">
+                            <label class="answer-option">
+                                <input type="radio" name="frequency" value="once-week">
+                                <div class="option-content">
+                                    <span class="option-title">Once per week</span>
+                                    <span class="option-desc">Regular but limited commitment</span>
+                                </div>
+                            </label>
+                            <label class="answer-option">
+                                <input type="radio" name="frequency" value="twice-week">
+                                <div class="option-content">
+                                    <span class="option-title">Twice per week</span>
+                                    <span class="option-desc">Serious commitment to improvement</span>
+                                </div>
+                            </label>
+                            <label class="answer-option">
+                                <input type="radio" name="frequency" value="three-plus">
+                                <div class="option-content">
+                                    <span class="option-title">Three+ times per week</span>
+                                    <span class="option-desc">Intensive training for rapid skill development</span>
+                                </div>
+                            </label>
+                            <label class="answer-option">
+                                <input type="radio" name="frequency" value="flexible">
+                                <div class="option-content">
+                                    <span class="option-title">Flexible/Variable</span>
+                                    <span class="option-desc">Schedule varies based on availability</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Step 5: Contact information -->
+                    <div class="question-step" data-step="5">
+                        <h3>Get your personalized training recommendation</h3>
+                        <p class="contact-intro">Enter your information to receive your custom recommendation and a free class offer</p>
+                        <div class="contact-form">
+                            <div class="form-group">
+                                <label for="name">Your Name</label>
+                                <input type="text" id="name" name="name" placeholder="Enter your name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone" placeholder="(123) 456-7890" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results step (shown after submission) -->
+                    <div class="question-step results-step" data-step="results">
+                        <div class="assessment-results">
+                            <div class="results-header">
+                                <h3>Your Personalized Training Recommendation</h3>
+                                <p>Based on your responses, we recommend:</p>
+                            </div>
+                            <div class="recommended-program">
+                                <!-- Will be populated by JavaScript -->
+                            </div>
+                            <div class="results-cta">
+                                <p>Ready to experience training that's tailored to your needs?</p>
+                                <button class="btn btn-primary schedule-btn">SCHEDULE YOUR FREE CLASS</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation buttons -->
+                <div class="assessment-nav">
+                    <button class="btn btn-secondary" id="prev-question" disabled>PREVIOUS</button>
+                    <button class="btn btn-primary" id="next-question">NEXT</button>
+                    <button class="btn btn-primary" id="submit-assessment" style="display: none;">GET MY RECOMMENDATION</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Testimonials Section (Moved Higher) -->
     <section id="testimonials" class="testimonials">
         <div class="container">
@@ -189,71 +402,115 @@
         </div>
     </section>
 
-
-    <!-- Schedule Section -->
-    <section id="programs" class="schedule-section">
+    <!-- Programs Section -->
+    <section id="programs" class="programs-section">
         <div class="container">
             <header class="section-header">
-                <h2>Training Schedule</h2>
-                <p>You can't do what you haven't been trained to do</p>
+                <h2>Training Programs</h2>
+                <p>Master tactical defense through expert-led immersive training</p>
             </header>
-            <div class="schedule-container">
-                <div class="schedule-image">
-                    <img src="images/schedule.jpeg" alt="UDT Training Schedule">
+
+            <div class="programs-container">
+                <!-- Featured Image - Seamlessly embedded on left -->
+                <div class="programs-featured">
+                    <img src="images/schedule.jpeg" alt="UDT Training Programs">
                 </div>
-                <div class="schedule-cards">
-                    <div class="schedule-card">
-                        <div class="schedule-card-bg" style="background-image: url('images/udt1.jpg');"></div>
-                        <div class="schedule-card-overlay"></div>
-                        <div class="schedule-card-content">
-                            <h3>Simulator Training</h3>
-                            <p class="schedule-card-description">Experience real-world scenarios in our state-of-the-art tactical simulator. Train your decision-making skills in high-pressure situations.</p>
-                            <a href="#" class="btn btn-accent free-class-btn">BOOK NOW</a>
+
+                <!-- 3x2 Card Grid -->
+                <div class="programs-grid">
+                    <!-- Card 1 -->
+                    <div class="program-card">
+                        <div class="card-inner">
+                            <div class="card-front">
+                                <div class="card-bg" style="background-image: url('images/udt1.jpg');"></div>
+                                <div class="card-overlay"></div>
+                                <h3>Simulator Training</h3>
+                            </div>
+                            <div class="card-back">
+                                <h3>Simulator Training</h3>
+                                <p>Experience real-world scenarios in our state-of-the-art tactical simulator. Train your decision-making skills in high-pressure situations.</p>
+                                <a href="#free-class" class="btn-learn-more">Learn More</a>
+                            </div>
                         </div>
                     </div>
-                    <div class="schedule-card">
-                        <div class="schedule-card-bg" style="background-image: url('images/udt2.jpg');"></div>
-                        <div class="schedule-card-overlay"></div>
-                        <div class="schedule-card-content">
-                            <h3>UDT Range / Force on Force</h3>
-                            <p class="schedule-card-description">Train with realistic force-on-force exercises that simulate actual confrontations in a controlled environment.</p>
-                            <a href="#" class="btn btn-accent free-class-btn">BOOK NOW</a>
+
+                    <!-- Card 2 -->
+                    <div class="program-card">
+                        <div class="card-inner">
+                            <div class="card-front">
+                                <div class="card-bg" style="background-image: url('images/udt2.jpg');"></div>
+                                <div class="card-overlay"></div>
+                                <h3>Force on Force</h3>
+                            </div>
+                            <div class="card-back">
+                                <h3>Force on Force</h3>
+                                <p>Train with realistic force-on-force exercises that simulate actual confrontations in a controlled environment.</p>
+                                <a href="#free-class" class="btn-learn-more">Learn More</a>
+                            </div>
                         </div>
                     </div>
-                    <div class="schedule-card">
-                        <div class="schedule-card-bg" style="background-image: url('images/udt3.jpg');"></div>
-                        <div class="schedule-card-overlay"></div>
-                        <div class="schedule-card-content">
-                            <h3>Self Defense Classes</h3>
-                            <p class="schedule-card-description">Master effective hand-to-hand combat techniques, threat assessment, and personal protection strategies for everyday situations.</p>
-                            <a href="#" class="btn btn-accent free-class-btn">BOOK NOW</a>
+
+                    <!-- Card 3 -->
+                    <div class="program-card">
+                        <div class="card-inner">
+                            <div class="card-front">
+                                <div class="card-bg" style="background-image: url('images/udt3.jpg');"></div>
+                                <div class="card-overlay"></div>
+                                <h3>Self Defense</h3>
+                            </div>
+                            <div class="card-back">
+                                <h3>Self Defense</h3>
+                                <p>Master effective hand-to-hand combat techniques, threat assessment, and personal protection strategies for everyday situations.</p>
+                                <a href="#free-class" class="btn-learn-more">Learn More</a>
+                            </div>
                         </div>
                     </div>
-                    <div class="schedule-card">
-                        <div class="schedule-card-bg" style="background-image: url('images/udt5.jpg');"></div>
-                        <div class="schedule-card-overlay"></div>
-                        <div class="schedule-card-content">
-                            <h3>Firearm Familiarization</h3>
-                            <p class="schedule-card-description">Learn proper handling, shooting techniques, and safety protocols for beginners to advanced shooters.</p>
-                            <a href="#" class="btn btn-accent free-class-btn">BOOK NOW</a>
+
+                    <!-- Card 4 -->
+                    <div class="program-card">
+                        <div class="card-inner">
+                            <div class="card-front">
+                                <div class="card-bg" style="background-image: url('images/udt5.jpg');"></div>
+                                <div class="card-overlay"></div>
+                                <h3>Firearm Training</h3>
+                            </div>
+                            <div class="card-back">
+                                <h3>Firearm Training</h3>
+                                <p>Learn proper handling, shooting techniques, and safety protocols for beginners to advanced shooters.</p>
+                                <a href="#free-class" class="btn-learn-more">Learn More</a>
+                            </div>
                         </div>
                     </div>
-                    <div class="schedule-card">
-                        <div class="schedule-card-bg" style="background-image: url('images/udt1.jpg');"></div>
-                        <div class="schedule-card-overlay"></div>
-                        <div class="schedule-card-content">
-                            <h3>USCCA Legal Ramifications</h3>
-                            <p class="schedule-card-description">Understand the legal aspects of self-defense and firearm usage to protect yourself legally as well as physically.</p>
-                            <a href="#" class="btn btn-accent free-class-btn">BOOK NOW</a>
+
+                    <!-- Card 5 -->
+                    <div class="program-card">
+                        <div class="card-inner">
+                            <div class="card-front">
+                                <div class="card-bg" style="background-image: url('images/udt1.jpg');"></div>
+                                <div class="card-overlay"></div>
+                                <h3>USCCA Legal</h3>
+                            </div>
+                            <div class="card-back">
+                                <h3>USCCA Legal</h3>
+                                <p>Understand the legal aspects of self-defense and firearm usage to protect yourself legally as well as physically.</p>
+                                <a href="#free-class" class="btn-learn-more">Learn More</a>
+                            </div>
                         </div>
                     </div>
-                    <div class="schedule-card">
-                        <div class="schedule-card-bg" style="background-image: url('images/udt2.jpg');"></div>
-                        <div class="schedule-card-overlay"></div>
-                        <div class="schedule-card-content">
-                            <h3>Vehicle CQB</h3>
-                            <p class="schedule-card-description">Learn specialized close-quarters battle techniques for vehicle-based scenarios and carjacking situations.</p>
-                            <a href="#" class="btn btn-accent free-class-btn">BOOK NOW</a>
+
+                    <!-- Card 6 -->
+                    <div class="program-card">
+                        <div class="card-inner">
+                            <div class="card-front">
+                                <div class="card-bg" style="background-image: url('images/udt2.jpg');"></div>
+                                <div class="card-overlay"></div>
+                                <h3>Vehicle CQB</h3>
+                            </div>
+                            <div class="card-back">
+                                <h3>Vehicle CQB</h3>
+                                <p>Learn specialized close-quarters battle techniques for vehicle-based scenarios and carjacking situations.</p>
+                                <a href="#free-class" class="btn-learn-more">Learn More</a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -654,7 +911,7 @@
                         </select>
                     </div>
                     <input type="hidden" id="lead_source" name="lead_source" value="Website Form">
-                    <button type="submit" class="btn btn-primary btn-full">BOOK YOUR FREE INTRODUCTORY CLASS</button>
+                    <button type="submit" class="btn btn-primary btn-full">RESERVE CLASS</button>
                     <div class="form-benefits">
                         <div class="benefit-item">
                             <span class="benefit-icon">✓</span>

@@ -2,6 +2,337 @@
  * United Defense Tactical - Main JavaScript
  */
 
+/**
+ * United Defense Tactical - Training Assessment Questionnaire
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    // Get elements
+    const assessmentContainer = document.querySelector('.assessment-container');
+    if (!assessmentContainer) return; // Exit if assessment not on page
+
+    const prevButton = document.getElementById('prev-question');
+    const nextButton = document.getElementById('next-question');
+    const submitButton = document.getElementById('submit-assessment');
+    const progressIndicator = document.querySelector('.progress-indicator');
+    const steps = document.querySelectorAll('.step');
+    const questionSteps = document.querySelectorAll('.question-step');
+
+    // Initial state
+    let currentStep = 1;
+    const totalSteps = 5;
+    updateProgressBar();
+
+    // Add event listeners
+    prevButton.addEventListener('click', goToPreviousStep);
+    nextButton.addEventListener('click', goToNextStep);
+    submitButton.addEventListener('click', submitAssessment);
+
+    // Add event listeners to all answer options
+    document.querySelectorAll('.answer-option').forEach(option => {
+        option.addEventListener('click', function() {
+            const input = this.querySelector('input');
+
+            // For radio buttons
+            if (input.type === 'radio') {
+                const otherOptions = document.querySelectorAll(`input[name="${input.name}"]`);
+                otherOptions.forEach(radio => {
+                    radio.checked = false;
+                    radio.closest('.answer-option').classList.remove('selected');
+                });
+            }
+
+            input.checked = !input.checked;
+            this.classList.toggle('selected', input.checked);
+
+            // If at least one option is selected, enable next button
+            const currentQuestionStep = document.querySelector(`.question-step[data-step="${currentStep}"]`);
+            const selectedOptions = currentQuestionStep.querySelectorAll('input:checked');
+
+            if (input.type === 'radio' || selectedOptions.length > 0) {
+                nextButton.disabled = false;
+            } else {
+                nextButton.disabled = true;
+            }
+        });
+    });
+
+    // Update progress bar
+    function updateProgressBar() {
+        const progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
+        progressIndicator.style.width = `${progress}%`;
+
+        // Update step indicators
+        steps.forEach(step => {
+            const stepNumber = parseInt(step.getAttribute('data-step'));
+            step.classList.remove('active', 'completed');
+
+            if (stepNumber === currentStep) {
+                step.classList.add('active');
+            } else if (stepNumber < currentStep) {
+                step.classList.add('completed');
+            }
+        });
+
+        // Update buttons
+        prevButton.disabled = currentStep === 1;
+
+        if (currentStep === totalSteps) {
+            nextButton.style.display = 'none';
+            submitButton.style.display = 'block';
+        } else {
+            nextButton.style.display = 'block';
+            submitButton.style.display = 'none';
+        }
+    }
+
+    // Go to previous step
+    function goToPreviousStep() {
+        if (currentStep > 1) {
+            // Hide current step
+            document.querySelector(`.question-step[data-step="${currentStep}"]`).classList.remove('active');
+
+            // Show previous step
+            currentStep--;
+            document.querySelector(`.question-step[data-step="${currentStep}"]`).classList.add('active');
+
+            updateProgressBar();
+        }
+    }
+
+    // Go to next step
+    function goToNextStep() {
+        if (currentStep < totalSteps) {
+            // Validate current step
+            const currentQuestionStep = document.querySelector(`.question-step[data-step="${currentStep}"]`);
+            const inputs = currentQuestionStep.querySelectorAll('input');
+            const selectedInputs = currentQuestionStep.querySelectorAll('input:checked');
+
+            // For radio buttons, ensure one is selected
+            if (inputs[0] && inputs[0].type === 'radio' && selectedInputs.length === 0) {
+                // Show validation error
+                alert('Please select an option to continue.');
+                return;
+            }
+
+            // For checkboxes, ensure at least one is checked if not step 3
+            if (currentStep === 3 && selectedInputs.length === 0) {
+                alert('Please select at least one training area of interest.');
+                return;
+            }
+
+            // Hide current step
+            currentQuestionStep.classList.remove('active');
+
+            // Show next step
+            currentStep++;
+            document.querySelector(`.question-step[data-step="${currentStep}"]`).classList.add('active');
+
+            updateProgressBar();
+        }
+    }
+
+    // Submit assessment
+    function submitAssessment() {
+        // Validate contact info
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+
+        if (!name || !email || !phone) {
+            alert('Please fill in all contact fields to receive your recommendation.');
+            return;
+        }
+
+        // Gather all assessment data
+        const assessmentData = {
+            experience: getSelectedValue('experience'),
+            goal: getSelectedValue('goal'),
+            interests: getSelectedValues('interests'),
+            frequency: getSelectedValue('frequency'),
+            name: name,
+            email: email,
+            phone: phone
+        };
+
+        // Generate recommendation based on responses
+        const recommendation = generateRecommendation(assessmentData);
+
+        // Display recommendation
+        displayRecommendation(recommendation);
+
+        // Submit data to server (in production)
+        // submitToServer(assessmentData);
+
+        // Log submission data for demo
+        console.log('Assessment submitted:', assessmentData);
+        console.log('Recommendation:', recommendation);
+
+        // Track event if analytics available
+        if (window.dataLayer) {
+            window.dataLayer.push({
+                'event': 'assessment_completed',
+                'assessment_data': assessmentData
+            });
+        }
+    }
+
+    // Helper function to get selected radio value
+    function getSelectedValue(name) {
+        const selected = document.querySelector(`input[name="${name}"]:checked`);
+        return selected ? selected.value : null;
+    }
+
+    // Helper function to get all selected checkbox values
+    function getSelectedValues(name) {
+        const selected = document.querySelectorAll(`input[name="${name}"]:checked`);
+        return Array.from(selected).map(input => input.value);
+    }
+
+    // Generate recommendation based on assessment
+    function generateRecommendation(data) {
+        let recommendedProgram = '';
+        let recommendedPackage = '';
+        let recommendedFeatures = [];
+
+        // Determine recommended program based on experience and goals
+        if (data.experience === 'none' || data.experience === 'limited') {
+            if (data.goal === 'home-defense') {
+                recommendedProgram = 'Home Defense Mastery';
+                recommendedFeatures = [
+                    'Home defense strategies and tactics',
+                    'Defensive firearm handling and safety',
+                    'Threat assessment in home environments',
+                    'Family safety planning'
+                ];
+            } else if (data.goal === 'self-defense' && data.interests.includes('non-firearm')) {
+                recommendedProgram = 'Non-Firearm Defense';
+                recommendedFeatures = [
+                    'Hand-to-hand combat techniques',
+                    'Threat de-escalation strategies',
+                    'Situational awareness training',
+                    'Self-defense tool usage'
+                ];
+            } else {
+                recommendedProgram = 'Defensive Handgun';
+                recommendedFeatures = [
+                    'Pistol safety and fundamentals',
+                    'Proper stance, grip and trigger control',
+                    'Sight alignment and target acquisition',
+                    'Defensive shooting principles'
+                ];
+            }
+        } else if (data.experience === 'moderate') {
+            if (data.interests.includes('tactical')) {
+                recommendedProgram = 'Advanced Tactical';
+                recommendedFeatures = [
+                    'Dynamic movement and positioning',
+                    'Multiple threat engagement',
+                    'Stress-induced scenario training',
+                    'Advanced weapon handling'
+                ];
+            } else {
+                recommendedProgram = 'Defensive Handgun';
+                recommendedFeatures = [
+                    'Intermediate shooting techniques',
+                    'Defensive drawing and holstering',
+                    'Cover and concealment tactics',
+                    'Speed and accuracy development'
+                ];
+            }
+        } else if (data.experience === 'experienced') {
+            recommendedProgram = 'Advanced Tactical';
+            recommendedFeatures = [
+                'Expert-level firearm manipulation',
+                'Complex tactical scenarios',
+                'Force-on-force training',
+                'Defensive strategy development'
+            ];
+        }
+
+        // Determine recommended package based on training frequency
+        if (data.frequency === 'once-week') {
+            recommendedPackage = 'Basic Defense ($149/month)';
+        } else if (data.frequency === 'twice-week') {
+            recommendedPackage = 'Tactical Defender ($249/month)';
+        } else {
+            recommendedPackage = 'Elite Operator ($399/month)';
+        }
+
+        return {
+            program: recommendedProgram,
+            package: recommendedPackage,
+            features: recommendedFeatures
+        };
+    }
+
+    // Display recommendation
+    function displayRecommendation(recommendation) {
+        // Hide the current step
+        document.querySelector(`.question-step[data-step="${currentStep}"]`).classList.remove('active');
+
+        // Show the results step
+        document.querySelector('.question-step[data-step="results"]').classList.add('active');
+
+        // Update progress bar to complete
+        progressIndicator.style.width = '100%';
+        steps.forEach(step => step.classList.add('completed'));
+
+        // Hide navigation buttons
+        document.querySelector('.assessment-nav').style.display = 'none';
+
+        // Populate recommendation content
+        const recommendedProgramEl = document.querySelector('.recommended-program');
+        recommendedProgramEl.innerHTML = `
+            <div class="program-recommendation">
+                <div class="program-title">${recommendation.program}</div>
+                <div class="program-details">
+                    <strong>Recommended Package:</strong> ${recommendation.package}
+                </div>
+                <p>This program is tailored to your experience level and goals:</p>
+                <ul class="program-features">
+                    ${recommendation.features.map(feature => `<li>${feature}</li>`).join('')}
+                </ul>
+            </div>
+        `;
+
+        // Add event listener to schedule button
+        document.querySelector('.schedule-btn').addEventListener('click', function() {
+            // Scroll to free class section or open modal
+            const freeClassSection = document.getElementById('free-class');
+            if (freeClassSection) {
+                freeClassSection.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            // If modal is available, open it
+            const openModalBtn = document.getElementById('open-free-class-modal');
+            if (openModalBtn) {
+                setTimeout(() => {
+                    openModalBtn.click();
+                }, 800);
+            }
+        });
+    }
+
+    // Optional: Function to submit data to server
+    function submitToServer(data) {
+        // In production, this would send data to your backend
+        fetch('/api/assessment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+});
+
 document.addEventListener('DOMContentLoaded', function() {
   // Implement lazy loading for images
   function setupLazyLoading() {
@@ -441,6 +772,68 @@ document.addEventListener('DOMContentLoaded', function() {
   // Enhanced form handling with mobile optimizations
   const freeClassForm = document.getElementById('free-class-form');
 
+  if (freeClassForm) {
+    freeClassForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // Show loading state
+      const submitButton = freeClassForm.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+      submitButton.innerHTML = 'Processing...';
+
+      // Get form data
+      const formData = new FormData(freeClassForm);
+      const formDataObj = Object.fromEntries(formData.entries());
+
+      // Send data to server
+      fetch('/api/appointments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formDataObj)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Show success message
+          const formSuccess = document.getElementById('form-success');
+          if (formSuccess) {
+            freeClassForm.style.display = 'none';
+            formSuccess.style.display = 'block';
+
+            // Optionally set focus to close button for accessibility
+            const closeSuccessBtn = document.getElementById('close-success');
+            if (closeSuccessBtn) {
+              closeSuccessBtn.focus();
+            }
+          }
+
+          // Track conversion for analytics
+          if (window.dataLayer) {
+            window.dataLayer.push({
+              'event': 'form_submission',
+              'formType': 'free_class'
+            });
+          }
+
+          console.log('Appointment created successfully:', data);
+        } else {
+          // Show error if submission failed
+          console.error('Form submission failed:', data);
+          alert('There was a problem submitting your request. Please try again or call us directly.');
+          submitButton.disabled = false;
+          submitButton.innerHTML = 'RESERVE CLASS';
+        }
+      })
+      .catch(error => {
+        console.error('Error submitting form:', error);
+        alert('There was a problem connecting to our server. Please try again later or call us directly.');
+        submitButton.disabled = false;
+        submitButton.innerHTML = 'RESERVE CLASS';
+      });
+    });
+  }
   if (freeClassForm) {
     // Add input masking for phone field
     const phoneInput = document.getElementById('phone');
