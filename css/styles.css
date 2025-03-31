@@ -1262,11 +1262,12 @@ address a {
 }
 
 .schedule-image {
-  flex: 0.6;
+  flex: 0.4;
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow: var(--shadow-md);
-  height: 400px;
+  height: 320px;
+  min-width: 200px;
 }
 
 .schedule-image img {
@@ -1276,27 +1277,30 @@ address a {
 }
 
 .schedule-cards {
-  flex: 1.4;
+  flex: 1.6;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(2, 1fr);
-  gap: var(--spacing-sm);
+  gap: var(--spacing-md);
+  height: 320px;
 }
 
 .schedule-card {
   position: relative;
-  height: 180px;
+  height: 150px;
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow: var(--shadow-md);
-  transition: var(--transition-medium);
+  transition: all var(--transition-medium);
   cursor: pointer;
+  transform-origin: center;
 }
 
 .schedule-card:hover {
-  transform: translateY(-5px) scale(1.05);
+  transform: translateY(-5px) scale(1.08);
   box-shadow: var(--shadow-lg);
   z-index: 10;
+  height: auto;
 }
 
 .schedule-card-bg {
@@ -1339,12 +1343,14 @@ address a {
 
 .schedule-card:hover .schedule-card-content {
   justify-content: space-between;
+  min-height: 200px;
 }
 
 .schedule-card h3 {
   margin-bottom: var(--spacing-xs);
   color: white;
-  font-size: 1.8rem;
+  font-size: 1.6rem;
+  font-weight: 600;
   transition: var(--transition-medium);
 }
 
@@ -1356,15 +1362,16 @@ address a {
   max-height: 0;
   opacity: 0;
   overflow: hidden;
-  transition: max-height 0.3s ease, opacity 0.3s ease;
+  transition: all 0.4s ease;
   margin-bottom: 0;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
+  line-height: 1.4;
 }
 
 .schedule-card:hover .schedule-card-description {
-  max-height: 100px;
+  max-height: 120px;
   opacity: 1;
-  margin-bottom: var(--spacing-xs);
+  margin: var(--spacing-xs) 0;
 }
 
 .schedule-card .btn {
@@ -1372,9 +1379,15 @@ address a {
   transform: translateY(20px);
   transition: all 0.3s ease;
   font-size: 1.3rem;
-  padding: 0.5rem 1rem;
+  padding: 0.8rem 1rem;
   width: 100%;
   text-align: center;
+  background-color: var(--color-tactical-red);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  margin-top: auto;
 }
 
 .schedule-card:hover .btn {
