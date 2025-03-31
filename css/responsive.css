@@ -121,6 +121,56 @@
     grid-template-columns: repeat(2, 1fr);
     gap: var(--spacing-md);
   }
+
+  /* Responsive adjustments for the schedule section */
+  .schedule-container {
+    flex-direction: row; /* Changed to row for larger screens */
+    align-items: flex-start; /* Align items to the top */
+  }
+
+  .schedule-image {
+    width: 30%; /* Adjust width for the schedule image */
+    margin-right: var(--spacing-md);
+    height: 300px;
+  }
+
+  .schedule-cards {
+    width: 70%; /* Adjust width for the cards container */
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr); /* 3x2 grid */
+    gap: var(--spacing-md);
+  }
+
+  .schedule-card {
+    height: 100%; /* Ensure cards take up full grid cell height */
+    overflow: hidden; /* Hide overflowing content on hover */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .schedule-card:hover {
+    transform: scale(1.05); /* subtle hover effect */
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .schedule-card-content {
+    padding: var(--spacing-md);
+    height: calc(100% - 2 * var(--spacing-md)); /* Adjust for padding */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Distribute content within the card */
+  }
+
+  .schedule-card-description {
+    flex-grow: 1; /* Allow description to take up available space */
+    overflow: hidden; /* Hide overflowing text */
+    text-overflow: ellipsis; /* Add ellipsis if text overflows */
+  }
+
+  .schedule-card .btn {
+    opacity: 1;
+    transform: none;
+    transition: transform 0.3s ease;
+  }
 }
 
 /* Small Devices (up to 768px) */
@@ -269,6 +319,15 @@
 
   .schedule-cards {
     grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr); /* 3x2 grid on tablets */
+  }
+
+  .schedule-card {
+    height: 200px;
+  }
+
+  .schedule-card-description {
+    font-size: 1.3rem;
   }
 
   /* Step Cards */
@@ -504,6 +563,46 @@
   /* Fix mobile hero image for better mobile UX */
   .mobile-hero {
     background-position: top center !important;
+  }
+
+  /* Schedule Section Responsive */
+  .schedule-container {
+    flex-direction: column;
+  }
+
+  .schedule-image {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto var(--spacing-lg);
+  }
+
+  .schedule-cards {
+    grid-template-columns: 1fr; /* Single column on extra small screens */
+    grid-template-rows: repeat(6, 1fr); /* Adjust rows for single column */
+  }
+
+  .schedule-card {
+    height: 200px;
+  }
+
+  .schedule-card h3 {
+    font-size: 1.8rem;
+  }
+
+  .schedule-card-description {
+    font-size: 1.3rem;
+    max-height: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .schedule-card:hover {
+    transform: none;
+  }
+
+  .schedule-card .btn {
+    opacity: 1;
+    transform: none;
   }
 }
 
