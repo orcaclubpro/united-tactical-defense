@@ -242,7 +242,6 @@
 
   /* Grid Items */
   .instructor-grid,
-  .category-grid,
   .testimonial-grid,
   .pricing-plans {
     grid-template-columns: 1fr;
@@ -250,12 +249,26 @@
   }
 
   .instructor-card,
-  .category-card,
   .testimonial-card,
   .pricing-card {
     max-width: 420px;
     margin-left: auto;
     margin-right: auto;
+  }
+
+  /* Schedule Section Responsive */
+  .schedule-container {
+    flex-direction: column;
+  }
+
+  .schedule-image {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto var(--spacing-lg);
+  }
+
+  .schedule-cards {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   /* Step Cards */
