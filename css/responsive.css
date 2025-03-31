@@ -67,6 +67,9 @@
 
   /* Path Steps Layout */
   .path-steps {
+    justify-content: center;
+    gap: clamp(1.5rem, 3vw, 3rem);
+  }
 
   /* Video responsiveness */
   .video-container {
@@ -78,10 +81,6 @@
   .training-video {
     width: 100%;
     height: auto;
-  }
-
-    justify-content: center;
-    gap: clamp(1.5rem, 3vw, 3rem);
   }
 
   .path-steps::before {

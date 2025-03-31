@@ -283,7 +283,6 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         e.stopPropagation(); // Stop the event from bubbling up
         toggleModal(true);
-        console.log('Free class button clicked, opening modal');
       });
     });
 
@@ -441,67 +440,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Enhanced form handling with mobile optimizations
   const freeClassForm = document.getElementById('free-class-form');
-  const formSuccess = document.getElementById('form-success');
-  const closeSuccess = document.getElementById('close-success');
-
-  // Set minimum date to today for date picker
-  if (document.getElementById('appointment_date')) {
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('appointment_date').min = today;
-  }
 
   if (freeClassForm) {
-    freeClassForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      const formData = {
-        first_name: document.getElementById('first_name').value,
-        last_name: document.getElementById('last_name').value,
-        email: document.getElementById('email').value,
-        phone: document.getElementById('phone').value,
-        appointment_date: document.getElementById('appointment_date').value,
-        appointment_time: document.getElementById('appointment_time').value,
-        lead_source: document.getElementById('lead_source').value
-      };
-
-      // Send data to backend API
-      fetch('/api/appointments', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          // Hide form and show success message
-          freeClassForm.style.display = 'none';
-          formSuccess.style.display = 'block';
-        } else {
-          alert('There was an error submitting your form. Please try again.');
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('There was an error submitting your form. Please try again.');
-      });
-    });
-  }
-
-  if (closeSuccess) {
-    closeSuccess.addEventListener('click', function() {
-      document.getElementById('free-class-modal').classList.remove('active');
-      // Reset for next time
-      setTimeout(() => {
-        freeClassForm.style.display = 'block';
-        formSuccess.style.display = 'none';
-        freeClassForm.reset();
-      }, 300);
-    });
-  }
-
-  // Add input masking for phone field
+    // Add input masking for phone field
     const phoneInput = document.getElementById('phone');
     if (phoneInput) {
       phoneInput.addEventListener('input', function(e) {
@@ -539,7 +480,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Improve form validation with better user feedback
     function validateForm() {
       let isValid = true;
-      const inputs = freeClassForm.querySelectorAll('input:not([type="hidden"]), select');
+      const inputs = freeClassForm.querySelectorAll('input, select');
 
       inputs.forEach(input => {
         // Remove any existing error messages
@@ -651,71 +592,44 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       // Get form values
-      const first_name = document.getElementById('first_name').value;
-      const last_name = document.getElementById('last_name').value;
+      const name = document.getElementById('name').value;
       const email = document.getElementById('email').value;
       const phone = document.getElementById('phone').value;
-      const appointment_time = document.getElementById('appointment_time').value;
-      const lead_source = document.getElementById('lead_source').value;
+      const experience = document.getElementById('experience').value;
 
       // Format data for sending
       const formData = {
-        first_name,
-        last_name,
+        name,
         email,
         phone,
-        appointment_time,
-        lead_source,
-        notes: `Device: ${window.innerWidth < 768 ? 'mobile' : 'desktop'}, Date submitted: ${new Date().toISOString()}`
+        experience,
+        device: window.innerWidth < 768 ? 'mobile' : 'desktop',
+        date: new Date().toISOString()
       };
 
-      // Send data to our backend
-      fetch('/api/appointments', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          // Show success message
-          freeClassForm.innerHTML = `
-            <div class="success-message">
-              <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="success-icon">
-                <circle cx="12" cy="12" r="10" stroke="#2E7D32" stroke-width="2"/>
-                <path d="M8 12L11 15L16 9" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <h3>Thank You, ${first_name}!</h3>
-              <p>We've scheduled your free class during ${appointment_time}. One of our instructors will contact you shortly to confirm your appointment.</p>
-            </div>
-          `;
+      // In a real implementation, you would send this data to a server
+      console.log('Form submitted:', formData);
 
-          // Auto-close modal after success (mobile takes longer to read)
-          const closeDelay = window.innerWidth < 768 ? 4000 : 3000;
-          setTimeout(() => {
-            if (modal.classList.contains('active')) {
-              modal.classList.remove('active');
-              document.body.style.overflow = '';
-            }
-          }, closeDelay);
-        } else {
-          // Show error message
-          const errorMsg = document.createElement('div');
-          errorMsg.className = 'error-message';
-          errorMsg.textContent = 'There was a problem submitting your request. Please try again.';
-          freeClassForm.prepend(errorMsg);
+      // Show success message
+      freeClassForm.innerHTML = `
+        <div class="success-message">
+          <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="success-icon">
+            <circle cx="12" cy="12" r="10" stroke="#2E7D32" stroke-width="2"/>
+            <path d="M8 12L11 15L16 9" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <h3>Thank You!</h3>
+          <p>We've received your request for a free class. One of our instructors will contact you within 24 hours to schedule your session.</p>
+        </div>
+      `;
+
+      // Auto-close modal after success (mobile takes longer to read)
+      const closeDelay = window.innerWidth < 768 ? 4000 : 3000;
+      setTimeout(() => {
+        if (modal.classList.contains('active')) {
+          modal.classList.remove('active');
+          document.body.style.overflow = '';
         }
-      })
-      .catch(error => {
-        console.error('Error submitting form:', error);
-        // Show error message
-        const errorMsg = document.createElement('div');
-        errorMsg.className = 'error-message';
-        errorMsg.textContent = 'There was a problem submitting your request. Please try again.';
-        freeClassForm.prepend(errorMsg);
-      });
+      }, closeDelay);
     });
   }
 
@@ -1186,5 +1100,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // We've removed the CSS optimization function as it's not necessary
   // and can cause issues with stylesheet loading
-
-});

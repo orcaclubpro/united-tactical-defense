@@ -1296,4 +1296,4 @@ document.addEventListener('DOMContentLoaded', function() {
 let modalController;
 document.addEventListener('DOMContentLoaded', function() {
   modalController = initOptimizedModal();
-});document.addEventListener('DOMContentLoaded', function() {
+});
