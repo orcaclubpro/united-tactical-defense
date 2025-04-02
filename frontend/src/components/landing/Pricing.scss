@@ -1,0 +1,280 @@
+.pricing-section {
+  padding: 5rem 0;
+  background-color: #fff;
+  
+  .billing-toggle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 2rem 0 3rem;
+    
+    span {
+      margin-bottom: 1rem;
+      color: var(--dark-gray);
+      font-weight: 500;
+    }
+    
+    .toggle-options {
+      display: flex;
+      background-color: var(--light-gray);
+      border-radius: 50px;
+      padding: 0.5rem;
+      
+      .toggle-option {
+        background: none;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        cursor: pointer;
+        border-radius: 50px;
+        font-weight: 500;
+        color: var(--dark-gray);
+        position: relative;
+        transition: all 0.3s ease;
+        
+        &.active {
+          background-color: var(--white);
+          color: var(--secondary-color);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .discount-badge {
+          position: absolute;
+          top: -10px;
+          right: -10px;
+          background-color: var(--primary-color);
+          color: var(--white);
+          font-size: 0.65rem;
+          padding: 0.2rem 0.5rem;
+          border-radius: 20px;
+          white-space: nowrap;
+        }
+      }
+    }
+  }
+  
+  .pricing-cards {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 3rem;
+    
+    .pricing-card {
+      background-color: var(--white);
+      border-radius: 8px;
+      border: 1px solid var(--light-gray);
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+      padding: 2rem;
+      flex: 1;
+      max-width: 350px;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s ease;
+      position: relative;
+      
+      &:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+      
+      &.popular {
+        border-color: var(--primary-color);
+        box-shadow: 0 5px 25px rgba(193, 59, 59, 0.15);
+        transform: scale(1.05);
+        
+        &:hover {
+          transform: scale(1.05) translateY(-10px);
+        }
+      }
+      
+      .popular-badge {
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: var(--primary-color);
+        color: var(--white);
+        font-weight: 600;
+        font-size: 0.875rem;
+        padding: 0.5rem 1.25rem;
+        border-radius: 50px;
+        white-space: nowrap;
+      }
+      
+      .card-header {
+        text-align: center;
+        padding-bottom: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid var(--light-gray);
+        
+        .plan-name {
+          color: var(--secondary-color);
+          margin-bottom: 1rem;
+          font-size: 1.5rem;
+        }
+        
+        .plan-pricing {
+          margin-bottom: 1rem;
+          
+          .currency {
+            font-size: 1.5rem;
+            font-weight: 500;
+            vertical-align: top;
+            line-height: 1;
+            color: var(--dark-gray);
+            margin-right: 0.25rem;
+          }
+          
+          .price {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--primary-color);
+          }
+          
+          .interval {
+            font-size: 1rem;
+            color: var(--dark-gray);
+            margin-left: 0.25rem;
+          }
+        }
+        
+        .plan-description {
+          color: var(--dark-gray);
+          font-size: 0.925rem;
+          line-height: 1.5;
+        }
+      }
+      
+      .card-body {
+        flex: 1;
+        
+        .feature-list {
+          list-style: none;
+          
+          li {
+            padding-left: 1.5rem;
+            position: relative;
+            margin-bottom: 0.75rem;
+            font-size: 0.925rem;
+            color: var(--dark-gray);
+            
+            &:before {
+              content: '✓';
+              position: absolute;
+              left: 0;
+              top: 0;
+              color: var(--primary-color);
+              font-weight: bold;
+            }
+          }
+        }
+      }
+      
+      .card-footer {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--light-gray);
+        
+        .commitment {
+          text-align: center;
+          font-size: 0.85rem;
+          color: var(--dark-gray);
+          margin-bottom: 1.25rem;
+        }
+        
+        .btn {
+          width: 100%;
+          text-align: center;
+        }
+      }
+    }
+  }
+  
+  .pricing-note {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+    font-size: 0.925rem;
+    color: var(--dark-gray);
+    
+    p {
+      margin-bottom: 0.5rem;
+    }
+    
+    a {
+      font-weight: 600;
+    }
+  }
+  
+  /* Responsive styles */
+  @media (max-width: 1200px) {
+    .pricing-cards {
+      .pricing-card {
+        padding: 1.5rem;
+      }
+    }
+  }
+  
+  @media (max-width: 992px) {
+    .pricing-cards {
+      flex-direction: column;
+      align-items: center;
+      
+      .pricing-card {
+        max-width: 500px;
+        width: 100%;
+        
+        &.popular {
+          transform: none;
+          order: -1;
+          
+          &:hover {
+            transform: translateY(-10px);
+          }
+        }
+      }
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .billing-toggle {
+      .toggle-options {
+        flex-direction: column;
+        background: none;
+        padding: 0;
+        gap: 0.75rem;
+        
+        .toggle-option {
+          background-color: var(--light-gray);
+          
+          &.active {
+            background-color: var(--primary-color);
+            color: var(--white);
+          }
+          
+          .discount-badge {
+            right: auto;
+            left: 100%;
+            margin-left: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+          }
+        }
+      }
+    }
+    
+    .pricing-cards {
+      .pricing-card {
+        padding: 1.25rem;
+        
+        .card-header {
+          .plan-pricing {
+            .price {
+              font-size: 3rem;
+            }
+          }
+        }
+      }
+    }
+  }
+} 

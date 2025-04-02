@@ -1,0 +1,15 @@
+export { default as Header } from './Header';
+export { default as Hero } from './Hero';
+export { default as TrustBadges } from './TrustBadges';
+export { default as AssessmentForm } from './AssessmentForm';
+export { default as VideoSection } from './VideoSection';
+export { default as Testimonials } from './Testimonials';
+export { default as Programs } from './Programs';
+export { default as Instructors } from './Instructors';
+export { default as TrainingPath } from './TrainingPath';
+export { default as Pricing } from './Pricing';
+export { default as FAQ } from './FAQ';
+export { default as FreeClass } from './FreeClass';
+export { default as Location } from './Location';
+export { default as CallToAction } from './CallToAction';
+export { default as LandingPage } from './LandingPage'; 

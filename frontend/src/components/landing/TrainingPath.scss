@@ -1,0 +1,265 @@
+.training-path-section {
+  padding: 5rem 0;
+  background-color: var(--light-gray);
+  
+  .path-visualization {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    max-width: 900px;
+    margin: 4rem auto 3rem;
+    padding: 0 1rem;
+    
+    .path-line {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background-color: var(--mid-gray);
+      transform: translateY(-50%);
+      z-index: 1;
+    }
+    
+    .path-node {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--white);
+      border: 3px solid var(--mid-gray);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: scale(1.1);
+        border-color: var(--primary-color);
+        
+        .node-tooltip {
+          opacity: 1;
+          visibility: visible;
+          transform: translateY(0);
+        }
+      }
+      
+      &.active {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(193, 59, 59, 0.3);
+        
+        .node-level {
+          color: var(--white);
+        }
+        
+        .node-tooltip {
+          opacity: 1;
+          visibility: visible;
+          transform: translateY(0);
+        }
+      }
+      
+      &.completed {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        
+        .node-level {
+          color: var(--white);
+        }
+      }
+      
+      .node-level {
+        font-weight: 700;
+        color: var(--secondary-color);
+        font-size: 0.875rem;
+      }
+      
+      .node-tooltip {
+        position: absolute;
+        bottom: calc(100% + 10px);
+        left: 50%;
+        transform: translateX(-50%) translateY(10px);
+        background-color: var(--secondary-color);
+        color: var(--white);
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        
+        &:after {
+          content: '';
+          position: absolute;
+          top: 100%;
+          left: 50%;
+          margin-left: -6px;
+          border-width: 6px;
+          border-style: solid;
+          border-color: var(--secondary-color) transparent transparent transparent;
+        }
+      }
+    }
+  }
+  
+  .level-details {
+    background-color: var(--white);
+    border-radius: 8px;
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto 3rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    
+    .level-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+      
+      .level-badge {
+        background-color: var(--primary-color);
+        color: var(--white);
+        padding: 0.35rem 0.75rem;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        margin-right: 1rem;
+      }
+      
+      .level-title {
+        color: var(--secondary-color);
+        margin: 0;
+        font-size: 1.75rem;
+      }
+    }
+    
+    .level-description {
+      color: var(--dark-gray);
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+    
+    .level-skills {
+      margin-bottom: 1.5rem;
+      
+      h4 {
+        color: var(--secondary-color);
+        margin-bottom: 0.75rem;
+        font-size: 1.1rem;
+      }
+      
+      ul {
+        list-style: none;
+        
+        li {
+          padding-left: 1.5rem;
+          position: relative;
+          margin-bottom: 0.5rem;
+          
+          &:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: var(--primary-color);
+            font-weight: bold;
+          }
+        }
+      }
+    }
+    
+    .level-outcomes, .level-timeframe {
+      margin-bottom: 1.5rem;
+      
+      h4 {
+        color: var(--secondary-color);
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+      }
+      
+      p {
+        color: var(--dark-gray);
+      }
+    }
+    
+    .level-nav {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2rem;
+      
+      .btn-sm {
+        padding: 0.4rem 1rem;
+        font-size: 0.875rem;
+      }
+    }
+  }
+  
+  .training-path-cta {
+    text-align: center;
+    
+    p {
+      font-size: 1.125rem;
+      color: var(--dark-gray);
+      margin-bottom: 1.5rem;
+    }
+  }
+  
+  /* Responsive styles */
+  @media (max-width: 992px) {
+    .path-visualization {
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.5rem;
+      
+      .path-line {
+        display: none;
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .level-details {
+      padding: 1.5rem;
+      
+      .level-header {
+        flex-direction: column;
+        align-items: flex-start;
+        
+        .level-badge {
+          margin-bottom: 0.5rem;
+        }
+      }
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .path-visualization {
+      gap: 1rem;
+      
+      .path-node {
+        width: 35px;
+        height: 35px;
+        
+        .node-level {
+          font-size: 0.8rem;
+        }
+      }
+    }
+    
+    .level-details {
+      padding: 1.25rem;
+      
+      .level-nav {
+        flex-direction: column;
+        gap: 0.75rem;
+        
+        .btn {
+          width: 100%;
+        }
+      }
+    }
+  }
+} 

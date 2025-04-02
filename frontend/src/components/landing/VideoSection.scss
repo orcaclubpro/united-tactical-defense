@@ -1,0 +1,81 @@
+.video-section {
+  padding: 5rem 0;
+  background-color: var(--light-gray);
+  
+  .video-container {
+    margin: 3rem auto;
+    max-width: 900px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    
+    .training-video {
+      width: 100%;
+      display: block;
+      aspect-ratio: 16 / 9;
+      background-color: #000;
+    }
+  }
+  
+  .counter-container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    margin-top: 4rem;
+    
+    .counter-item {
+      text-align: center;
+      padding: 1rem;
+      min-width: 200px;
+      
+      .counter-value {
+        font-size: 3.5rem;
+        font-weight: 700;
+        font-family: 'Bebas Neue', sans-serif;
+        color: var(--primary-color);
+        line-height: 1;
+        margin-bottom: 0.5rem;
+      }
+      
+      .counter-label {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--secondary-color);
+        letter-spacing: 1px;
+      }
+    }
+  }
+  
+  /* Responsive styles */
+  @media (max-width: 768px) {
+    .counter-container {
+      margin-top: 3rem;
+      
+      .counter-item {
+        flex-basis: 50%;
+        padding: 1rem 0.5rem;
+        min-width: 0;
+        
+        .counter-value {
+          font-size: 3rem;
+        }
+        
+        .counter-label {
+          font-size: 0.875rem;
+        }
+      }
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .counter-container {
+      flex-direction: column;
+      gap: 1.5rem;
+      
+      .counter-item {
+        flex-basis: 100%;
+      }
+    }
+  }
+} 
