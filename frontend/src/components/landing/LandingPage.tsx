@@ -23,8 +23,11 @@ const LandingPage: React.FC = () => {
     const trackVisit = async () => {
       try {
         const pageVisitData = {
+          page: window.location.pathname,
+          referrer: document.referrer || '',
+          timestamp: new Date().toISOString(),
+          // Legacy fields mapped to maintain compatibility
           pageUrl: window.location.pathname,
-          referrer: document.referrer || undefined,
           utmSource: new URLSearchParams(window.location.search).get('utm_source') || undefined,
           utmMedium: new URLSearchParams(window.location.search).get('utm_medium') || undefined,
           utmCampaign: new URLSearchParams(window.location.search).get('utm_campaign') || undefined,

@@ -11,7 +11,7 @@ class Analytics {
       utmCampaign, 
       userAgent, 
       ipAddress,
-      isLandingPage 
+      isLandingPage
     } = data;
     
     const query = `
@@ -30,18 +30,36 @@ class Analytics {
     `;
     
     try {
+      console.log('Tracking page visit for:', pageUrl);
+      
       const db = getDbConnection();
+      console.log('Database connection established');
       
       return new Promise((resolve, reject) => {
         db.run(
           query, 
-          [pageUrl, referrer, utmSource, utmMedium, utmCampaign, userAgent, ipAddress, isLandingPage ? 1 : 0],
+          [
+            pageUrl, 
+            referrer, 
+            utmSource, 
+            utmMedium, 
+            utmCampaign, 
+            userAgent, 
+            ipAddress, 
+            isLandingPage ? 1 : 0
+          ],
           function(err) {
-            db.close();
+            console.log('Query executed. Error:', err, 'Last ID:', this.lastID);
+            
             if (err) {
+              db.close();
+              console.log('Database connection closed after error');
               reject(err);
             } else {
-              resolve({ lastID: this.lastID, changes: this.changes });
+              const visitId = this.lastID;
+              db.close();
+              console.log('Database connection closed successfully. Visit ID:', visitId);
+              resolve({ lastID: visitId, changes: this.changes });
             }
           }
         );
@@ -152,7 +170,11 @@ class Analytics {
         AVG(pe.time_on_page) as avg_time_on_page,
         AVG(pe.scroll_depth) as avg_scroll_depth,
         COUNT(c.id) as conversion_count,
-        (COUNT(c.id) * 100.0 / COUNT(pv.id)) as conversion_rate
+        (COUNT(c.id) * 100.0 / COUNT(pv.id)) as conversion_rate,
+        COUNT(DISTINCT pv.session_id) as unique_sessions,
+        pv.device_type,
+        pv.browser,
+        pv.country
       FROM 
         page_visits pv
       LEFT JOIN 
@@ -188,6 +210,21 @@ class Analytics {
       whereConditions.push("pv.is_landing_page = ?");
       params.push(filters.isLandingPage ? 1 : 0);
     }
+
+    if (filters.deviceType) {
+      whereConditions.push("pv.device_type = ?");
+      params.push(filters.deviceType);
+    }
+
+    if (filters.country) {
+      whereConditions.push("pv.country = ?");
+      params.push(filters.country);
+    }
+
+    if (filters.isBot !== undefined) {
+      whereConditions.push("pv.is_bot = ?");
+      params.push(filters.isBot ? 1 : 0);
+    }
     
     if (whereConditions.length > 0) {
       query += " WHERE " + whereConditions.join(" AND ");
@@ -195,7 +232,7 @@ class Analytics {
     
     query += `
       GROUP BY 
-        pv.page_url, pv.utm_source, pv.utm_medium, pv.utm_campaign
+        pv.page_url, pv.utm_source, pv.utm_medium, pv.utm_campaign, pv.device_type, pv.browser, pv.country
       ORDER BY 
         visit_count DESC
     `;
@@ -215,6 +252,184 @@ class Analytics {
       });
     } catch (error) {
       console.error('Error generating analytics report:', error);
+      throw error;
+    }
+  }
+
+  // Get device breakdown for visits
+  static async getDeviceBreakdown(filters = {}) {
+    let query = `
+      SELECT 
+        device_type,
+        COUNT(*) as count,
+        ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM page_visits WHERE is_bot = 0), 2) as percentage
+      FROM 
+        page_visits
+      WHERE 
+        is_bot = 0
+    `;
+    
+    const whereConditions = [];
+    const params = [];
+    
+    if (filters.startDate) {
+      whereConditions.push("visit_time >= ?");
+      params.push(filters.startDate);
+    }
+    
+    if (filters.endDate) {
+      whereConditions.push("visit_time <= ?");
+      params.push(filters.endDate);
+    }
+    
+    if (filters.isLandingPage !== undefined) {
+      whereConditions.push("is_landing_page = ?");
+      params.push(filters.isLandingPage ? 1 : 0);
+    }
+    
+    if (whereConditions.length > 0) {
+      query += " AND " + whereConditions.join(" AND ");
+    }
+    
+    query += `
+      GROUP BY 
+        device_type
+      ORDER BY 
+        count DESC
+    `;
+    
+    try {
+      const db = getDbConnection();
+      
+      return new Promise((resolve, reject) => {
+        db.all(query, params, (err, rows) => {
+          db.close();
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows);
+          }
+        });
+      });
+    } catch (error) {
+      console.error('Error getting device breakdown:', error);
+      throw error;
+    }
+  }
+
+  // Get geographic distribution of visitors
+  static async getGeographicDistribution(filters = {}) {
+    let query = `
+      SELECT 
+        country,
+        COUNT(*) as count,
+        ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM page_visits WHERE country IS NOT NULL AND is_bot = 0), 2) as percentage
+      FROM 
+        page_visits
+      WHERE 
+        country IS NOT NULL
+        AND is_bot = 0
+    `;
+    
+    const whereConditions = [];
+    const params = [];
+    
+    if (filters.startDate) {
+      whereConditions.push("visit_time >= ?");
+      params.push(filters.startDate);
+    }
+    
+    if (filters.endDate) {
+      whereConditions.push("visit_time <= ?");
+      params.push(filters.endDate);
+    }
+    
+    if (filters.isLandingPage !== undefined) {
+      whereConditions.push("is_landing_page = ?");
+      params.push(filters.isLandingPage ? 1 : 0);
+    }
+    
+    if (whereConditions.length > 0) {
+      query += " AND " + whereConditions.join(" AND ");
+    }
+    
+    query += `
+      GROUP BY 
+        country
+      ORDER BY 
+        count DESC
+      LIMIT 20
+    `;
+    
+    try {
+      const db = getDbConnection();
+      
+      return new Promise((resolve, reject) => {
+        db.all(query, params, (err, rows) => {
+          db.close();
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows);
+          }
+        });
+      });
+    } catch (error) {
+      console.error('Error getting geographic distribution:', error);
+      throw error;
+    }
+  }
+
+  // Get new vs returning visitor metrics
+  static async getNewVsReturningMetrics(filters = {}) {
+    let query = `
+      WITH visitor_sessions AS (
+        SELECT 
+          s.visitor_id,
+          MIN(s.start_time) as first_visit,
+          COUNT(s.id) as session_count
+        FROM 
+          user_sessions s
+        JOIN 
+          page_visits pv ON s.first_visit_id = pv.id
+        WHERE 
+          pv.is_bot = 0
+          ${filters.startDate ? "AND s.start_time >= ?" : ""}
+          ${filters.endDate ? "AND s.start_time <= ?" : ""}
+          ${filters.isLandingPage !== undefined ? "AND pv.is_landing_page = ?" : ""}
+        GROUP BY 
+          s.visitor_id
+      )
+      SELECT 
+        COUNT(CASE WHEN session_count = 1 THEN 1 END) as new_visitors,
+        COUNT(CASE WHEN session_count > 1 THEN 1 END) as returning_visitors,
+        ROUND(COUNT(CASE WHEN session_count = 1 THEN 1 END) * 100.0 / COUNT(*), 2) as new_percentage,
+        ROUND(COUNT(CASE WHEN session_count > 1 THEN 1 END) * 100.0 / COUNT(*), 2) as returning_percentage
+      FROM 
+        visitor_sessions
+    `;
+    
+    const params = [];
+    
+    if (filters.startDate) params.push(filters.startDate);
+    if (filters.endDate) params.push(filters.endDate);
+    if (filters.isLandingPage !== undefined) params.push(filters.isLandingPage ? 1 : 0);
+    
+    try {
+      const db = getDbConnection();
+      
+      return new Promise((resolve, reject) => {
+        db.get(query, params, (err, row) => {
+          db.close();
+          if (err) {
+            reject(err);
+          } else {
+            resolve(row);
+          }
+        });
+      });
+    } catch (error) {
+      console.error('Error getting new vs returning metrics:', error);
       throw error;
     }
   }

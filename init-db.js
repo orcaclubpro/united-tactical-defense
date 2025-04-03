@@ -79,7 +79,14 @@ const initDatabase = async () => {
         user_agent TEXT,
         ip_address TEXT,
         is_landing_page INTEGER DEFAULT 0,
-        visit_time DATETIME NOT NULL
+        visit_time DATETIME NOT NULL,
+        session_id TEXT,
+        device_type TEXT,
+        browser TEXT,
+        country TEXT,
+        region TEXT,
+        city TEXT,
+        is_bot INTEGER DEFAULT 0
       )
     `);
     console.log('Page visits table checked/created');
@@ -120,10 +127,46 @@ const initDatabase = async () => {
         landing_page_visits INTEGER NOT NULL,
         conversions INTEGER NOT NULL,
         referral_counts TEXT NOT NULL,
+        devices TEXT,
+        geography TEXT,
+        average_time_per_user REAL DEFAULT 0,
+        report_type TEXT DEFAULT 'daily',
         snapshot_time DATETIME NOT NULL
       )
     `);
     console.log('Metrics snapshots table created');
+
+    // Create user_sessions table
+    await run(`
+      CREATE TABLE IF NOT EXISTS user_sessions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        session_id TEXT NOT NULL,
+        first_visit_id INTEGER,
+        visitor_id TEXT,
+        start_time DATETIME NOT NULL,
+        end_time DATETIME,
+        session_duration INTEGER,
+        pages_viewed INTEGER DEFAULT 1,
+        conversion_id INTEGER,
+        FOREIGN KEY (first_visit_id) REFERENCES page_visits (id),
+        FOREIGN KEY (conversion_id) REFERENCES conversions (id)
+      )
+    `);
+    console.log('User sessions table created');
+
+    // Create attribution_events table
+    await run(`
+      CREATE TABLE IF NOT EXISTS attribution_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        conversion_id INTEGER NOT NULL,
+        visit_id INTEGER NOT NULL,
+        attribution_model TEXT,
+        attribution_weight REAL,
+        FOREIGN KEY (conversion_id) REFERENCES conversions (id),
+        FOREIGN KEY (visit_id) REFERENCES page_visits (id)
+      )
+    `);
+    console.log('Attribution events table created');
 
     // Migrate data from newLeads to leads if newLeads exists
     const tableExists = await new Promise((resolve) => {

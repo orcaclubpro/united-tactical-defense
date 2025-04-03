@@ -16,6 +16,7 @@ const analyticsRoutes = require('./routes/analyticsRoutes');
 // Import middleware
 const requestLogger = require('./middleware/requestLogger');
 const errorHandler = require('./middleware/errorHandler');
+const analyticsInjector = require('./middleware/analyticsInjector');
 
 // Import database
 const { initDatabase } = require('./config/database');
@@ -46,6 +47,16 @@ app.use(requestLogger);
 if (config.nodeEnv === 'production') {
   app.use(express.static(path.join(__dirname, '../frontend/build')));
 }
+
+// Add analytics script injector
+app.use(analyticsInjector({
+  apiEndpoint: '/api/analytics',
+  trackScrollDepth: true,
+  trackClicks: true,
+  trackForms: true,
+  sessionTimeout: 30,
+  excludePaths: ['/admin', '/api']
+}));
 
 // API Routes
 app.use('/api/leads', leadRoutes);

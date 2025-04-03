@@ -4,13 +4,13 @@ const config = {
   nodeEnv: process.env.NODE_ENV || 'development',
   
   // Server
-  port: process.env.PORT || 3001,
+  port: process.env.PORT || 3004,
   host: process.env.HOST || '0.0.0.0',
   
   // CORS settings
   corsOrigins: process.env.CORS_ORIGINS ? 
     process.env.CORS_ORIGINS.split(',') : 
-    ['http://localhost:3000', 'http://localhost:3001', 'https://unitedtacticaldefense.com'],
+    ['http://localhost:3000', 'http://localhost:3004', 'https://unitedtacticaldefense.com'],
   
   // Security
   rateLimitMax: process.env.RATE_LIMIT_MAX || 100,
