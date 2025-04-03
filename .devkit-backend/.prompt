@@ -1,0 +1,48 @@
+Continue developing the United Tactical Defense project using the current development state and continue implementation according to the framework guidelines below.
+
+## System Context
+- Current phase: 1/4 (Architecture & Foundation)
+- Phase focus: Establishing architectural foundation and core infrastructure
+- Development approach: Clean architecture, modular, testable, maintainable, and efficient
+
+## Project Files
+The following files define the project and its current state:
+- .project: Project definition, objectives, and development principles
+- .devflow: Development phases and tasks with deliverables
+- .architecture: Current system design and component integration
+- .changelog: Work completed, priority tasks, and unsolved problems
+
+## Development Instructions
+1. **Identify Current Status**: Based on the changelog, we're in Phase 1 (Architecture & Foundation), implementing the clean architecture pattern with a focus on establishing proper layer separation.
+   
+2. **HIGH PRIORITY Implementation**: Focus on completing the deliverables for a Phase , specifically:
+    
+3. **Technical Implementation**:
+   - Develop modular components with clear separation of concerns
+   - Follow interface-based design for extensibility
+   - Ensure code adheres to the API design, performance, and maintainability requirements
+   - Implement with testability, observability, and good developer experience in mind
+
+4. **Update Documentation**:
+   - Update the HIGH PRIORITY section with the next immediate task this needs to be a big item to make sure the project moves along nicely
+   - List completed work with brief descriptions
+   - Prioritize next steps with integration context
+   - Document unsolved problems, prioritizing any blocking issues
+
+5. **Architecture Updates**:
+   - Update the .architecture file to reflect any structural changes
+   - Ensure component interactions are properly documented
+
+6. **Testing and Verification**:
+   - Test the implementation against Phase 1 deliverable requirements
+   - Verify integration with existing components
+
+7. **Continuous Improvement**:
+   - Identify and implement architectural improvements
+
+## Current Focus Area
+- Working directory: /src/api, /src/services, /src/data
+- Key files: API controllers, service interfaces, data repositories
+- Integration points: Layer interfaces, middleware pipeline, configuration system
+- Specific challenges: Ensuring proper separation of concerns while maintaining efficient data flow
+

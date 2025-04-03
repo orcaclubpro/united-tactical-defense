@@ -4,16 +4,20 @@
   "description": "United Tactical Defense Training Website",
   "main": "backend/index.js",
   "scripts": {
-    "start": "node backend/index.js",
+    "start": "node src/server.js",
     "server": "nodemon backend/index.js",
     "client": "cd frontend && npm start",
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "dev": "nodemon src/server.js",
     "install-all": "npm install && cd frontend && npm install",
     "build": "cd frontend && npm run build",
     "check-ports": "node check-ports.js",
     "predev": "node check-ports.js",
     "prestart": "node check-ports.js",
-    "test-integration": "node test-integration.js"
+    "test-integration": "node test-integration.js",
+    "test": "mocha tests/**/*.test.js",
+    "test:coverage": "nyc mocha tests/**/*.test.js",
+    "migrate": "node src/data/migrations/index.js",
+    "migrate:down": "node src/data/migrations/index.js down"
   },
   "dependencies": {
     "axios": "^1.8.4",
@@ -21,6 +25,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.1",
+    "express-validator": "^7.2.1",
     "form-data": "^4.0.2",
     "geoip-lite": "^1.4.9",
     "jsonwebtoken": "^9.0.2",
@@ -32,7 +37,11 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
-    "nodemon": "^3.1.9"
+    "nodemon": "^2.0.22",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "sinon": "^15.1.0"
   },
   "engines": {
     "node": ">=14.0.0"

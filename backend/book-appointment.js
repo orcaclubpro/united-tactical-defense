@@ -114,15 +114,15 @@ async function submitAppointmentRequest() {
 
   try {
     // In a real implementation, we would make the actual fetch request:
-    const response = await fetch('https://backend.leadconnectorhq.com/appengine/appointment', options);
-    const data = await response.json();
-    console.log(data);
+    //const response = await fetch('https://backend.leadconnectorhq.com/appengine/appointment', options);
+    //const data = await response.json();
+    //console.log(data);
     
     // Instead, we'll just log what would happen
-    //console.log('Request would be sent to: https://backend.leadconnectorhq.com/appengine/appointment');
-    //console.log('Request headers:', options.headers);
-    //console.log('Request body length:', options.body.length);
-    //console.log('First 500 chars of body:', options.body.substring(0, 500));
+    console.log('Request would be sent to: https://backend.leadconnectorhq.com/appengine/appointment');
+    console.log('Request headers:', options.headers);
+    console.log('Request body length:', options.body.length);
+    console.log('First 500 chars of body:', options.body.substring(0, 500));
     
     return 'Appointment request simulation complete';
   } catch (error) {
