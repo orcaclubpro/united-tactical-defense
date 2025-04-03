@@ -6,7 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const formController = require('../controllers/formController');
-const { auth } = require('../middleware/auth');
+const { authenticate, authorize } = require('../middleware/auth');
 const { validateRequest } = require('../middleware/validators');
 
 // Get form configuration
@@ -36,14 +36,16 @@ router.post(
 // Get form submissions (protected, requires authentication)
 router.get(
   '/submissions',
-  auth(['admin', 'manager']),
+  authenticate,
+  authorize(['admin', 'manager']),
   formController.getFormSubmissions
 );
 
 // Get form submission by ID (protected, requires authentication)
 router.get(
   '/submissions/:id',
-  auth(['admin', 'manager']),
+  authenticate,
+  authorize(['admin', 'manager']),
   formController.getFormSubmission
 );
 

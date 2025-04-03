@@ -5,9 +5,13 @@
 
 const { FormRepositoryInterface } = require('../../core/interfaces/repositories');
 const { Form } = require('../../core/entities');
-const db = require('../db');
 
 class FormRepository extends FormRepositoryInterface {
+  constructor(db) {
+    super();
+    this.db = db;
+  }
+  
   /**
    * Find form by ID
    * @param {string|number} id - Form ID
@@ -15,16 +19,13 @@ class FormRepository extends FormRepositoryInterface {
    */
   async findById(id) {
     try {
-      const result = await db.query(
-        'SELECT * FROM forms WHERE id = ?',
-        [id]
-      );
-      
-      if (result.length === 0) {
-        return null;
-      }
-      
-      return new Form(this._mapRowToEntity(result[0]));
+      return new Promise((resolve, reject) => {
+        this.db.get('SELECT * FROM forms WHERE id = ?', [id], (err, row) => {
+          if (err) return reject(err);
+          if (!row) return resolve(null);
+          resolve(new Form(this._mapRowToEntity(row)));
+        });
+      });
     } catch (error) {
       console.error('Error in FormRepository.findById:', error);
       throw error;
@@ -82,9 +83,12 @@ class FormRepository extends FormRepositoryInterface {
         }
       }
       
-      const results = await db.query(query, params);
-      
-      return results.map(row => new Form(this._mapRowToEntity(row)));
+      return new Promise((resolve, reject) => {
+        this.db.all(query, params, (err, rows) => {
+          if (err) return reject(err);
+          resolve(rows.map(row => new Form(this._mapRowToEntity(row))));
+        });
+      });
     } catch (error) {
       console.error('Error in FormRepository.findAll:', error);
       throw error;
@@ -98,12 +102,16 @@ class FormRepository extends FormRepositoryInterface {
    */
   async findByType(formType) {
     try {
-      const results = await db.query(
-        'SELECT * FROM forms WHERE type = ? ORDER BY submitted_at DESC',
-        [formType]
-      );
-      
-      return results.map(row => new Form(this._mapRowToEntity(row)));
+      return new Promise((resolve, reject) => {
+        this.db.all(
+          'SELECT * FROM forms WHERE type = ? ORDER BY submitted_at DESC',
+          [formType],
+          (err, rows) => {
+            if (err) return reject(err);
+            resolve(rows.map(row => new Form(this._mapRowToEntity(row))));
+          }
+        );
+      });
     } catch (error) {
       console.error('Error in FormRepository.findByType:', error);
       throw error;
@@ -119,32 +127,34 @@ class FormRepository extends FormRepositoryInterface {
     try {
       const form = new Form(data);
       
-      const result = await db.query(
-        `INSERT INTO forms (
-          type, 
-          fields, 
-          validation_rules, 
-          data, 
-          submitted_at, 
-          status,
-          ip_address,
-          user_agent
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          form.type,
-          JSON.stringify(form.fields),
-          JSON.stringify(form.validationRules),
-          JSON.stringify(form.data),
-          form.submittedAt,
-          form.status,
-          data.ipAddress || null,
-          data.userAgent || null
-        ]
-      );
-      
-      const insertId = result.insertId;
-      
-      return this.findById(insertId);
+      return new Promise((resolve, reject) => {
+        this.db.run(
+          `INSERT INTO forms (
+            type, 
+            fields, 
+            validation_rules, 
+            data, 
+            submitted_at, 
+            status,
+            ip_address,
+            user_agent
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            form.type,
+            JSON.stringify(form.fields),
+            JSON.stringify(form.validationRules),
+            JSON.stringify(form.data),
+            form.submittedAt,
+            form.status,
+            data.ipAddress || null,
+            data.userAgent || null
+          ],
+          function(err) {
+            if (err) return reject(err);
+            resolve(this.lastID);
+          }
+        );
+      }).then(insertId => this.findById(insertId));
     } catch (error) {
       console.error('Error in FormRepository.create:', error);
       throw error;
@@ -210,7 +220,7 @@ class FormRepository extends FormRepositoryInterface {
       
       updateParams.push(id);
       
-      await db.query(
+      await this.db.run(
         `UPDATE forms SET ${updateFields.join(', ')} WHERE id = ?`,
         updateParams
       );
@@ -229,12 +239,12 @@ class FormRepository extends FormRepositoryInterface {
    */
   async delete(id) {
     try {
-      const result = await db.query(
+      const result = await this.db.run(
         'DELETE FROM forms WHERE id = ?',
         [id]
       );
       
-      return result.affectedRows > 0;
+      return result.changes > 0;
     } catch (error) {
       console.error('Error in FormRepository.delete:', error);
       throw error;
@@ -249,7 +259,7 @@ class FormRepository extends FormRepositoryInterface {
    */
   async findByConversion(entityType, entityId) {
     try {
-      const results = await db.query(
+      const results = await this.db.all(
         `SELECT * FROM forms 
          WHERE JSON_EXTRACT(converted_to, '$.entityType') = ? 
          AND JSON_EXTRACT(converted_to, '$.entityId') = ?`,
@@ -264,26 +274,28 @@ class FormRepository extends FormRepositoryInterface {
   }
   
   /**
-   * Map database row to entity properties
+   * Map database row to entity object
    * @param {Object} row - Database row
-   * @returns {Object} - Entity properties
+   * @returns {Object} - Entity data
    * @private
    */
   _mapRowToEntity(row) {
     return {
       id: row.id,
       type: row.type,
-      fields: JSON.parse(row.fields || '{}'),
-      validationRules: JSON.parse(row.validation_rules || '{}'),
-      data: JSON.parse(row.data || '{}'),
-      submittedAt: new Date(row.submitted_at),
+      fields: JSON.parse(row.fields),
+      validationRules: JSON.parse(row.validation_rules),
+      data: JSON.parse(row.data),
+      submittedAt: row.submitted_at,
       status: row.status,
-      processingResult: row.processing_result ? JSON.parse(row.processing_result) : undefined,
-      convertedTo: row.converted_to ? JSON.parse(row.converted_to) : undefined,
+      processingResult: row.processing_result ? JSON.parse(row.processing_result) : null,
+      convertedTo: row.converted_to ? JSON.parse(row.converted_to) : null,
       ipAddress: row.ip_address,
-      userAgent: row.user_agent
+      userAgent: row.user_agent,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
     };
   }
 }
 
-module.exports = new FormRepository(); 
+module.exports = FormRepository; 

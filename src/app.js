@@ -143,6 +143,16 @@ const initializeApp = async () => {
     res.json({ status: 'ok', environment: config.nodeEnv });
   });
   
+  // Status endpoint
+  app.get('/api/status', (req, res) => {
+    res.json({ 
+      status: 'online', 
+      version: '1.0.0',
+      environment: config.nodeEnv,
+      timestamp: new Date().toISOString()
+    });
+  });
+  
   // Serve static frontend files in production
   if (config.serveStaticFiles && config.nodeEnv === 'production') {
     app.use(express.static(path.join(__dirname, '../frontend/build')));

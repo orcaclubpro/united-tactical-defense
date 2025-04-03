@@ -33,9 +33,38 @@ const up = async (db) => {
   `;
   
   try {
-    await db.run(createTableQuery);
-    await db.run(createIndexQuery);
-    console.log('Leads table created successfully');
+    // Run create table as a proper promise
+    await new Promise((resolve, reject) => {
+      db.run(createTableQuery, (err) => {
+        if (err) return reject(err);
+        console.log('Leads table created successfully');
+        resolve();
+      });
+    });
+    
+    // Run each index creation separately
+    await new Promise((resolve, reject) => {
+      db.run(`CREATE INDEX IF NOT EXISTS idx_leads_status ON leads(status)`, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+    
+    await new Promise((resolve, reject) => {
+      db.run(`CREATE INDEX IF NOT EXISTS idx_leads_email ON leads(email)`, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+    
+    await new Promise((resolve, reject) => {
+      db.run(`CREATE INDEX IF NOT EXISTS idx_leads_assigned_to ON leads(assigned_to)`, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+    
+    console.log('Leads indexes created successfully');
   } catch (error) {
     console.error('Error creating leads table:', error);
     throw error;
@@ -51,8 +80,13 @@ const down = async (db) => {
   const dropTableQuery = 'DROP TABLE IF EXISTS leads';
   
   try {
-    await db.run(dropTableQuery);
-    console.log('Leads table dropped successfully');
+    await new Promise((resolve, reject) => {
+      db.run(dropTableQuery, (err) => {
+        if (err) return reject(err);
+        console.log('Leads table dropped successfully');
+        resolve();
+      });
+    });
   } catch (error) {
     console.error('Error dropping leads table:', error);
     throw error;
