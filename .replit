@@ -5,9 +5,9 @@ modules = ["nodejs-14", "web"]
 channel = "stable-24_05"
 
 [deployment]
-publicDir = "/frontend/build"
+publicDir = "frontend/build"
 deploymentTarget = "static"
-build = ["sh", "-c", "cd frontend && npm install && npm run build"]
+build = ["sh", "-c", "cd frontend && npm install && npm run build && ls -la build"]
 
 [[ports]]
 localPort = 5000
