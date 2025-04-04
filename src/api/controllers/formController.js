@@ -245,11 +245,146 @@ async function submitExternalAppointmentForm(req, res, next) {
   }
 }
 
+/**
+ * Submit free class form - specific endpoint for frontend integration
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
+async function submitFreeClassForm(req, res, next) {
+  try {
+    console.log('============ FREE CLASS FORM SUBMISSION ============');
+    console.log('Request headers:', req.headers);
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    
+    const formData = req.body;
+    
+    if (!formData) {
+      console.log('Error: Form data is missing');
+      return res.status(400).json({
+        success: false,
+        message: 'Form data is required'
+      });
+    }
+    
+    // Gather request information
+    const requestInfo = {
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+      userId: req.user ? req.user.id : null,
+      sessionId: req.headers['x-session-id'],
+      referer: req.headers.referer
+    };
+    
+    console.log('Request info:', requestInfo);
+    
+    // Process form submission
+    const formService = getFormService();
+    const result = await formService.processFormSubmission('free-class', formData, requestInfo);
+    
+    console.log('Submission result:', JSON.stringify(result, null, 2));
+    
+    if (!result.success) {
+      console.log('Submission failed:', result);
+      return res.status(400).json(result);
+    }
+    
+    console.log('Submission successful!');
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error('Free class form submission error:', error);
+    next(error);
+  }
+}
+
+/**
+ * Submit assessment form - specific endpoint for frontend integration
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
+async function submitAssessmentForm(req, res, next) {
+  try {
+    const formData = req.body;
+    
+    if (!formData) {
+      return res.status(400).json({
+        success: false,
+        message: 'Form data is required'
+      });
+    }
+    
+    // Gather request information
+    const requestInfo = {
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+      userId: req.user ? req.user.id : null,
+      sessionId: req.headers['x-session-id'],
+      referer: req.headers.referer
+    };
+    
+    // Process form submission
+    const formService = getFormService();
+    const result = await formService.processFormSubmission('assessment', formData, requestInfo);
+    
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+    
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * Submit contact form - specific endpoint for frontend integration
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
+async function submitContactForm(req, res, next) {
+  try {
+    const formData = req.body;
+    
+    if (!formData) {
+      return res.status(400).json({
+        success: false,
+        message: 'Form data is required'
+      });
+    }
+    
+    // Gather request information
+    const requestInfo = {
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+      userId: req.user ? req.user.id : null,
+      sessionId: req.headers['x-session-id'],
+      referer: req.headers.referer
+    };
+    
+    // Process form submission
+    const formService = getFormService();
+    const result = await formService.processFormSubmission('contact', formData, requestInfo);
+    
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+    
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   getFormConfig,
   validateForm,
   submitForm,
   getFormSubmission,
   getFormSubmissions,
-  submitExternalAppointmentForm
+  submitExternalAppointmentForm,
+  submitFreeClassForm,
+  submitAssessmentForm,
+  submitContactForm
 }; 

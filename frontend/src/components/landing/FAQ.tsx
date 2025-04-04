@@ -17,26 +17,26 @@ const faqItems: FAQItem[] = [
   },
   {
     id: 2,
-    question: "What safety protocols do you have in place?",
-    answer: "Safety is our top priority. We have a comprehensive safety protocol that includes proper firearms handling, thorough equipment checks, clear range commands, qualified supervision, and mandatory safety briefings before every class. Our instructor-to-student ratio ensures personalized attention and safe training.",
-    category: "General"
+    question: "Are real firearms used in your facility?",
+    answer: "No, there are no real firearms involved in our facility. We use state-of-the-art simulation technology that provides realistic training experiences without the risks associated with live firearms.",
+    category: "Safety"
   },
   {
     id: 3,
-    question: "Do I need to bring my own firearm?",
-    answer: "While you're welcome to train with your own firearm (subject to our safety inspection), we provide all necessary equipment for our classes, including firearms, holsters, and safety gear. This is especially helpful for beginners who don't yet own personal equipment.",
+    question: "Do I need to bring my own equipment?",
+    answer: "All necessary training equipment is provided for our classes. This is especially helpful for beginners who don't yet own personal equipment. We ensure everyone has access to the tools needed for effective training.",
     category: "Equipment"
   },
   {
     id: 4,
     question: "How often should I train to maintain proficiency?",
-    answer: "For maintaining basic proficiency, we recommend training at least once a month. For those seeking to build and advance their skills, weekly training sessions provide the consistency needed for developing muscle memory and tactical proficiency.",
+    answer: "For maintaining proficiency, we suggest training at least 2 times a month. Consistent practice is essential for developing and retaining muscle memory and tactical skills.",
     category: "Training"
   },
   {
     id: 5,
     question: "Do you offer private training sessions?",
-    answer: "Yes, we offer private one-on-one and small group training sessions that can be customized to your specific needs and schedule. These sessions are perfect for focused skill development or addressing particular concerns that may not be covered in our standard classes.",
+    answer: "We do not offer one-on-one classes. Instead, we maintain small group training sessions with a maximum of 5 people per class. This format provides personalized attention while also allowing for important group interaction and scenario practice.",
     category: "Training"
   },
   {
@@ -48,7 +48,7 @@ const faqItems: FAQItem[] = [
   {
     id: 7,
     question: "Is there an age requirement for training?",
-    answer: "For most of our standard classes, participants must be at least 18 years old. We do offer specialized youth programs for ages 14-17 with parent/guardian consent and participation. Please contact us for details on these specialized programs.",
+    answer: "Yes, participants must be at least 18 years old for all our classes. We do not currently offer youth programs or training for minors.",
     category: "General"
   },
   {

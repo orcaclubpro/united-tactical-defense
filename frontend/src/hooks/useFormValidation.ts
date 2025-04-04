@@ -75,7 +75,7 @@ const useFormValidation = ({
     const updatedErrors: FormErrors = { ...contextErrors };
     
     // Remove all errors for current step fields
-    step.fields.forEach(field => {
+    step.fields.forEach((field: string) => {
       delete updatedErrors[field];
     });
     

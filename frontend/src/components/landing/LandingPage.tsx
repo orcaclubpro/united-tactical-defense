@@ -77,7 +77,7 @@ const LandingPage: React.FC = () => {
       <Pricing />
       <FAQ />
       
-      {/* Replacing FreeClass component with ClassSection that will use the FreeLessonFormController */}
+      {/* ClassSection that will trigger the FreeLessonFormController */}
       <ClassSection openForm={openForm} />
       
       <CallToAction />

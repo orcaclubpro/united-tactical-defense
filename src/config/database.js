@@ -110,8 +110,8 @@ const runMigrations = async () => {
     }
     
     // Import migration runner
-    const { runMigrations } = require('../data/migrations');
-    await runMigrations('up');
+    const migrationsRunner = require('../data/migrations');
+    await migrationsRunner();
     
     console.log('Database migrations completed');
   } catch (err) {

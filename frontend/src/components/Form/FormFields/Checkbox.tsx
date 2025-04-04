@@ -6,6 +6,9 @@ interface CheckboxProps {
   name: string;
   label: string;
   required?: boolean;
+  checked?: boolean;
+  id?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const CheckboxContainer = styled.div`
@@ -44,14 +47,23 @@ const ErrorMessage = styled.div`
 const Checkbox: React.FC<CheckboxProps> = ({ 
   name, 
   label, 
-  required = false 
+  required = false,
+  checked: propChecked,
+  id,
+  onChange
 }) => {
   const { formData, updateFormData, errors } = useForm();
-  const checked = Boolean(formData[name]);
+  const formChecked = Boolean(formData[name]);
+  const isControlled = propChecked !== undefined && onChange !== undefined;
+  const checked = isControlled ? propChecked : formChecked;
   const error = errors[name];
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateFormData(name, e.target.checked);
+    if (isControlled) {
+      onChange!(e);
+    } else {
+      updateFormData({ [name]: e.target.checked });
+    }
   };
   
   return (
@@ -59,13 +71,13 @@ const Checkbox: React.FC<CheckboxProps> = ({
       <CheckboxContainer>
         <Input
           type="checkbox"
-          id={name}
+          id={id || name}
           name={name}
           checked={checked}
           onChange={handleChange}
           required={required}
         />
-        <Label htmlFor={name} className={required ? 'required' : ''}>
+        <Label htmlFor={id || name} className={required ? 'required' : ''}>
           {label}
         </Label>
       </CheckboxContainer>

@@ -221,11 +221,102 @@ const cancelAppointment = async (req, res) => {
   }
 };
 
+/**
+ * Reserve a time slot for an appointment
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const reserveTimeSlot = async (req, res) => {
+  try {
+    const { leadId, timeSlotId } = req.body;
+    
+    if (!leadId || !timeSlotId) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Lead ID and time slot ID are required'
+      });
+    }
+    
+    // Reserve the time slot
+    const reservation = await appointmentService.reserveTimeSlot(timeSlotId, leadId);
+    
+    return res.status(200).json({
+      success: true,
+      data: reservation,
+      message: 'Time slot reserved successfully'
+    });
+  } catch (error) {
+    console.error('Error in appointmentController.reserveTimeSlot:', error);
+    
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message || 'Failed to reserve time slot'
+    });
+  }
+};
+
+/**
+ * Create an appointment directly from the frontend form
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const createAppointmentFromForm = async (req, res) => {
+  try {
+    const formData = req.body;
+    
+    // Validate the form data
+    if (!formData.name || !formData.email || !formData.phone) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Name, email, and phone are required'
+      });
+    }
+    
+    if (!formData.appointmentDate || !formData.appointmentTime) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Appointment date and time are required'
+      });
+    }
+    
+    // Format the appointment data
+    const appointmentData = {
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      date: formData.appointmentDate,
+      timeSlot: formData.appointmentTime,
+      program: formData.program || 'default',
+      notes: formData.notes || ''
+    };
+    
+    // Create appointment from form data
+    const appointment = await appointmentService.createAppointmentFromForm(appointmentData);
+    
+    return res.status(201).json({
+      success: true,
+      data: {
+        appointment: appointment
+      },
+      message: 'Appointment created successfully'
+    });
+  } catch (error) {
+    console.error('Error in appointmentController.createAppointmentFromForm:', error);
+    
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message || 'Failed to create appointment'
+    });
+  }
+};
+
 module.exports = {
   createAppointment,
   getAppointments,
   getAppointmentById,
   getAvailableTimeSlots,
   rescheduleAppointment,
-  cancelAppointment
+  cancelAppointment,
+  reserveTimeSlot,
+  createAppointmentFromForm
 }; 

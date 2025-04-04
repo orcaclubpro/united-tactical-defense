@@ -160,6 +160,7 @@ const initializeApp = async () => {
     }
   }, appointmentRoutes);
   
+  // Regular form routes path (/api/forms)
   app.use('/api/forms', rateLimiter.api, (req, res, next) => {
     // Cache form configurations longer as they rarely change
     if (req.method === 'GET' && req.path.startsWith('/config/')) {
@@ -168,6 +169,9 @@ const initializeApp = async () => {
       next();
     }
   }, formRoutes);
+  
+  // Additional form routes path to match frontend API expectations (/api/form)
+  app.use('/api/form', rateLimiter.api, formRoutes);
   
   // Apply short cache for analytics routes that are read-only
   app.use('/api/analytics', rateLimiter.api, (req, res, next) => {

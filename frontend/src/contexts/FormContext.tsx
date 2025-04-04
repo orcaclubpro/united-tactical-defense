@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 
 // FormFieldValue can be any type of form field value
-type FormFieldValue = string | number | boolean | Date | null;
+export type FormFieldValue = string | number | boolean | Date | null;
 
 // FormData is a record of field names to their values
 export interface FormData {
@@ -44,9 +44,20 @@ interface FormContextType {
   validateStep: (stepName: string) => boolean;
   goToNextStep: () => void;
   goToPreviousStep: () => void;
-  updateFormData: (data: FormData) => void;
+  updateFormData: (dataOrKey: FormData | string, value?: FormFieldValue) => void;
   submitForm: () => Promise<any>;
   resetForm: () => void;
+  
+  // Additional properties that components are expecting
+  formData: FormData;
+  errors: FormErrors;
+  setErrors: (errors: FormErrors) => void;
+  currentStepIndex: number;
+  currentStep: FormStep;
+  steps: FormStep[];
+  isFirstStep: boolean;
+  isLastStep: boolean;
+  goToStep: (stepIndex: number) => void;
 }
 
 // Default values for the context
@@ -69,7 +80,18 @@ export const FormContext = createContext<FormContextType>({
   goToPreviousStep: () => {},
   updateFormData: () => {},
   submitForm: async () => ({}),
-  resetForm: () => {}
+  resetForm: () => {},
+  
+  // Additional properties
+  formData: {},
+  errors: {},
+  setErrors: () => {},
+  currentStepIndex: 0,
+  currentStep: { id: '', title: '', fields: [] },
+  steps: [],
+  isFirstStep: true,
+  isLastStep: true,
+  goToStep: () => {}
 });
 
 // Add FormProvider component
@@ -85,14 +107,26 @@ export const FormProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   // Update form data 
-  const updateFormData = (data: Partial<FormData>) => {
-    setFormState(prevState => ({
-      ...prevState,
-      data: {
-        ...prevState.data,
-        ...data
-      }
-    }));
+  const updateFormData = (dataOrKey: FormData | string, value?: FormFieldValue) => {
+    if (typeof dataOrKey === 'string' && value !== undefined) {
+      // Handle key-value pair
+      setFormState(prevState => ({
+        ...prevState,
+        data: {
+          ...prevState.data,
+          [dataOrKey]: value
+        }
+      }));
+    } else if (typeof dataOrKey === 'object') {
+      // Handle object of changes
+      setFormState(prevState => ({
+        ...prevState,
+        data: {
+          ...prevState.data,
+          ...dataOrKey
+        }
+      }));
+    }
   };
 
   // Go to next step
@@ -223,6 +257,52 @@ export const FormProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
+  // Calculate additional derived properties
+  const steps: FormStep[] = formState.steps.map(stepId => ({
+    id: stepId,
+    title: stepId.charAt(0).toUpperCase() + stepId.slice(1),
+    fields: getFieldsForStep(stepId)
+  }));
+
+  const currentStepIndex = formState.currentStep;
+  const currentStep = steps[currentStepIndex] || { id: '', title: '', fields: [] };
+  const isFirstStep = currentStepIndex === 0;
+  const isLastStep = currentStepIndex === formState.steps.length - 1;
+
+  // Method to go to specific step
+  const goToStep = (stepIndex: number) => {
+    if (stepIndex >= 0 && stepIndex < formState.steps.length) {
+      setFormState(prevState => ({
+        ...prevState,
+        currentStep: stepIndex,
+        errors: {}
+      }));
+    }
+  };
+
+  // Function to get fields for each step
+  function getFieldsForStep(stepId: string): string[] {
+    switch (stepId) {
+      case 'contact':
+        return ['name', 'email', 'phone'];
+      case 'appointment':
+        return ['date', 'time', 'timeSlotId'];
+      case 'summary':
+        return [];
+      default:
+        return [];
+    }
+  }
+
+  // Method to set form errors directly
+  const setErrors = (errors: FormErrors) => {
+    setFormState(prevState => ({
+      ...prevState,
+      errors,
+      isValid: Object.keys(errors).length === 0
+    }));
+  };
+
   // Provide the context value
   const contextValue: FormContextType = {
     formState,
@@ -232,7 +312,18 @@ export const FormProvider: React.FC<{ children: React.ReactNode }> = ({ children
     goToPreviousStep,
     validateStep,
     submitForm,
-    resetForm
+    resetForm,
+    
+    // Additional properties
+    formData: formState.data,
+    errors: formState.errors,
+    setErrors,
+    currentStepIndex,
+    currentStep,
+    steps,
+    isFirstStep,
+    isLastStep,
+    goToStep
   };
 
   return (
@@ -244,5 +335,8 @@ export const FormProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 // Custom hook for using form context
 export const useFormContext = () => useContext(FormContext);
+
+// Add alias for backward compatibility
+export const useForm = useFormContext;
 
 export default FormContext; 

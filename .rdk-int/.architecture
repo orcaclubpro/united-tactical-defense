@@ -1,0 +1,143 @@
+# Architecture
+
+## System Overview
+The Form Integration System connects frontend applications with backend form processing services, providing secure submission, offline support, analytics tracking, and appointment scheduling.
+
+## Core Components
+
+### Form Context System Architecture
+- **FormContext**: Central provider for form state management
+  - Enhanced with additional properties for better component integration
+  - Supports both object-based and key-value updates via updateFormData
+  - Provides direct access to derived properties like currentStep, isFirstStep
+  - Generates step metadata dynamically based on step IDs
+  - Implements simplified API for components while maintaining internal complexity
+
+### API Client Layer
+- **FormAPIClient**: Central client for form operations
+  - Handles form retrieval, submission, and validation
+  - Manages API connections with retry and error handling
+  - Implements rate limiting and request queuing
+
+- **CalendarAPIClient**: Manages appointment scheduling
+  - Handles availability checking
+  - Processes booking requests
+  - Manages appointment confirmations and cancellations
+
+### Authentication & Security
+- **AuthService**: Manages authentication and session
+  - Handles token-based authentication
+  - Implements token refresh and session management
+  - Secures API requests with proper authorization
+
+### Offline Support
+- **OfflineSubmissionQueue**: Manages submissions during offline periods
+  - Stores form submissions locally
+  - Handles synchronization when connection is restored
+  - Implements conflict resolution strategies
+
+### Analytics & User Preferences
+- **FormAnalyticsService**: Tracks form usage and submissions
+  - Collects interaction metrics
+  - Tracks submission success/failure rates
+  - Measures performance and user journey
+
+- **UserPreferencesService**: Manages user-specific settings
+  - Handles preference synchronization
+  - Manages default values and user-specific configurations
+
+## Component Interactions
+```
+┌─────────────────┐     ┌──────────────────┐     ┌───────────────────┐
+│  Form Component │────▶│   FormAPIClient  │────▶│   Backend API     │
+└─────────────────┘     └──────────────────┘     └───────────────────┘
+        │                        │                         ▲
+        │                        │                         │
+        │                        ▼                         │
+        │               ┌──────────────────┐              │
+        │               │   AuthService    │──────────────┘
+        │               └──────────────────┘
+        │                        ▲
+        │                        │
+┌───────▼───────────┐   ┌───────┴───────────┐
+│ Calendar Component│───▶│ CalendarAPIClient │
+└───────────────────┘   └───────────────────┘
+
+┌─────────────────┐     ┌──────────────────┐
+│  Form Component │────▶│AnalyticsService  │
+└─────────────────┘     └──────────────────┘
+
+┌─────────────────┐     ┌──────────────────┐     ┌───────────────────┐
+│  Form Component │────▶│OfflineQueue      │────▶│   Backend API     │
+└─────────────────┘     └──────────────────┘     └───────────────────┘
+```
+
+## Directory Structure
+```
+/src
+  /services
+    /api
+      FormAPIClient.ts       # Primary form API client
+      CalendarAPIClient.ts   # Calendar and scheduling API client
+    /auth
+      AuthService.ts         # Authentication service
+      TokenManager.ts        # Token handling and refresh
+    /offline
+      OfflineSubmissionQueue.ts  # Offline queue management
+      SyncService.ts         # Synchronization service
+    /analytics
+      FormAnalyticsService.ts  # Analytics tracking
+    /preferences
+      UserPreferencesService.ts  # User preferences management
+  /contexts
+    FormContext.tsx          # Form state management context
+    NavigationContext.tsx    # Navigation state management
+  /types
+    ApiTypes.ts              # API data types and interfaces
+    FormTypes.ts             # Form data structures
+    AuthTypes.ts             # Authentication types
+  /utils
+    ErrorHandling.ts         # Error handling utilities
+    NetworkUtils.ts          # Network status utilities
+    ValidationUtils.ts       # Form validation utilities
+  /hooks
+    useForm.ts               # Form handling hook
+    useAuth.ts               # Authentication hook
+    useOffline.ts            # Offline detection hook
+  /components
+    Form.tsx                 # Main form component
+    FormField.tsx            # Form field component
+    SubmitButton.tsx         # Submit button with states
+    Calendar.tsx             # Calendar selection component
+  /tests
+    /unit                    # Unit tests
+    /integration             # Integration tests
+    /e2e                     # End-to-end tests
+```
+
+## API Design
+- RESTful API communication with JSON payloads
+- Token-based authentication using JWT
+- Versioned API endpoints
+- Comprehensive error responses with codes and messages
+- Rate limiting with exponential backoff
+- Optimistic updates with conflict resolution
+
+## Data Flow
+1. User authenticates via AuthService
+2. Forms are fetched via FormAPIClient
+3. User completes form with validation
+4. On submission:
+   - Online: FormAPIClient sends to backend
+   - Offline: OfflineSubmissionQueue stores for later
+5. Analytics are captured throughout process
+6. Appointments are booked via CalendarAPIClient
+
+## Current Implementation Status
+- FormAPIClient: Not started
+- AuthService: Not started
+- CalendarAPIClient: Not started
+- OfflineSubmissionQueue: Not started
+- FormAnalyticsService: Not started
+- UserPreferencesService: Not started
+- FormContext: Updated with enhanced properties

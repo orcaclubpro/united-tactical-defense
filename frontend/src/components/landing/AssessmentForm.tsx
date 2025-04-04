@@ -34,6 +34,16 @@ const AssessmentForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [showResults, setShowResults] = useState<boolean>(false);
   const totalSteps = 5;
+  const [showContactForm, setShowContactForm] = useState(false);
+  const [contactInfo, setContactInfo] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: ''
+  });
+  const [showFinalSuccess, setShowFinalSuccess] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // Update progress bar when step changes
   useEffect(() => {
@@ -83,6 +93,13 @@ const AssessmentForm: React.FC = () => {
         ...formData,
         [name]: input.value
       });
+      
+      // Automatically advance to next step after a short delay
+      setTimeout(() => {
+        if (currentStep < totalSteps) {
+          setCurrentStep(currentStep + 1);
+        }
+      }, 500);
     } else if (input.type === 'checkbox') {
       // Toggle checkbox
       input.checked = !input.checked;
@@ -200,11 +217,58 @@ const AssessmentForm: React.FC = () => {
         recommendedProgram: rec.programName
       });
 
-      // Show results
-      setShowResults(true);
+      // Show contact form instead of results
+      setSubmitSuccess(true);
+      setShowContactForm(true);
     } catch (error) {
       console.error('Error submitting assessment:', error);
       alert('There was an error submitting your information. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle contact info changes
+  const handleContactInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setContactInfo({
+      ...contactInfo,
+      [name]: value
+    });
+  };
+  
+  // Submit contact info
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      // Submit the contact info along with the assessment data
+      const combinedData = {
+        ...formData,
+        firstName: contactInfo.firstName,
+        lastName: contactInfo.lastName,
+        email: contactInfo.email || formData.email,
+        phone: contactInfo.phone || formData.phone,
+      };
+      
+      // Submit to your API (reuse existing function or create new one)
+      try {
+        await submitAssessmentForm(combinedData);
+        console.log('Contact info saved successfully.');
+      } catch (error) {
+        console.error('Error saving contact info:', error);
+        // Continue anyway to show final success
+      }
+      
+      // Hide contact form and show recommendation
+      setShowContactForm(false);
+      setShowFinalSuccess(true);
+      setShowResults(true);
+      
+    } catch (error) {
+      console.error('Error submitting contact info:', error);
+      setErrorMessage('There was an error saving your contact information. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -465,39 +529,165 @@ const AssessmentForm: React.FC = () => {
                 </div>
               )}
             </div>
-          </div>
-
-          {/* Navigation buttons */}
-          <div className="assessment-nav">
-            <button 
-              className="btn btn-secondary" 
-              id="prev-question" 
-              onClick={goToPreviousStep} 
-              disabled={currentStep === 1 || showResults}
-            >
-              PREVIOUS
-            </button>
-            {!showResults && (
-              currentStep < totalSteps ? (
-                <button 
-                  className="btn btn-primary" 
-                  id="next-question" 
-                  onClick={goToNextStep}
-                >
-                  NEXT
-                </button>
-              ) : (
-                <button 
-                  className="btn btn-primary" 
-                  id="submit-assessment" 
-                  onClick={submitAssessment}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'SUBMITTING...' : 'GET MY RECOMMENDATION'}
-                </button>
-              )
+            
+            {/* Contact Form step (shown after initial submission) */}
+            {submitSuccess && showContactForm && (
+              <div className="question-step contact-step active">
+                <div className="contact-form-header">
+                  <h3>Almost Done!</h3>
+                  <p>Please provide your name so we can prepare your personalized training recommendations:</p>
+                </div>
+                
+                <form onSubmit={handleContactSubmit} className="contact-details-form">
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label htmlFor="firstName">First Name *</label>
+                      <input
+                        type="text"
+                        id="firstName"
+                        name="firstName"
+                        value={contactInfo.firstName}
+                        onChange={handleContactInfoChange}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="lastName">Last Name *</label>
+                      <input
+                        type="text"
+                        id="lastName"
+                        name="lastName"
+                        value={contactInfo.lastName}
+                        onChange={handleContactInfoChange}
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="form-actions">
+                    <button 
+                      type="submit" 
+                      className="btn btn-primary"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? 'Submitting...' : 'View Recommendations'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+            
+            {/* Final Success Message */}
+            {showFinalSuccess && !showResults && (
+              <div className="question-step success-step active">
+                <div className="success-message">
+                  <div className="success-icon">✓</div>
+                  <h3>Thank You, {contactInfo.firstName}!</h3>
+                  <p>Your assessment has been submitted successfully. We'll review your responses and contact you soon with your personalized training recommendations.</p>
+                  <div className="success-actions">
+                    <a href="#programs" className="btn btn-secondary">View Training Programs</a>
+                    <a href="#free-class" className="btn btn-primary">Schedule a Free Class</a>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
+
+          {/* Show results (recommendation) */}
+          {showResults && recommendation && (
+            <div className="assessment-results">
+              <h3>Your Recommended Program:</h3>
+              <div className="program-card">
+                <h4>{recommendation.programName}</h4>
+                <p>{recommendation.description}</p>
+                <ul className="program-features">
+                  {recommendation.features.map((feature, index) => (
+                    <li key={index}>{feature}</li>
+                  ))}
+                </ul>
+                <div className="program-price">{recommendation.price}</div>
+                <div className="program-cta">
+                  <button className="btn btn-primary" onClick={scheduleClass}>Schedule a Free Class</button>
+                </div>
+              </div>
+              
+              {!showFinalSuccess && (
+                <div className="results-actions">
+                  <button className="btn btn-secondary" onClick={() => setCurrentStep(1)}>Retake Assessment</button>
+                </div>
+              )}
+            </div>
+          )}
+          
+          {/* Contact form after submitting assessment */}
+          {showContactForm && !showFinalSuccess && (
+            <div className="contact-form-container">
+              <h3>One Last Step!</h3>
+              <p>Please provide your contact information to receive your detailed program recommendation.</p>
+              <form onSubmit={handleContactSubmit}>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="firstName">First Name</label>
+                    <input
+                      type="text"
+                      id="firstName"
+                      name="firstName"
+                      value={contactInfo.firstName}
+                      onChange={handleContactInfoChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="lastName">Last Name</label>
+                    <input
+                      type="text"
+                      id="lastName"
+                      name="lastName"
+                      value={contactInfo.lastName}
+                      onChange={handleContactInfoChange}
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="email">Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={contactInfo.email || formData.email}
+                    onChange={handleContactInfoChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="phone">Phone</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={contactInfo.phone || formData.phone}
+                    onChange={handleContactInfoChange}
+                    required
+                  />
+                </div>
+                {errorMessage && <div className="error-message">{errorMessage}</div>}
+                <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+                  {isSubmitting ? 'Submitting...' : 'Get My Recommendation'}
+                </button>
+              </form>
+            </div>
+          )}
+          
+          {/* Final success message */}
+          {showFinalSuccess && (
+            <div className="success-message">
+              <div className="success-icon">✓</div>
+              <h3>Your Recommendation is Ready!</h3>
+              <p>We've sent a detailed training program recommendation to your email. Our team will contact you shortly to discuss next steps.</p>
+              <button className="btn btn-primary" onClick={scheduleClass}>Schedule Your Free Class Now</button>
+            </div>
+          )}
         </div>
       </div>
     </section>

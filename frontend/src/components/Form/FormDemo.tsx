@@ -120,7 +120,24 @@ const FormDemo: React.FC = () => {
       userPreferencesService.storeFormPreferences(data);
     }
     
-    return true;
+    try {
+      // Simulate API call or processing
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      return {
+        success: true,
+        data: {
+          id: 'form-' + Date.now(),
+          submittedAt: new Date().toISOString(),
+          fields: data
+        }
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'An unknown error occurred'
+      };
+    }
   };
   
   return (
@@ -283,12 +300,25 @@ const FormWithSubmissionAPIDemo: React.FC<{savedPreferences: Partial<FormData> |
       userPreferencesService.storeFormPreferences(data);
     }
     
-    // Simulate API call
-    return new Promise<boolean>((resolve) => {
-      setTimeout(() => {
-        resolve(true);
-      }, 1500);
-    });
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      return {
+        success: true,
+        data: {
+          id: 'form-enhanced-' + Date.now(),
+          submittedAt: new Date().toISOString(),
+          programSelected: data.program,
+          fields: data
+        }
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'An unknown error occurred'
+      };
+    }
   };
   
   return (
@@ -318,6 +348,7 @@ const FormWithSubmissionAPIDemo: React.FC<{savedPreferences: Partial<FormData> |
         steps={formSteps}
         initialData={initialFormData}
         formType="free-class"
+        onSubmit={handleFormSubmit}
       >
         <FormStep>
           <h3>Personal Information</h3>

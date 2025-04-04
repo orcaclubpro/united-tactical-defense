@@ -24,9 +24,23 @@ router.get('/', authenticate, appointmentController.getAppointments);
 /**
  * @route   GET /api/appointments/available
  * @desc    Get available time slots for a specific date
- * @access  Private
+ * @access  Public (used by booking calendar)
  */
-router.get('/available', authenticate, appointmentController.getAvailableTimeSlots);
+router.get('/available', appointmentController.getAvailableTimeSlots);
+
+/**
+ * @route   POST /api/appointments/reserve
+ * @desc    Reserve a time slot for booking
+ * @access  Public (used by booking form)
+ */
+router.post('/reserve', appointmentController.reserveTimeSlot);
+
+/**
+ * @route   POST /api/appointments/create
+ * @desc    Create an appointment directly (used by frontend)
+ * @access  Public
+ */
+router.post('/create', appointmentController.createAppointmentFromForm);
 
 /**
  * @route   GET /api/appointments/:id

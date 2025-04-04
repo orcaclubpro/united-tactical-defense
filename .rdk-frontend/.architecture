@@ -175,6 +175,31 @@
   - Implementation: LocalStorage-based queue with processing system
   - Status: ✅ Implemented
 
+### Appointment Booking System
+- **GoHighLevelAppointmentClient**: Specialized client for GoHighLevel integration
+  - Interfaces: `IAppointmentClient`
+  - Responsibilities: Submitting appointments to GoHighLevel, offline support, retry handling
+  - Implementation: TypeScript service with fetch API
+  - Status: ✅ Implemented
+
+- **GoHighLevelAdapter**: Adapts internal form data to GoHighLevel format
+  - Interfaces: `IDataAdapter`
+  - Responsibilities: Data transformation, multipart form creation
+  - Implementation: TypeScript adapter functions
+  - Status: ✅ Implemented
+
+- **CalendarAPIClient**: Enhanced calendar client with GoHighLevel support
+  - Interfaces: `ICalendarAPI`
+  - Responsibilities: Timeslot management and appointment booking
+  - Implementation: TypeScript service with axios
+  - Status: ✅ Implemented
+
+- **AppointmentStep**: Form step specialized for appointment selection
+  - Interfaces: `IFormStep`
+  - Responsibilities: Date/time selection, appointment booking
+  - Implementation: React component with GoHighLevel integration
+  - Status: ✅ Implemented
+
 ## Component Interactions
 
 ```
@@ -192,6 +217,16 @@
 ┌─────────────────┐      ┌──────────────────┐      ┌────────────────┐
 │AppointmentAdapter│─────▶│CalendarAPIClient │─────▶│AnalyticsTracker│
 └─────────────────┘      └──────────────────┘      └────────────────┘
+        │                         │                        │
+        │                         │                        │
+        │                ┌──────────────────┐              │
+        │                │GoHighLevelClient │              │
+        │                └──────────────────┘              │
+        │                         │                        │
+        │                         │                        │
+        │                ┌──────────────────┐     ┌────────────────┐
+        │                │GoHighLevelAdapter│     │ABTestingService│
+        │                └──────────────────┘     └────────────────┘
         │                         │                        │
         │                         │                        │
         │                ┌──────────────────┐     ┌────────────────┐
@@ -418,3 +453,136 @@ Coverage is measured for:
   - Connected to analytics for tracking variant performance
   - Provides consistent variant assignment across sessions
   - Enables controlled experimentation with form elements 
+
+## Testing and Verification System
+
+### Form Submission Verification Architecture
+- **Verification Tools**: Suite of tools to validate form submission format and endpoint integration
+  - Interfaces: Command-line and browser-based verification interfaces
+  - Responsibilities: Validating form data structure, request format, and endpoint integration
+  - Implementation: Node.js scripts and browser utilities
+  - Status: ✅ Implemented
+
+#### Core Verification Components
+
+- **verify-form-submission.js**: Standalone verification script
+  - Interfaces: Command-line tool with configuration options
+  - Responsibilities: Verifying form data structure and request format
+  - Implementation: Node.js script with optional live request capability
+  - Status: ✅ Implemented
+
+- **form-submission-monitor.js**: Browser-based request interceptor
+  - Interfaces: Browser integration for real-time monitoring
+  - Responsibilities: Intercepting and analyzing form submissions
+  - Implementation: JavaScript library with XHR/fetch overrides and configuration options
+  - Status: ✅ Implemented
+
+- **tests/form-submission-test.js**: Automated test suite
+  - Interfaces: Jest-compatible test framework
+  - Responsibilities: Automated verification of form submission
+  - Implementation: Mock axios client with request capture
+  - Status: ✅ Implemented
+
+#### Verification System Integration
+
+The form verification system integrates with the existing frontend architecture in the following ways:
+
+1. **Development Integration**: During development, the `form-submission-monitor.js` can be injected to validate form submissions without sending actual requests
+2. **Testing Integration**: The verification scripts are used in automated testing to ensure form submission format correctness
+3. **Production Validation**: The scripts can be used to validate the production environment by optionally sending real requests
+
+```
+┌─────────────────┐      ┌────────────────────┐
+│Form Verification│─────▶│FreeLessonController│
+│     Tools       │      └────────────────────┘
+└─────────────────┘               │
+        │                         ▼
+        │                ┌────────────────────┐
+        └───────────────▶│  Form Submission   │
+                         │   Processing       │
+                         └────────────────────┘
+                                  │
+                                  ▼
+                         ┌────────────────────┐
+                         │    Backend API     │
+                         └────────────────────┘
+```
+
+The verification system operates in two primary modes:
+
+1. **Test Mode**: Intercepts and analyzes requests without sending them
+   - Validates format and structure
+   - Provides feedback on correctness
+   - Returns mock responses
+
+2. **Live Mode**: Performs real submissions to validate end-to-end integration
+   - Sends actual requests to the configured endpoint
+   - Reports on response status and content
+   - Validates complete integration flow
+
+This dual-mode approach allows for comprehensive testing at all stages of development while preventing accidental submissions during routine testing. 
+
+## Appointment Booking Implementation
+
+The appointment booking system has been completely rebuilt to follow the architecture guidelines:
+
+### Key Improvements
+
+1. **Centralized Configuration**
+   - All API endpoints and credentials are managed in `api-config.ts`
+   - Environment-specific values can be easily updated
+
+2. **Adapter Pattern**
+   - `GoHighLevelAdapter` transforms internal data to GoHighLevel format
+   - Provides consistent data structure for appointment submissions
+
+3. **Specialized Client**
+   - `GoHighLevelAppointmentClient` handles all GoHighLevel interactions
+   - Includes retry logic and error handling
+   - Provides offline support via local storage queue
+
+4. **Enhanced Integration**
+   - `CalendarAPIClient` provides a unified interface for both internal and external APIs
+   - `AppointmentStep` component seamlessly integrates with the GoHighLevel service
+
+5. **Offline Support**
+   - Appointments can be booked even when offline
+   - Submissions are queued and processed automatically when online
+   - Users receive clear feedback about offline status
+
+### Data Flow
+
+1. User selects date and time in `AppointmentStep`
+2. Component calls `CalendarAPIClient.bookTacticalDefenseAppointment()`
+3. `CalendarAPIClient` formats data and calls `GoHighLevelAppointmentClient`
+4. `GoHighLevelAppointmentClient` uses `GoHighLevelAdapter` to transform data
+5. Request is sent to GoHighLevel API (or queued if offline)
+6. Response is transformed and returned to the component
+7. User receives success or error feedback
+
+## Configuration Management
+
+A new centralized configuration system has been implemented:
+
+```typescript
+// Base API URLs
+export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '/api';
+export const GO_HIGH_LEVEL_API_URL = 'https://backend.leadconnectorhq.com';
+
+// Third-party API configuration
+export const GO_HIGH_LEVEL_CONFIG = {
+  APPOINTMENT_ENDPOINT: `${GO_HIGH_LEVEL_API_URL}/appengine/appointment`,
+  FORM_ID: 'bHbGRJjmTWG67GNRFqQY',
+  LOCATION_ID: 'wCjIiRV3L99XP2J5wYdA',
+  CALENDAR_ID: 'EwO4iAyVRl5dqwH9pi1O',
+  DEFAULT_TIMEZONE: 'America/Los_Angeles'
+};
+
+// Other configuration sections...
+```
+
+This approach provides:
+- Clear organization of configuration values
+- Documentation of config parameters
+- Type safety with TypeScript
+- Environment-specific overrides

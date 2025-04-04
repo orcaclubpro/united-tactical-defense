@@ -1,3 +1,364 @@
+@use '../../assets/css/variables' as *;
+
+.training-path-section {
+  background-color: #f8f8f8;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)),
+    url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23000000' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+  padding: 5rem 0;
+  
+  .section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    
+    h2 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      position: relative;
+      display: inline-block;
+      
+      &:after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: -10px;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background: $primary-color;
+      }
+    }
+    
+    p {
+      font-size: 1.2rem;
+      max-width: 800px;
+      margin: 0 auto;
+      color: #555;
+    }
+  }
+  
+  .dojo-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    
+    &:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 10px;
+      background: linear-gradient(to right, 
+        #fff 0%, #fff 12%, 
+        #ffeb3b 12%, #ffeb3b 25%, 
+        #ff9800 25%, #ff9800 37%, 
+        #4caf50 37%, #4caf50 50%, 
+        #2196f3 50%, #2196f3 62%, 
+        #673ab7 62%, #673ab7 75%, 
+        #795548 75%, #795548 87%, 
+        #000 87%, #000 100%
+      );
+    }
+  }
+  
+  .belt-rack {
+    display: flex;
+    gap: 1rem;
+    padding: 2rem 1rem;
+    overflow-x: auto;
+    background: rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    
+    .belt {
+      flex: 0 0 180px;
+      height: 40px;
+      border-radius: 4px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+      
+      .belt-stripe {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 100%;
+        height: 10px;
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-50%);
+      }
+      
+      .belt-rank {
+        position: relative;
+        color: rgba(0, 0, 0, 0.7);
+        font-weight: bold;
+        text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+        z-index: 1;
+      }
+      
+      &.active {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        
+        &:after {
+          content: '';
+          position: absolute;
+          bottom: -10px;
+          left: 50%;
+          transform: translateX(-50%);
+          border-left: 10px solid transparent;
+          border-right: 10px solid transparent;
+          border-top: 10px solid currentColor;
+        }
+      }
+      
+      &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
+    }
+  }
+  
+  .training-detail {
+    padding: 3rem 2rem;
+  }
+  
+  .belt-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+    margin-bottom: 3rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 1.5rem;
+    }
+    
+    .belt-symbol {
+      flex: 0 0 100px;
+      height: 20px;
+      border-radius: 3px;
+      position: relative;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+      
+      .belt-knot {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 30px;
+        height: 30px;
+        background: currentColor;
+        border-radius: 50%;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+      }
+    }
+    
+    .belt-content {
+      flex: 1;
+      
+      h3 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        color: #333;
+      }
+      
+      .belt-description {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        color: #555;
+      }
+      
+      .skill-list {
+        background: rgba(0, 0, 0, 0.03);
+        padding: 1.5rem;
+        border-radius: 8px;
+        
+        h4 {
+          margin-bottom: 1rem;
+          color: #333;
+          font-size: 1.2rem;
+        }
+        
+        ul {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          gap: 0.75rem;
+          padding-left: 1.5rem;
+          
+          li {
+            position: relative;
+            
+            &:before {
+              content: '•';
+              position: absolute;
+              left: -1rem;
+              color: $primary-color;
+              font-weight: bold;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  .training-philosophy {
+    margin-bottom: 3rem;
+    
+    .philosophy-header {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      
+      @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .martial-symbol {
+        flex-shrink: 0;
+        width: 70px;
+        height: 70px;
+        background: #000;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        border-radius: 50%;
+        font-family: 'Arial', sans-serif;
+      }
+      
+      h3 {
+        font-size: 1.8rem;
+        margin: 0;
+        color: #333;
+      }
+    }
+    
+    .philosophy-content {
+      background: rgba(0, 0, 0, 0.02);
+      padding: 2rem;
+      border-radius: 8px;
+      border-left: 4px solid $primary-color;
+      
+      > p {
+        margin-bottom: 1.5rem;
+        font-size: 1.1rem;
+        line-height: 1.6;
+      }
+      
+      .principles {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+        
+        .principle {
+          background: white;
+          padding: 1.5rem;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+          
+          h4 {
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+            color: $primary-color;
+            font-size: 1.2rem;
+            
+            &:before {
+              content: '—';
+              margin-right: 0.5rem;
+              color: #999;
+            }
+          }
+          
+          p {
+            margin: 0;
+            color: #555;
+            font-size: 0.95rem;
+            line-height: 1.5;
+          }
+        }
+      }
+    }
+  }
+  
+  .path-cta {
+    text-align: center;
+    
+    .btn-primary {
+      background: $primary-color;
+      color: white;
+      border: none;
+      padding: 0.8rem 2rem;
+      font-size: 1.1rem;
+      border-radius: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background: darken($primary-color, 10%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    padding: 3rem 0;
+    
+    .section-header {
+      margin-bottom: 2rem;
+      
+      h2 {
+        font-size: 2rem;
+      }
+      
+      p {
+        font-size: 1rem;
+      }
+    }
+    
+    .belt-rack {
+      padding: 1.5rem 1rem;
+      justify-content: flex-start;
+      
+      .belt {
+        flex: 0 0 150px;
+      }
+    }
+    
+    .training-detail {
+      padding: 2rem 1.5rem;
+    }
+    
+    .belt-info .belt-content h3 {
+      font-size: 1.6rem;
+    }
+    
+    .training-philosophy .philosophy-header h3 {
+      font-size: 1.5rem;
+    }
+  }
+}
+
 .training-path-section {
   padding: 5rem 0;
   background-color: var(--light-gray);
@@ -16,7 +377,7 @@
       left: 0;
       right: 0;
       height: 4px;
-      background-color: var(--mid-gray);
+      background-color: $medium-gray;
       transform: translateY(-50%);
       z-index: 1;
     }
@@ -25,8 +386,8 @@
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      background-color: var(--white);
-      border: 3px solid var(--mid-gray);
+      background-color: $white;
+      border: 3px solid $medium-gray;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -37,7 +398,7 @@
       
       &:hover {
         transform: scale(1.1);
-        border-color: var(--primary-color);
+        border-color: $primary-color;
         
         .node-tooltip {
           opacity: 1;
@@ -47,12 +408,12 @@
       }
       
       &.active {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
+        background-color: $primary-color;
+        border-color: $primary-color;
         box-shadow: 0 0 0 4px rgba(193, 59, 59, 0.3);
         
         .node-level {
-          color: var(--white);
+          color: $white;
         }
         
         .node-tooltip {
@@ -63,17 +424,17 @@
       }
       
       &.completed {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
+        background-color: $primary-color;
+        border-color: $primary-color;
         
         .node-level {
-          color: var(--white);
+          color: $white;
         }
       }
       
       .node-level {
         font-weight: 700;
-        color: var(--secondary-color);
+        color: $secondary-color;
         font-size: 0.875rem;
       }
       
@@ -82,8 +443,8 @@
         bottom: calc(100% + 10px);
         left: 50%;
         transform: translateX(-50%) translateY(10px);
-        background-color: var(--secondary-color);
-        color: var(--white);
+        background-color: $secondary-color;
+        color: $white;
         padding: 0.5rem 0.75rem;
         border-radius: 4px;
         font-size: 0.75rem;
@@ -100,14 +461,14 @@
           margin-left: -6px;
           border-width: 6px;
           border-style: solid;
-          border-color: var(--secondary-color) transparent transparent transparent;
+          border-color: $secondary-color transparent transparent transparent;
         }
       }
     }
   }
   
   .level-details {
-    background-color: var(--white);
+    background-color: $white;
     border-radius: 8px;
     padding: 2rem;
     max-width: 800px;
@@ -120,8 +481,8 @@
       margin-bottom: 1rem;
       
       .level-badge {
-        background-color: var(--primary-color);
-        color: var(--white);
+        background-color: $primary-color;
+        color: $white;
         padding: 0.35rem 0.75rem;
         border-radius: 4px;
         font-weight: 600;
@@ -130,14 +491,14 @@
       }
       
       .level-title {
-        color: var(--secondary-color);
+        color: $secondary-color;
         margin: 0;
         font-size: 1.75rem;
       }
     }
     
     .level-description {
-      color: var(--dark-gray);
+      color: $dark-gray;
       margin-bottom: 1.5rem;
       line-height: 1.6;
     }
@@ -146,7 +507,7 @@
       margin-bottom: 1.5rem;
       
       h4 {
-        color: var(--secondary-color);
+        color: $secondary-color;
         margin-bottom: 0.75rem;
         font-size: 1.1rem;
       }
@@ -164,7 +525,7 @@
             position: absolute;
             left: 0;
             top: 0;
-            color: var(--primary-color);
+            color: $primary-color;
             font-weight: bold;
           }
         }
@@ -175,13 +536,13 @@
       margin-bottom: 1.5rem;
       
       h4 {
-        color: var(--secondary-color);
+        color: $secondary-color;
         margin-bottom: 0.5rem;
         font-size: 1.1rem;
       }
       
       p {
-        color: var(--dark-gray);
+        color: $dark-gray;
       }
     }
     
@@ -202,7 +563,7 @@
     
     p {
       font-size: 1.125rem;
-      color: var(--dark-gray);
+      color: $dark-gray;
       margin-bottom: 1.5rem;
     }
   }
@@ -258,6 +619,153 @@
         
         .btn {
           width: 100%;
+        }
+      }
+    }
+  }
+}
+
+.belt-visualization {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 800px;
+  margin: 3rem auto;
+  
+  .belt-node {
+    width: 50px;
+    height: 15px;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    border-radius: 0;
+    transition: all 0.3s ease;
+    opacity: 0.7;
+    
+    &.active {
+      opacity: 1;
+      transform: scale(1.2);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+      z-index: 2;
+    }
+    
+    &.completed {
+      opacity: 0.9;
+    }
+    
+    .belt-tooltip {
+      position: absolute;
+      bottom: -35px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: $dark-gray;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+    
+    &:hover .belt-tooltip {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+}
+
+.belt-details {
+  background-color: var(--light-color);
+  border-radius: 8px;
+  padding: 2rem;
+  max-width: 800px;
+  margin: 2rem auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  
+  .belt-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    
+    .belt-badge {
+      padding: 0.5rem 1rem;
+      color: #fff;
+      border-radius: 4px;
+      font-weight: bold;
+      margin-right: 1rem;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+    
+    .belt-title {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+  }
+  
+  .belt-description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--text-color);
+  }
+}
+
+.ooda-loop-section {
+  max-width: 800px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background-color: $light-gray;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  
+  h3 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: $primary-color;
+  }
+  
+  > p {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    line-height: 1.6;
+  }
+  
+  .ooda-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    
+    .ooda-step {
+      display: flex;
+      align-items: flex-start;
+      
+      .step-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background-color: $primary-color;
+        color: #fff;
+        border-radius: 50%;
+        font-weight: bold;
+        margin-right: 1rem;
+        flex-shrink: 0;
+      }
+      
+      .step-content {
+        h4 {
+          margin: 0 0 0.5rem;
+          font-size: 1.1rem;
+        }
+        
+        p {
+          margin: 0;
+          font-size: 0.95rem;
+          line-height: 1.5;
         }
       }
     }

@@ -4,7 +4,7 @@ export { default as AppointmentStep } from './AppointmentStep';
 export { default as FormSubmissionStatus } from './FormSubmissionStatus';
 export { default as ModernModalUI } from './ModernModalUI';
 export { default as BookingResponseHandler } from './BookingResponseHandler';
-export { default as FreeLessonFormController } from './FreeLessonFormController';
+export { FreeLessonFormController } from './FreeLessonFormController';
 export { default as GlobalFormTrigger, GlobalFormProvider, useGlobalForm } from './GlobalTrigger';
 export * from './FormFields';
 export { default as TextField } from './FormFields/TextField';

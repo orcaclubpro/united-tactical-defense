@@ -14,10 +14,10 @@ dotenv.config();
  */
 const environments = {
   development: {
-    port: process.env.PORT || 4000,
+    port: process.env.PORT || 3004,
     nodeEnv: 'development',
     logLevel: 'debug',
-    corsOrigins: ['http://localhost:3000', 'http://localhost:4000'],
+    corsOrigins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3004', 'http://localhost:4000'],
     jwtSecret: process.env.JWT_SECRET || 'dev-secret-key-change-in-production',
     jwtExpiresIn: process.env.JWT_EXPIRES_IN || '1d',
     jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',

@@ -12,6 +12,8 @@ interface FormSubmissionStatusProps {
   onRetry?: () => void;
   onClose?: () => void;
   isOffline?: boolean;
+  serverResponse?: any;
+  showServerResponse?: boolean;
 }
 
 const StatusContainer = styled.div`
@@ -159,6 +161,39 @@ const OfflineIndicator = styled.div`
   }
 `;
 
+const ResponseContainer = styled.div`
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  width: 100%;
+  border: 1px solid #e0e0e0;
+`;
+
+const ResponseTitle = styled.div`
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: #333;
+`;
+
+const ResponseItem = styled.div`
+  display: flex;
+  margin-bottom: 6px;
+  font-size: 13px;
+  
+  .key {
+    font-weight: 500;
+    min-width: 100px;
+    color: #666;
+  }
+  
+  .value {
+    flex: 1;
+    word-break: break-word;
+  }
+`;
+
 const FormSubmissionStatus: React.FC<FormSubmissionStatusProps> = ({ 
   status, 
   progress, 
@@ -167,7 +202,9 @@ const FormSubmissionStatus: React.FC<FormSubmissionStatusProps> = ({
   maxAttempts, 
   onRetry, 
   onClose,
-  isOffline = false
+  isOffline = false,
+  serverResponse,
+  showServerResponse = false
 }) => {
   const getStatusMessage = () => {
     switch (status) {
@@ -201,6 +238,46 @@ const FormSubmissionStatus: React.FC<FormSubmissionStatusProps> = ({
     return null;
   };
 
+  const renderServerResponse = () => {
+    if (!serverResponse || !showServerResponse || status !== 'success') {
+      return null;
+    }
+
+    return (
+      <ResponseContainer>
+        <ResponseTitle>Server Response:</ResponseTitle>
+        {serverResponse.status && (
+          <ResponseItem>
+            <span className="key">Status:</span>
+            <span className="value">{serverResponse.status}</span>
+          </ResponseItem>
+        )}
+        {serverResponse.statusText && (
+          <ResponseItem>
+            <span className="key">Status Text:</span>
+            <span className="value">{serverResponse.statusText}</span>
+          </ResponseItem>
+        )}
+        {serverResponse.data && typeof serverResponse.data === 'object' && (
+          Object.entries(serverResponse.data).map(([key, value]) => (
+            <ResponseItem key={key}>
+              <span className="key">{key}:</span>
+              <span className="value">
+                {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+              </span>
+            </ResponseItem>
+          ))
+        )}
+        {serverResponse.data && typeof serverResponse.data !== 'object' && (
+          <ResponseItem>
+            <span className="key">Data:</span>
+            <span className="value">{String(serverResponse.data)}</span>
+          </ResponseItem>
+        )}
+      </ResponseContainer>
+    );
+  };
+
   return (
     <StatusContainer className={status}>
       <StatusMessage className={status}>
@@ -227,6 +304,8 @@ const FormSubmissionStatus: React.FC<FormSubmissionStatusProps> = ({
           You're currently offline. Your form will be submitted automatically when you reconnect.
         </OfflineIndicator>
       )}
+      
+      {renderServerResponse()}
       
       <ButtonContainer>
         {status === 'error' && onRetry && (

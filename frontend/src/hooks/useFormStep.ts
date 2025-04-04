@@ -67,7 +67,7 @@ const useFormStep = ({
       : step.fields;
     
     // Check if all required fields have values
-    const hasAllRequiredFields = requiredFields.every(field => {
+    const hasAllRequiredFields = requiredFields.every((field: string) => {
       const value = formData[field];
       return value !== undefined && value !== null && value !== '';
     });

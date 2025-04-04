@@ -15,7 +15,7 @@ const Hero: React.FC = () => {
 
       // Add source
       const source = document.createElement('source');
-      source.src = `${process.env.PUBLIC_URL}/videos/hero-background.mp4`;
+      source.src = `${process.env.PUBLIC_URL}/videos/training.mov`;
       source.type = 'video/mp4';
       
       video.appendChild(source);
@@ -56,12 +56,22 @@ const Hero: React.FC = () => {
       <div className="hero-video-container" ref={videoContainerRef}></div>
       <div className="container">
         <div className="hero-content">
-          <h1>REALITY-BASED TACTICAL TRAINING FOR REAL-WORLD DEFENSE</h1>
-          <p className="hero-tagline">Train to be safe. Train to be confident. Train to survive.</p>
+          <div className="hero-logo-content">
+            <div className="hero-logo">
+              <img src={`${process.env.PUBLIC_URL}/assets/images/logo.png`} alt="United Tactical Defense" />
+            </div>
+            <div className="hero-text">
+              <h1>REALITY-BASED TACTICAL TRAINING FOR REAL-WORLD DEFENSE</h1>
+              <p className="hero-tagline">Train to be safe. Train to be confident. Train to survive.</p>
+            </div>
+          </div>
+          <div className="hero-story">
+            <p>Our story began with a mission to build awareness, confidence, and empowerment in everyday citizens. Motivated by rising concerns over home invasions and active shooter situations, we created a training approach that prepares you for real-world threats.</p>
+          </div>
           <ul className="hero-benefits">
             <li>Train with former special forces operators & law enforcement</li>
+            <li>3000+ Trained Students • 15 Training Programs • 8+ Years Experience</li>
             <li>Master proven techniques in state-of-the-art facilities</li>
-            <li>Join over 5,000 trained civilians, military & police</li>
           </ul>
           <div className="cta-buttons">
             <a href="#free-class" className="btn btn-primary btn-lg">CLAIM FREE CLASS</a>

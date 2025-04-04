@@ -1,5 +1,6 @@
 /**
- * Authentication Service Implementation
+ * Authentication Service
+ * Handles user authentication operations
  */
 
 const jwt = require('jsonwebtoken');
@@ -8,21 +9,148 @@ const { AuthServiceInterface } = require('../../core/interfaces/services');
 const { createError } = require('../../api/middleware/errorHandler');
 const { User } = require('../../core/entities');
 
+/**
+ * AuthService implementation
+ * @class AuthService
+ * @extends AuthServiceInterface
+ */
 class AuthService extends AuthServiceInterface {
   /**
    * Constructor
-   * @param {Object} userRepository - User repository
-   * @param {Object} config - Configuration options
+   * @param {UserRepository} userRepository - User repository
+   * @param {Object} options - Service options
+   * @param {string} options.jwtSecret - JWT secret key
+   * @param {string} options.jwtExpiresIn - JWT expiration time
    */
-  constructor(userRepository, config) {
+  constructor(userRepository, options = {}) {
     super();
     this.userRepository = userRepository;
-    this.config = config || {
-      jwtSecret: process.env.JWT_SECRET || 'default-secret-key-change-in-production',
-      jwtExpiresIn: process.env.JWT_EXPIRES_IN || '1d',
-      jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
-      saltRounds: 10
+    this.jwtSecret = options.jwtSecret || 'your-secret-key-change-in-production';
+    this.jwtExpiresIn = options.jwtExpiresIn || '1d';
+  }
+
+  /**
+   * Register a new user
+   * @param {Object} userData - User registration data
+   * @returns {Promise<Object>} Created user
+   */
+  async register(userData) {
+    // Check if user already exists
+    const existingUser = await this.userRepository.findByEmail(userData.email);
+    if (existingUser) {
+      throw new Error('User with that email already exists');
+    }
+
+    // Create user and return without password
+    const user = await this.userRepository.create(userData);
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
+  }
+
+  /**
+   * Authenticate a user
+   * @param {string} email - User email
+   * @param {string} password - User password
+   * @returns {Promise<Object>} Authentication result with tokens
+   */
+  async login(email, password) {
+    // Find user by email
+    const user = await this.userRepository.findByEmail(email);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Check password
+    const isPasswordValid = await this.userRepository.validatePassword(user.id, password);
+    if (!isPasswordValid) {
+      throw new Error('Invalid credentials');
+    }
+
+    // Generate token
+    const token = this.generateToken(user);
+
+    // Remove password from user object
+    const { password: _, ...userWithoutPassword } = user;
+
+    return {
+      user: userWithoutPassword,
+      token
     };
+  }
+
+  /**
+   * Verify an authentication token
+   * @param {string} token - JWT token
+   * @returns {Promise<Object>} Decoded token payload
+   */
+  async verifyToken(token) {
+    try {
+      // Verify token
+      const decoded = jwt.verify(token, this.jwtSecret);
+      
+      // Check if user still exists and is active
+      const user = await this.userRepository.findById(decoded.id);
+      if (!user || !user.active) {
+        throw new Error('User not found or inactive');
+      }
+      
+      return decoded;
+    } catch (error) {
+      throw new Error('Invalid token');
+    }
+  }
+
+  /**
+   * Refresh authentication token
+   * @param {string} refreshToken - Refresh token
+   * @returns {Promise<Object>} New authentication tokens
+   */
+  async refreshToken(refreshToken) {
+    try {
+      // Verify refresh token
+      const decoded = jwt.verify(refreshToken, this.jwtSecret);
+      
+      // Get user
+      const user = await this.userRepository.findById(decoded.id);
+      if (!user) {
+        throw new Error('User not found');
+      }
+      
+      // Generate new token
+      const token = this.generateToken(user);
+      
+      return { token };
+    } catch (error) {
+      throw new Error('Invalid refresh token');
+    }
+  }
+
+  /**
+   * Logout a user
+   * @param {string} userId - User ID
+   * @param {string} refreshToken - Refresh token to invalidate
+   * @returns {Promise<boolean>} Success indicator
+   */
+  async logout(userId, refreshToken) {
+    // In a real implementation, we would invalidate the token
+    // For a simple implementation, we just return success
+    return true;
+  }
+
+  /**
+   * Generate a JWT token for a user
+   * @param {Object} user - User object
+   * @returns {string} JWT token
+   * @private
+   */
+  generateToken(user) {
+    const payload = {
+      id: user.id,
+      email: user.email,
+      role: user.role || 'user'
+    };
+    
+    return jwt.sign(payload, this.jwtSecret, { expiresIn: this.jwtExpiresIn });
   }
 
   /**
@@ -90,127 +218,6 @@ class AuthService extends AuthServiceInterface {
   }
 
   /**
-   * Authenticate a user
-   * @param {string} email - User email
-   * @param {string} password - User password
-   * @returns {Promise<Object>} - Auth token and user data
-   */
-  async authenticate(email, password) {
-    // Find user by email
-    const user = await this.userRepository.findByEmail(email);
-    
-    if (!user) {
-      throw createError(
-        'AUTHENTICATION_ERROR',
-        'Invalid email or password'
-      );
-    }
-    
-    // Verify password
-    const isPasswordValid = await this.verifyPassword(password, user.password);
-    
-    if (!isPasswordValid) {
-      throw createError(
-        'AUTHENTICATION_ERROR',
-        'Invalid email or password'
-      );
-    }
-    
-    // Generate access token
-    const token = await this.generateToken({
-      id: user.id,
-      email: user.email,
-      role: user.role
-    });
-    
-    // Generate refresh token
-    const refreshToken = await this.generateRefreshToken({
-      id: user.id,
-      email: user.email,
-      role: user.role
-    });
-    
-    // Return tokens and user data (without password)
-    const { password: _, ...userData } = user.toJSON();
-    
-    return {
-      token,
-      refreshToken,
-      user: userData
-    };
-  }
-
-  /**
-   * Register a new user
-   * @param {Object} userData - User registration data
-   * @returns {Promise<Object>} - Created user data
-   */
-  async register(userData) {
-    // Check if user already exists
-    const existingUser = await this.userRepository.findByEmail(userData.email);
-    
-    if (existingUser) {
-      throw createError(
-        'CONFLICT_ERROR',
-        'User with this email already exists'
-      );
-    }
-    
-    // Hash password
-    const hashedPassword = await this.hashPassword(userData.password);
-    
-    // Create user entity
-    const user = new User({
-      ...userData,
-      password: hashedPassword,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
-    
-    // Save user to repository
-    const createdUser = await this.userRepository.create(user);
-    
-    // Generate access token
-    const token = await this.generateToken({
-      id: createdUser.id,
-      email: createdUser.email,
-      role: createdUser.role
-    });
-    
-    // Generate refresh token
-    const refreshToken = await this.generateRefreshToken({
-      id: createdUser.id,
-      email: createdUser.email,
-      role: createdUser.role
-    });
-    
-    // Return tokens and user data (without password)
-    const { password: _, ...createdUserData } = createdUser.toJSON();
-    
-    return {
-      token,
-      refreshToken,
-      user: createdUserData
-    };
-  }
-
-  /**
-   * Verify an authentication token
-   * @param {string} token - Auth token
-   * @returns {Promise<Object|null>} - Decoded token data or null if invalid
-   */
-  async verifyToken(token) {
-    return new Promise((resolve) => {
-      jwt.verify(token, this.config.jwtSecret, (err, decoded) => {
-        if (err) {
-          return resolve(null);
-        }
-        resolve(decoded);
-      });
-    });
-  }
-  
-  /**
    * Generate a new authentication token
    * @param {Object} payload - Token payload
    * @returns {Promise<string>} - Generated token
@@ -219,8 +226,8 @@ class AuthService extends AuthServiceInterface {
     return new Promise((resolve, reject) => {
       jwt.sign(
         payload,
-        this.config.jwtSecret,
-        { expiresIn: this.config.jwtExpiresIn },
+        this.jwtSecret,
+        { expiresIn: this.jwtExpiresIn },
         (err, token) => {
           if (err) return reject(err);
           resolve(token);
@@ -238,8 +245,8 @@ class AuthService extends AuthServiceInterface {
     return new Promise((resolve, reject) => {
       jwt.sign(
         payload,
-        this.config.jwtSecret + '-refresh',
-        { expiresIn: this.config.jwtRefreshExpiresIn },
+        this.jwtSecret + '-refresh',
+        { expiresIn: this.jwtExpiresIn },
         (err, token) => {
           if (err) return reject(err);
           resolve(token);
@@ -255,7 +262,7 @@ class AuthService extends AuthServiceInterface {
    */
   async verifyRefreshToken(token) {
     return new Promise((resolve) => {
-      jwt.verify(token, this.config.jwtSecret + '-refresh', (err, decoded) => {
+      jwt.verify(token, this.jwtSecret + '-refresh', (err, decoded) => {
         if (err) {
           return resolve(null);
         }

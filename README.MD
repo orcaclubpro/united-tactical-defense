@@ -60,8 +60,10 @@ United Tactical Defense follows the clean architecture pattern, which separates 
 - Deep linking support with form pre-filling capabilities
 - Comprehensive form analytics tracking
 - Centralized form submission through FreeLessonFormController
+- Direct form submission to external APIs including GoHighLevel's forms/submit endpoint
 - Responsive design optimized for all devices
 - Consistent form styling and behavior across the application
+- Offline form submission support with automatic retry
 
 ### Analytics Engine
 - Tracks user interactions and events

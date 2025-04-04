@@ -15,59 +15,73 @@ interface Program {
 const programsData: Program[] = [
   {
     id: 1,
-    title: "Firearms Fundamentals",
-    description: "Master the basics of safe and effective firearm handling in our comprehensive introductory program.",
+    title: "Firearm Simulator Training",
+    description: "Experience realistic scenario-based training in our state-of-the-art simulator without using real firearms.",
     features: [
-      "Firearm safety protocols",
-      "Proper grip and stance",
-      "Sight alignment and trigger control",
-      "Maintenance and storage best practices"
+      "Realistic scenario immersion",
+      "Decision-making under pressure",
+      "Force escalation/de-escalation",
+      "After-action performance review"
     ],
     image: placeholderImages.programFundamentals,
-    targetAudience: "Complete beginners with little to no firearms experience",
-    level: "Beginner"
+    targetAudience: "All experience levels, from beginners to experienced shooters",
+    level: "All Levels"
   },
   {
     id: 2,
-    title: "Defensive Handgun",
-    description: "Develop the skills needed for effective personal protection and responsible concealed carry.",
+    title: "Self Defense Training",
+    description: "Learn practical hand-to-hand combat and defensive techniques for real-world situations.",
     features: [
-      "Drawing from concealment",
-      "Shooting on the move",
-      "Threat assessment",
-      "Malfunction clearing under stress"
+      "Situational awareness",
+      "Hand-to-hand combat techniques",
+      "Defensive tactics against common attacks",
+      "Escape and evasion strategies"
     ],
     image: placeholderImages.programDefensive,
-    targetAudience: "Those with basic firearms experience seeking self-defense skills",
-    level: "Intermediate"
+    targetAudience: "Anyone seeking personal protection skills regardless of physical ability",
+    level: "All Levels"
   },
   {
     id: 3,
-    title: "Tactical Home Defense",
-    description: "Learn to protect your home and loved ones with proven tactical techniques and strategies.",
+    title: "UDT Indoor Range",
+    description: "Practice your skills in our controlled indoor environment with expert instruction and feedback.",
     features: [
-      "Home defense planning",
-      "Low-light shooting techniques",
-      "Room clearing fundamentals",
-      "Family safety protocols"
+      "Controlled training environment",
+      "Personalized coaching",
+      "Progressive skill development",
+      "Performance tracking"
     ],
     image: placeholderImages.programHome,
-    targetAudience: "Homeowners concerned with family protection",
+    targetAudience: "Students looking to refine their tactical skills with guided practice",
     level: "All Levels"
   },
   {
     id: 4,
-    title: "Advanced Tactical Training",
-    description: "Elevate your defensive capabilities with advanced tactics used by military and law enforcement.",
+    title: "CCW Program",
+    description: "Comprehensive training for concealed carry permit applicants, covering legal requirements and practical skills.",
     features: [
-      "Force-on-force scenarios",
-      "Multiple threat engagement",
-      "Tactical movement and positioning",
-      "Decision-making under stress"
+      "Legal requirements and responsibilities",
+      "Concealed carry techniques",
+      "Draw from concealment practice", 
+      "Real-world application scenarios"
     ],
     image: placeholderImages.programAdvanced,
-    targetAudience: "Experienced shooters, military, and law enforcement",
-    level: "Advanced"
+    targetAudience: "Those seeking concealed carry permits or wanting to improve concealed carry skills",
+    level: "Intermediate"
+  },
+  {
+    id: 5,
+    title: "Workshops",
+    description: "Specialized training sessions focusing on specific tactical skills and scenarios.",
+    features: [
+      "Topic-focused intensive training",
+      "Small group learning environment",
+      "Hands-on skill development",
+      "Expert-led instruction"
+    ],
+    image: placeholderImages.programAdvanced,
+    targetAudience: "Students looking to develop specific tactical competencies",
+    level: "Varies"
   }
 ];
 
@@ -97,11 +111,12 @@ const Programs: React.FC = () => {
           </div>
           
           <div className="program-content">
-            <div className="program-image">
-              <img src={programsData[activeProgram].image} alt={programsData[activeProgram].title} />
-              <div className="program-audience">
-                <strong>Target Audience:</strong> {programsData[activeProgram].targetAudience}
-              </div>
+            <div className="program-schedule">
+              <img 
+                src={`${process.env.PUBLIC_URL}/assets/images/schedule.jpeg`} 
+                alt="Training schedule" 
+                className="schedule-image" 
+              />
             </div>
             
             <div className="program-details">
@@ -115,6 +130,10 @@ const Programs: React.FC = () => {
                     <li key={index}>{feature}</li>
                   ))}
                 </ul>
+              </div>
+              
+              <div className="program-audience">
+                <strong>Target Audience:</strong> {programsData[activeProgram].targetAudience}
               </div>
               
               <div className="program-cta">

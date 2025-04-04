@@ -16,11 +16,11 @@ const TrustBadges: React.FC = () => {
           </li>
           <li>
             <div className="badge-icon">✓</div>
-            <div className="badge-text">8-Level Training System</div>
+            <div className="badge-text">3000+ Trained Students</div>
           </li>
           <li>
             <div className="badge-icon">✓</div>
-            <div className="badge-text">100% Satisfaction Guarantee</div>
+            <div className="badge-text">Hand-to-hand Self Defenses</div>
           </li>
         </ul>
       </div>
@@ -28,4 +28,4 @@ const TrustBadges: React.FC = () => {
   );
 };
 
-export default TrustBadges; 
+export default TrustBadges;

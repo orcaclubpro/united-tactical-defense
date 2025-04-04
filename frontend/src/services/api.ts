@@ -1,13 +1,29 @@
 import axios from 'axios';
-import { FormData } from '../contexts/FormContext';
+import goHighLevelAppointmentClient from './api/GoHighLevelAppointmentClient';
 
 // Create an axios instance with default config
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: '/',  // Don't include /api here to avoid duplicating it in requests
   headers: {
     'Content-Type': 'application/json',
   }
 });
+
+// Interceptor to add /api prefix to all requests
+api.interceptors.request.use(
+  (config) => {
+    // Only add /api prefix if the URL doesn't already have it and is not an absolute URL
+    if (!config.url?.startsWith('/api') && !config.url?.startsWith('http')) {
+      config.url = `/api${config.url}`;
+    }
+    
+    // For debugging
+    console.log(`[API] Making request to: ${config.url}`);
+    
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // Types
 export interface Lead {
@@ -339,55 +355,58 @@ export const releaseTimeSlot = async (timeSlotId: string, leadId: string) => {
 
 // Analytics APIs - Original
 export const trackPageVisit = async (pageVisit: Omit<PageVisit, 'id'>) => {
-  return await api.post('/analytics/pageVisits', pageVisit);
+  return await api.post('/api/analytics/pageview', pageVisit);
 };
 
 export const trackConversion = async (conversion: Omit<Conversion, 'id'>) => {
-  return await api.post('/analytics/conversions', conversion);
+  return await api.post('/api/analytics/event', {
+    eventType: 'conversion',
+    metadata: conversion
+  });
 };
 
 export const getMetricsSnapshots = async (startDate: string, endDate: string) => {
-  return await api.get(`/analytics/metrics?startDate=${startDate}&endDate=${endDate}`);
+  return await api.get(`/api/analytics/reports/page_views?startDate=${startDate}&endDate=${endDate}`);
 };
 
 // Enhanced Analytics APIs
 export const getAnalyticsReport = async (startDate: string, endDate: string) => {
-  const response = await api.get(`/analytics/report?startDate=${startDate}&endDate=${endDate}`);
+  const response = await api.get(`/api/analytics/reports/user_activity?startDate=${startDate}&endDate=${endDate}`);
   return response.data;
 };
 
 export const getLandingPageMetrics = async (startDate: string, endDate: string) => {
-  const response = await api.get(`/analytics/landingPageMetrics?startDate=${startDate}&endDate=${endDate}`);
+  const response = await api.get(`/api/analytics/reports/page_views?startDate=${startDate}&endDate=${endDate}&groupBy=page`);
   return response.data;
 };
 
 export const getTopTrafficSources = async (startDate: string, endDate: string) => {
-  const response = await api.get(`/analytics/trafficSources?startDate=${startDate}&endDate=${endDate}`);
+  const response = await api.get(`/api/analytics/reports/page_views?startDate=${startDate}&endDate=${endDate}&groupBy=referrer`);
   return response.data;
 };
 
 export const getDeviceBreakdown = async (startDate: string, endDate: string) => {
-  const response = await api.get(`/analytics/deviceBreakdown?startDate=${startDate}&endDate=${endDate}`);
+  const response = await api.get(`/api/analytics/reports/page_views?startDate=${startDate}&endDate=${endDate}&groupBy=device`);
   return response.data;
 };
 
 export const getGeographicDistribution = async (startDate: string, endDate: string) => {
-  const response = await api.get(`/analytics/geographicDistribution?startDate=${startDate}&endDate=${endDate}`);
+  const response = await api.get(`/api/analytics/reports/page_views?startDate=${startDate}&endDate=${endDate}&groupBy=region`);
   return response.data;
 };
 
 export const getNewVsReturningMetrics = async (startDate: string, endDate: string) => {
-  const response = await api.get(`/analytics/visitorMetrics?startDate=${startDate}&endDate=${endDate}`);
+  const response = await api.get(`/api/analytics/reports/user_activity?startDate=${startDate}&endDate=${endDate}&groupBy=visitor_type`);
   return response.data;
 };
 
 export const getAttributionAnalysis = async (startDate: string, endDate: string) => {
-  const response = await api.get(`/analytics/attributionAnalysis?startDate=${startDate}&endDate=${endDate}`);
+  const response = await api.get(`/api/analytics/reports/conversion?startDate=${startDate}&endDate=${endDate}&conversionGoal=all`);
   return response.data;
 };
 
 export const compareAttributionModels = async (startDate: string, endDate: string, models: string[]) => {
-  const response = await api.post(`/analytics/compareAttributionModels`, {
+  const response = await api.post(`/api/analytics/reports/attribution_comparison`, {
     startDate,
     endDate,
     models
@@ -407,7 +426,8 @@ export const getOptimizationSuggestions = async (startDate: string, endDate: str
 
 // Form APIs
 export const processForm = async (formData: any) => {
-  return await api.post('/forms/process', formData);
+  // Use submit/:formType endpoint instead of /forms/process
+  return await api.post(`/forms/submit/${formData.type || 'default'}`, formData);
 };
 
 export const submitAssessmentForm = async (formData: any) => {
@@ -415,7 +435,56 @@ export const submitAssessmentForm = async (formData: any) => {
 };
 
 export const submitFreeClassForm = async (formData: any) => {
-  return await api.post('/forms/free-class', formData);
+  try {
+    console.log('\n============ FRONTEND - FREE CLASS FORM SUBMISSION ============');
+    console.log('Submitting data to backend endpoint: /api/forms/go-high-level-submit');
+    console.log('Form Data:', JSON.stringify(formData, null, 2));
+    
+    // Track start time for performance monitoring
+    const startTime = performance.now();
+    
+    // Use our backend endpoint that directly forwards to Go High Level
+    const response = await api.post('/api/forms/go-high-level-submit', formData);
+    
+    // Calculate request duration
+    const duration = performance.now() - startTime;
+    
+    // Log complete response details
+    console.log('\n============ FRONTEND - RESPONSE RECEIVED ============');
+    console.log(`Response received in ${duration.toFixed(2)}ms`);
+    console.log('Status:', response.status);
+    console.log('Status Text:', response.statusText);
+    console.log('Response Headers:', JSON.stringify(response.headers, null, 2));
+    console.log('Response Data:', JSON.stringify(response.data, null, 2));
+    console.log('============ END FRONTEND LOGGING ============\n');
+    
+    return {
+      data: response.data,
+      status: response.status,
+      statusText: response.statusText
+    };
+  } catch (error: any) {
+    console.error('\n============ FRONTEND - SUBMISSION ERROR ============');
+    console.error('Error in free class form submission:');
+    
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error('Response Status:', error.response.status);
+      console.error('Response Headers:', JSON.stringify(error.response.headers, null, 2));
+      console.error('Response Data:', JSON.stringify(error.response.data, null, 2));
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.error('No response received from server. Request details:');
+      console.error(error.request);
+    } else {
+      // Something happened in setting up the request
+      console.error('Error setting up request:', error.message);
+    }
+    console.error('============ END ERROR LOGGING ============\n');
+    
+    throw error;
+  }
 };
 
 export const submitContactForm = async (formData: any) => {
@@ -461,7 +530,7 @@ export const submitFormWithRetry = async (
   
   // If offline, queue the submission and return a "pending" result
   if (!isOnline()) {
-    const submissionId = queueFormSubmission(endpoint, formData, options);
+    const id = queueFormSubmission(endpoint, formData, options);
     
     if (progressCallback) {
       progressCallback({
@@ -475,7 +544,7 @@ export const submitFormWithRetry = async (
     
     return {
       success: false,
-      data: { queued: true, submissionId },
+      data: { queued: true, submissionId: id },
       error: 'Device is offline, submission has been queued'
     };
   }
@@ -529,13 +598,13 @@ export const submitFormWithRetry = async (
   }
 
   // If all retries failed and we're online, queue the submission for later
-  const submissionId = queueFormSubmission(endpoint, formData, options);
+  const id = queueFormSubmission(endpoint, formData, options);
   
   return {
     success: false,
     error: lastError,
     attempts: attempt,
-    data: { queued: true, submissionId }
+    data: { queued: true, submissionId: id }
   };
 };
 
@@ -546,25 +615,53 @@ export const submitForm = async (
   options?: FormSubmissionOptions,
   progressCallback?: (progress: FormSubmissionProgress) => void
 ): Promise<FormSubmissionResult> => {
-  // Determine the appropriate endpoint based on form type
-  let endpoint = '/forms/';
-  
-  switch (formType) {
-    case 'free-class':
-      endpoint += 'free-class';
-      break;
-    case 'assessment':
-      endpoint += 'assessment';
-      break;
-    case 'contact':
-      endpoint += 'contact';
-      break;
-    default:
-      endpoint += formType;
+  // If we're offline, queue the form submission and return
+  if (!isOnline()) {
+    console.log('Device is offline. Queueing form submission for later.');
+    const endpoint = getEndpointForFormType(formType);
+    const id = queueFormSubmission(endpoint, formData, options);
+    
+    if (progressCallback) {
+      progressCallback({
+        status: 'error',
+        progress: 0,
+        currentAttempt: 0,
+        maxAttempts: options?.retryCount || 3,
+        error: 'Device is offline. Form will be submitted when connection is restored.'
+      });
+    }
+    
+    return {
+      success: false,
+      error: 'Device is offline. Form will be submitted when connection is restored.',
+      attempts: 0,
+      data: { queued: true, submissionId: id }
+    };
   }
   
-  // Call the retry function with the determined endpoint
+  // For online submissions, use the retry mechanism
+  const endpoint = getEndpointForFormType(formType);
   return submitFormWithRetry(endpoint, formData, options, progressCallback);
+};
+
+/**
+ * Get the appropriate endpoint for a form type
+ */
+const getEndpointForFormType = (formType: string): string => {
+  switch (formType) {
+    case 'free-class':
+      return '/form/free-class';
+    case 'assessment':
+      return '/form/assessment';
+    case 'contact':
+      return '/form/contact';
+    // Support appointment booking directly
+    case 'appointment': 
+      return '/appointment/create';
+    default:
+      // Fallback to general form processing
+      return `/form/${formType}`;
+  }
 };
 
 // Analytics reporting APIs
@@ -623,14 +720,9 @@ export const getConversionRateTrend = async (period: string = 'daily') => {
   return response.data;
 };
 
-// API configuration for enhanced endpoints
-const API_CONFIG = {
-  baseUrl: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
-  endpoints: {
-    bookLesson: '/bookings/free-lesson',
-    checkAvailability: '/availability/check',
-    submitContact: '/contact/submit'
-  }
+// Update the appointment submission function to use the new client
+export const submitAppointmentRequest = async (formData: any): Promise<any> => {
+  return goHighLevelAppointmentClient.submitAppointmentRequest(formData);
 };
 
 export default api; 

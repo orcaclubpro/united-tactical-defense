@@ -66,4 +66,37 @@
     padding: 3rem 0;
     text-align: center;
   }
+}
+
+/* iOS Specific Styling for better user experience */
+@media only screen and (max-width: 768px) and (-webkit-min-device-pixel-ratio: 2) {
+  body {
+    font-size: 110%;
+  }
+  
+  .btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 1.1rem;
+  }
+  
+  input, select, textarea {
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+  
+  .container {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  
+  section {
+    padding: 3rem 0;
+  }
+  
+  h2 {
+    font-size: 2.2rem;
+  }
+  
+  h3 {
+    font-size: 1.8rem;
+  }
 } 

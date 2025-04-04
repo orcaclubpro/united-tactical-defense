@@ -1,6 +1,19 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
-import { FreeLessonFormController } from './';
+// Avoid circular dependency by importing directly
+import { FreeLessonFormController } from './FreeLessonFormController';
 import { FormData } from '../../contexts/FormContext';
+
+// Define an interface matching FreeLessonFormController's expected shape
+interface FreeLessonFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  appointmentDate: Date | null;
+  appointmentTime: string;
+  experience: string;
+  [key: string]: any;
+}
 
 // Define the context type
 interface GlobalFormContextType {
@@ -84,6 +97,20 @@ export const GlobalFormProvider: React.FC<GlobalFormProviderProps> = ({ children
     handleUrlParameters();
   }, [openForm]);
   
+  // Convert FormData to FreeLessonFormData with proper defaults
+  const adaptFormData = (data: FormData | null): FreeLessonFormData => {
+    return {
+      firstName: data?.firstName as string || '',
+      lastName: data?.lastName as string || '',
+      email: data?.email as string || '',
+      phone: data?.phone as string || '',
+      appointmentDate: data?.appointmentDate as (Date | null) || null,
+      appointmentTime: data?.appointmentTime as string || '',
+      experience: data?.experience as string || 'beginner',
+      ...(data || {})
+    };
+  };
+  
   return (
     <GlobalFormContext.Provider
       value={{
@@ -101,7 +128,7 @@ export const GlobalFormProvider: React.FC<GlobalFormProviderProps> = ({ children
         <FreeLessonFormController
           isOpen={isFormOpen}
           onClose={closeForm}
-          initialData={currentFormData || {}}
+          initialData={adaptFormData(currentFormData)}
           formSource={currentFormType || 'website'}
         />
       )}
