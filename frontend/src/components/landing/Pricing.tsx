@@ -1,113 +1,116 @@
-import React, { useState } from 'react';
-import './Pricing.scss';
+import React from 'react';
+import './TrainingPackages.scss';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck, faAward, faStar, faFire } from '@fortawesome/free-solid-svg-icons';
 
-interface Feature {
-  text: string;
-  included: boolean;
-}
-
-interface Package {
+interface TrainingPackage {
   id: number;
-  title: string;
-  description: string;
-  commitment: string;
-  features: Feature[];
+  name: string;
+  perMonth: string;
+  perYear: string;
+  features: string[];
+  popular: boolean;
+  icon: any;
 }
 
-const packageData: Package[] = [
+const trainingPackages: TrainingPackage[] = [
   {
     id: 1,
-    title: "Tactical Essentials",
-    description: "Perfect for beginners looking to build fundamental defensive skills and awareness",
-    commitment: "12 month commitment",
+    name: "BASE+",
+    perMonth: "2 trainings per month",
+    perYear: "26 per year",
     features: [
-      { text: "Monthly foundational training sessions", included: true },
-      { text: "Basic simulator training", included: true },
-      { text: "Defensive fundamentals course", included: true },
-      { text: "Online training resources", included: true },
-      { text: "Quarterly skills assessment", included: true },
-      { text: "Advanced techniques workshops", included: false },
-      { text: "Scenario-based training", included: false }
-    ]
+      "2 simulator trainings per month",
+      "2 self-defense classes per month",
+      "2 seminar/workshop per month",
+      "4 combat conditioning per month",
+      "4 UDT range experiences per year"
+    ],
+    popular: false,
+    icon: faAward
   },
   {
     id: 2,
-    title: "Tactical Advanced",
-    description: "Our most popular package for those serious about comprehensive defense training",
-    commitment: "12 month commitment",
+    name: "CORE",
+    perMonth: "4 trainings per month",
+    perYear: "52 per year",
     features: [
-      { text: "Bi-weekly training sessions", included: true },
-      { text: "Advanced simulator scenarios", included: true },
-      { text: "Defensive fundamentals course", included: true },
-      { text: "Online training resources", included: true },
-      { text: "Monthly skills assessment", included: true },
-      { text: "Advanced techniques workshops", included: true },
-      { text: "Scenario-based training", included: false }
-    ]
+      "4 simulator trainings per month",
+      "Unlimited self-defense per month",
+      "Unlimited seminars/workshops per month",
+      "Unlimited combat conditioning",
+      "6 UDT range experiences per year"
+    ],
+    popular: true,
+    icon: faStar
   },
   {
     id: 3,
-    title: "Elite Defender",
-    description: "The ultimate training experience for those who demand the highest level of preparedness",
-    commitment: "12 month commitment",
+    name: "CORE+",
+    perMonth: "6 trainings per month",
+    perYear: "78 per year",
     features: [
-      { text: "Weekly training sessions", included: true },
-      { text: "Elite-level simulator training", included: true },
-      { text: "Complete defensive curriculum", included: true },
-      { text: "Premium online resources", included: true },
-      { text: "Bi-weekly skills assessment", included: true },
-      { text: "All advanced workshops included", included: true },
-      { text: "Full scenario-based training", included: true }
-    ]
+      "6 simulator trainings per month",
+      "Unlimited self-defense classes",
+      "Unlimited seminars/workshops",
+      "Unlimited combat conditioning",
+      "10 UDT range experiences per year"
+    ],
+    popular: false,
+    icon: faFire
   }
 ];
 
 const Pricing: React.FC = () => {
-  const [selectedPackage, setSelectedPackage] = useState<number>(1); // Default to middle package
-
   return (
-    <section id="pricing" className="pricing-section">
+    <section id="training-packages" className="training-packages-section">
       <div className="container">
         <header className="section-header">
-          <h2>Training Packages</h2>
-          <p>Find the right training path for your goals and commitment level</p>
+          <h2>Membership Plans</h2>
+          <p>Elevate your tactical defense skills with our premium training programs</p>
         </header>
         
-        <div className="pricing-container">
-          {packageData.map(pkg => (
+        <div className="package-cards">
+          {trainingPackages.map(pkg => (
             <div 
               key={pkg.id} 
-              className={`pricing-card ${pkg.id === selectedPackage ? 'highlight' : ''}`}
-              onClick={() => setSelectedPackage(pkg.id)}
+              className={`package-card ${pkg.popular ? 'popular' : ''}`}
             >
-              <div className="pricing-header">
-                <h3 className="package-title">{pkg.title}</h3>
-                <p className="package-description">{pkg.description}</p>
+              {pkg.popular && <div className="popular-badge">Most Popular</div>}
+              
+              <div className="card-header">
+                <div className="icon-container">
+                  <FontAwesomeIcon icon={pkg.icon} className="package-icon" />
+                </div>
+                <h3 className="package-name">{pkg.name}</h3>
               </div>
               
-              <div className="commitment">
-                <span className="commitment-text">{pkg.commitment}</span>
+              <div className="training-quantity">
+                <div className="training-quantity-value">{pkg.perMonth}</div>
+                <div className="training-quantity-caption">{pkg.perYear}</div>
               </div>
               
-              <ul className="feature-list">
-                {pkg.features.map((feature, index) => (
-                  <li key={index} className={feature.included ? 'included' : 'not-included'}>
-                    <span className="feature-icon">{feature.included ? '✓' : '×'}</span>
-                    <span className="feature-text">{feature.text}</span>
-                  </li>
-                ))}
-              </ul>
+              <div className="card-body">
+                <ul className="feature-list">
+                  {pkg.features.map((feature, index) => (
+                    <li key={index}>
+                      <FontAwesomeIcon icon={faCheck} className="check-icon" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
               
               <div className="card-footer">
-                <a href="#free-class" className="btn btn-primary">Schedule Free Class</a>
+                <a href="#assessment" className="btn btn-primary">Claim free class</a>
               </div>
             </div>
           ))}
         </div>
         
-        <div className="pricing-note">
-          <p>All packages include access to our state-of-the-art training facility with expert instructors.</p>
-          <p>Contact us for more detailed information about our training packages and scheduling.</p>
+        <div className="packages-note">
+          <p>All plans include access to our state-of-the-art training facilities and certified instructors</p>
+          <p>Start with a free assessment and our experts will help you choose the right program for your needs</p>
         </div>
       </div>
     </section>

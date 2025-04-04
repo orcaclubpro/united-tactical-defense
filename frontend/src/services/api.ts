@@ -1,29 +1,14 @@
 import axios from 'axios';
-import goHighLevelAppointmentClient from './api/GoHighLevelAppointmentClient';
+import { logMockOperation, simulateNetworkDelay } from '../utils/mockUtils';
 
-// Create an axios instance with default config
+// Create a placeholder axios instance that won't actually be used for API calls
+// This is retained for type compatibility only
 const api = axios.create({
-  baseURL: '/',  // Don't include /api here to avoid duplicating it in requests
+  baseURL: process.env.REACT_APP_API_BASE_URL || '/api',
   headers: {
     'Content-Type': 'application/json',
   }
 });
-
-// Interceptor to add /api prefix to all requests
-api.interceptors.request.use(
-  (config) => {
-    // Only add /api prefix if the URL doesn't already have it and is not an absolute URL
-    if (!config.url?.startsWith('/api') && !config.url?.startsWith('http')) {
-      config.url = `/api${config.url}`;
-    }
-    
-    // For debugging
-    console.log(`[API] Making request to: ${config.url}`);
-    
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
 
 // Types
 export interface Lead {
@@ -46,15 +31,6 @@ export interface Appointment {
   type: string;
   status: string;
   notes: string;
-}
-
-export interface TimeSlot {
-  id: string;
-  time: string;
-  date: string;
-  available: boolean;
-  capacity?: number;
-  remaining?: number;
 }
 
 export interface PageVisit {
@@ -97,6 +73,23 @@ export interface MetricsSnapshot {
   average_time_on_page: number;
   bounce_rate: number;
   conversion_rate: number;
+  // Additional fields required by Dashboard component
+  snapshot_time: string;
+  landing_page_visits: number;
+  conversions: number;
+  referral_counts: {
+    source: string;
+    count: number;
+  }[];
+  devices: {
+    device: string;
+    count: number;
+  }[];
+  geography: {
+    region: string;
+    count: number;
+  }[];
+  average_time_per_user: number;
 }
 
 export interface DeviceBreakdown {
@@ -146,583 +139,522 @@ export interface OptimizationSuggestion {
   category: string;
 }
 
-// Offline support types
-export interface QueuedFormSubmission {
-  id: string;
-  endpoint: string;
-  formData: any;
-  timestamp: number;
-  retryCount: number;
-  options?: FormSubmissionOptions;
+export interface TrafficSource {
+  source: string;
+  visits: number;
 }
 
-// Constants for offline queue
-const QUEUE_STORAGE_KEY = 'offline_form_submission_queue';
-const MAX_RETRY_COUNT = 5;
-const INITIAL_RETRY_DELAY = 5000; // 5 seconds
-const EXPONENTIAL_BACKOFF_FACTOR = 1.5;
-
-// Check if online
-export const isOnline = (): boolean => {
-  return navigator.onLine;
+// Mock data generator helpers
+const generateId = () => Math.random().toString(36).substring(2, 15);
+// Using randomDate helper in some mock data generators below
+const randomDate = (start = new Date(2023, 0, 1), end = new Date()) => {
+  return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime())).toISOString();
 };
 
-// Listen for online/offline events
-export const setupConnectionListeners = (
-  onlineCallback?: () => void,
-  offlineCallback?: () => void
-) => {
-  window.addEventListener('online', () => {
-    console.log('Application is online. Processing queued submissions...');
-    if (onlineCallback) {
-      onlineCallback();
-    }
-    processQueuedSubmissions();
-  });
-
-  window.addEventListener('offline', () => {
-    console.log('Application is offline. Submissions will be queued.');
-    if (offlineCallback) {
-      offlineCallback();
-    }
-  });
-};
-
-// Get the submission queue from local storage
-export const getSubmissionQueue = (): QueuedFormSubmission[] => {
-  const queueString = localStorage.getItem(QUEUE_STORAGE_KEY);
-  if (!queueString) {
-    return [];
+// Mock lead data
+const mockLeads: Lead[] = [
+  {
+    id: 'lead-1',
+    name: 'John Doe',
+    email: 'john.doe@example.com',
+    phone: '(555) 123-4567',
+    program: 'Defense Training',
+    source: 'Website',
+    status: 'New',
+    notes: 'Interested in weekend classes',
+    created_at: '2023-05-15T10:30:00Z'
+  },
+  {
+    id: 'lead-2',
+    name: 'Jane Smith',
+    email: 'jane.smith@example.com',
+    phone: '(555) 987-6543',
+    program: 'Tactical Training',
+    source: 'Referral',
+    status: 'Contacted',
+    notes: 'Has previous experience',
+    created_at: '2023-05-18T14:15:00Z'
   }
-  try {
-    return JSON.parse(queueString);
-  } catch (error) {
-    console.error('Error parsing submission queue:', error);
-    return [];
-  }
-};
+];
 
-// Save the submission queue to local storage
-export const saveSubmissionQueue = (queue: QueuedFormSubmission[]): void => {
-  localStorage.setItem(QUEUE_STORAGE_KEY, JSON.stringify(queue));
-};
-
-// Add a submission to the queue
-export const queueFormSubmission = (
-  endpoint: string,
-  formData: any,
-  options?: FormSubmissionOptions
-): string => {
-  const queue = getSubmissionQueue();
-  const id = `submission_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  
-  const submission: QueuedFormSubmission = {
-    id,
-    endpoint,
-    formData,
-    timestamp: Date.now(),
-    retryCount: 0,
-    options
-  };
-  
-  queue.push(submission);
-  saveSubmissionQueue(queue);
-  
-  // Schedule processing if online
-  if (isOnline()) {
-    setTimeout(() => processQueuedSubmissions(), 0);
+// Mock appointment data
+const mockAppointments: Appointment[] = [
+  {
+    id: 'apt-1',
+    lead_id: 'lead-1',
+    date: '2023-06-10',
+    time: '10:00 AM',
+    type: 'Initial Consultation',
+    status: 'Scheduled',
+    notes: 'First time visit'
+  },
+  {
+    id: 'apt-2',
+    lead_id: 'lead-2',
+    date: '2023-06-12',
+    time: '2:30 PM',
+    type: 'Free Trial Class',
+    status: 'Confirmed',
+    notes: 'Bring comfortable clothes'
   }
-  
-  return id;
-};
+];
 
-// Process all queued submissions
-export const processQueuedSubmissions = async (): Promise<void> => {
-  if (!isOnline()) {
-    console.log('Cannot process queue while offline');
-    return;
-  }
-  
-  const queue = getSubmissionQueue();
-  if (queue.length === 0) {
-    return;
-  }
-  
-  console.log(`Processing ${queue.length} queued submissions`);
-  
-  // Process submissions in order
-  const updatedQueue: QueuedFormSubmission[] = [];
-  
-  for (const submission of queue) {
-    try {
-      // Try to submit
-      await api.post(submission.endpoint, submission.formData);
-      console.log(`Successfully processed queued submission: ${submission.id}`);
-      // Don't add this one back to the queue since it succeeded
-    } catch (error) {
-      // If submission failed, increment retry count
-      const updatedSubmission = {
-        ...submission,
-        retryCount: submission.retryCount + 1
-      };
-      
-      // If under max retries, add back to queue
-      if (updatedSubmission.retryCount < MAX_RETRY_COUNT) {
-        updatedQueue.push(updatedSubmission);
-      } else {
-        console.error(`Submission ${submission.id} has exceeded max retry count and will be dropped`);
-      }
-    }
-  }
-  
-  // Update the queue
-  saveSubmissionQueue(updatedQueue);
-  
-  // Schedule next retry with exponential backoff if there are items left
-  if (updatedQueue.length > 0) {
-    const nextRetryDelay = calculateNextRetryDelay(updatedQueue);
-    setTimeout(() => processQueuedSubmissions(), nextRetryDelay);
-  }
-};
+// ==========================================================================
+// PLACEHOLDER IMPLEMENTATIONS - BEGIN
+// All backend API functions below are replaced with mock implementations
+// that return static data rather than making actual API calls
+// ==========================================================================
 
-// Calculate retry delay using exponential backoff
-const calculateNextRetryDelay = (queue: QueuedFormSubmission[]): number => {
-  // Find the submission with the highest retry count
-  const maxRetryCount = Math.max(...queue.map(sub => sub.retryCount));
-  // Calculate delay with exponential backoff
-  return INITIAL_RETRY_DELAY * Math.pow(EXPONENTIAL_BACKOFF_FACTOR, maxRetryCount);
-};
-
-// Clear the submission queue
-export const clearSubmissionQueue = (): void => {
-  localStorage.removeItem(QUEUE_STORAGE_KEY);
-};
-
-// Lead APIs
+// Lead APIs - Mock implementations
 export const getLeads = async () => {
-  return await api.get('/leads');
+  logMockOperation('getLeads');
+  await simulateNetworkDelay();
+  return Promise.resolve({ data: mockLeads });
 };
 
 export const getLeadById = async (id: string) => {
-  return await api.get(`/leads/${id}`);
+  logMockOperation('getLeadById', { id });
+  await simulateNetworkDelay();
+  const lead = mockLeads.find(l => l.id === id);
+  return Promise.resolve({ data: lead });
 };
 
 export const createLead = async (lead: Omit<Lead, 'id' | 'created_at'>) => {
-  return await api.post('/leads', lead);
+  logMockOperation('createLead', lead);
+  await simulateNetworkDelay();
+  const newLead: Lead = {
+    ...lead,
+    id: `lead-${generateId()}`,
+    created_at: new Date().toISOString()
+  } as Lead;
+  
+  return Promise.resolve({ data: newLead });
 };
 
 export const updateLead = async (id: string, lead: Partial<Lead>) => {
-  return await api.put(`/leads/${id}`, lead);
+  logMockOperation('updateLead', { id, lead });
+  await simulateNetworkDelay();
+  return Promise.resolve({ data: { ...lead, id } });
 };
 
 export const deleteLead = async (id: string) => {
-  return await api.delete(`/leads/${id}`);
+  logMockOperation('deleteLead', { id });
+  await simulateNetworkDelay();
+  return Promise.resolve({ data: { success: true, id } });
 };
 
-// Appointment APIs
+// Appointment APIs - Mock implementations
 export const getAppointments = async () => {
-  return await api.get('/appointments');
+  // PLACEHOLDER: Returns mock appointment data
+  return Promise.resolve({ data: mockAppointments });
 };
 
 export const getAppointmentById = async (id: string) => {
-  return await api.get(`/appointments/${id}`);
+  // PLACEHOLDER: Returns a mock appointment based on ID
+  const appointment = mockAppointments.find(a => a.id === id);
+  return Promise.resolve({ data: appointment });
 };
 
 export const createAppointment = async (appointment: Omit<Appointment, 'id'>) => {
-  return await api.post('/appointments', appointment);
+  // PLACEHOLDER: Simulates creating a new appointment
+  const newAppointment: Appointment = {
+    ...appointment,
+    id: `apt-${generateId()}`
+  } as Appointment;
+  
+  return Promise.resolve({ data: newAppointment });
 };
 
 export const updateAppointment = async (id: string, appointment: Partial<Appointment>) => {
-  return await api.put(`/appointments/${id}`, appointment);
+  // PLACEHOLDER: Simulates updating appointment data
+  return Promise.resolve({ data: { ...appointment, id } });
 };
 
 export const deleteAppointment = async (id: string) => {
-  return await api.delete(`/appointments/${id}`);
+  // PLACEHOLDER: Simulates deleting an appointment
+  return Promise.resolve({ data: { success: true, id } });
 };
 
-// Time Slot APIs
-export const getAvailableTimeSlots = async (date: string, program: string) => {
-  return await api.get(`/timeslots?date=${date}&program=${program}`);
-};
-
-export const reserveTimeSlot = async (timeSlotId: string, leadId: string) => {
-  return await api.post(`/timeslots/${timeSlotId}/reserve`, { lead_id: leadId });
-};
-
-export const releaseTimeSlot = async (timeSlotId: string, leadId: string) => {
-  return await api.post(`/timeslots/${timeSlotId}/release`, { lead_id: leadId });
-};
-
-// Analytics APIs - Original
+// Analytics APIs - Mock implementations
 export const trackPageVisit = async (pageVisit: Omit<PageVisit, 'id'>) => {
-  return await api.post('/api/analytics/pageview', pageVisit);
+  // PLACEHOLDER: Simulates tracking a page visit
+  const newPageVisit: PageVisit = {
+    ...pageVisit,
+    id: `visit-${generateId()}`,
+    timestamp: new Date().toISOString()
+  } as PageVisit;
+  
+  return Promise.resolve({ data: newPageVisit });
 };
 
 export const trackConversion = async (conversion: Omit<Conversion, 'id'>) => {
-  return await api.post('/api/analytics/event', {
-    eventType: 'conversion',
-    metadata: conversion
-  });
+  // PLACEHOLDER: Simulates tracking a conversion
+  const newConversion: Conversion = {
+    ...conversion,
+    id: `conv-${generateId()}`,
+    timestamp: new Date().toISOString()
+  } as Conversion;
+  
+  return Promise.resolve({ data: newConversion });
 };
 
 export const getMetricsSnapshots = async (startDate: string, endDate: string) => {
-  return await api.get(`/api/analytics/reports/page_views?startDate=${startDate}&endDate=${endDate}`);
+  // PLACEHOLDER: Generates mock metrics snapshots for the date range
+  const mockMetrics: MetricsSnapshot[] = Array.from({ length: 7 }, (_, i) => ({
+    id: `metric-${i}`,
+    date: new Date(new Date(startDate).getTime() + i * 86400000).toISOString().split('T')[0],
+    visits: Math.floor(Math.random() * 1000) + 500,
+    unique_visitors: Math.floor(Math.random() * 800) + 400,
+    average_time_on_page: Math.floor(Math.random() * 180) + 60,
+    bounce_rate: Math.random() * 0.7,
+    conversion_rate: Math.random() * 0.15,
+    // Additional fields required by Dashboard
+    snapshot_time: new Date(new Date(startDate).getTime() + i * 86400000).toISOString(),
+    landing_page_visits: Math.floor(Math.random() * 800) + 300,
+    conversions: Math.floor(Math.random() * 100) + 20,
+    referral_counts: [
+      { source: 'Google', count: Math.floor(Math.random() * 300) + 100 },
+      { source: 'Facebook', count: Math.floor(Math.random() * 200) + 80 },
+      { source: 'Direct', count: Math.floor(Math.random() * 150) + 50 }
+    ],
+    devices: [
+      { device: 'Mobile', count: Math.floor(Math.random() * 400) + 200 },
+      { device: 'Desktop', count: Math.floor(Math.random() * 300) + 150 },
+      { device: 'Tablet', count: Math.floor(Math.random() * 100) + 30 }
+    ],
+    geography: [
+      { region: 'California', count: Math.floor(Math.random() * 200) + 100 },
+      { region: 'Texas', count: Math.floor(Math.random() * 150) + 70 },
+      { region: 'Florida', count: Math.floor(Math.random() * 100) + 50 }
+    ],
+    average_time_per_user: Math.floor(Math.random() * 200) + 60
+  }));
+  
+  return Promise.resolve({ data: mockMetrics });
 };
 
-// Enhanced Analytics APIs
+// Enhanced Analytics APIs - Mock implementations
 export const getAnalyticsReport = async (startDate: string, endDate: string) => {
-  const response = await api.get(`/api/analytics/reports/user_activity?startDate=${startDate}&endDate=${endDate}`);
-  return response.data;
+  // PLACEHOLDER: Returns mock analytics report data structured for Dashboard
+  return {
+    // Match Dashboard component expectations
+    totalVisits: 12500,
+    uniqueVisitors: 8700,
+    conversionRate: 0.067,
+    averageEngagementTime: 185,
+    bounceRate: 0.34,
+    periodSummary: {
+      totalVisits: 12500,
+      uniqueVisitors: 8700,
+      averageSessionDuration: 185,
+      bounceRate: 0.34,
+      conversionRate: 0.067
+    },
+    trends: Array.from({ length: 7 }, (_, i) => ({
+      date: new Date(new Date(startDate).getTime() + i * 86400000).toISOString().split('T')[0],
+      visits: Math.floor(Math.random() * 1000) + 500,
+      conversions: Math.floor(Math.random() * 50) + 10
+    }))
+  };
 };
 
 export const getLandingPageMetrics = async (startDate: string, endDate: string) => {
-  const response = await api.get(`/api/analytics/reports/page_views?startDate=${startDate}&endDate=${endDate}&groupBy=page`);
-  return response.data;
+  // PLACEHOLDER: Returns mock landing page metrics with data structure for Dashboard
+  return {
+    pages: [
+      { page: '/', visits: 5240, bounceRate: 0.31, conversionRate: 0.072 },
+      { page: '/programs', visits: 3120, bounceRate: 0.28, conversionRate: 0.085 },
+      { page: '/about', visits: 1840, bounceRate: 0.42, conversionRate: 0.043 },
+      { page: '/contact', visits: 2300, bounceRate: 0.25, conversionRate: 0.091 }
+    ],
+    // Additional fields required by Dashboard
+    dailyVisits: Array.from({ length: 30 }, (_, i) => ({
+      date: new Date(new Date(startDate).getTime() + i * 86400000).toISOString().split('T')[0],
+      visits: Math.floor(Math.random() * 1000) + 200
+    })),
+    conversionData: Array.from({ length: 30 }, (_, i) => ({
+      date: new Date(new Date(startDate).getTime() + i * 86400000).toISOString().split('T')[0],
+      visits: Math.floor(Math.random() * 1000) + 200,
+      conversions: Math.floor(Math.random() * 50) + 5
+    }))
+  };
 };
 
 export const getTopTrafficSources = async (startDate: string, endDate: string) => {
-  const response = await api.get(`/api/analytics/reports/page_views?startDate=${startDate}&endDate=${endDate}&groupBy=referrer`);
-  return response.data;
+  // PLACEHOLDER: Returns mock traffic sources data
+  return {
+    sources: [
+      { source: 'Google', visits: 4200, conversionRate: 0.068 },
+      { source: 'Direct', visits: 3100, conversionRate: 0.071 },
+      { source: 'Facebook', visits: 2700, conversionRate: 0.059 },
+      { source: 'Instagram', visits: 1840, conversionRate: 0.082 },
+      { source: 'Referral', visits: 660, conversionRate: 0.054 }
+    ]
+  };
 };
 
 export const getDeviceBreakdown = async (startDate: string, endDate: string) => {
-  const response = await api.get(`/api/analytics/reports/page_views?startDate=${startDate}&endDate=${endDate}&groupBy=device`);
-  return response.data;
+  // PLACEHOLDER: Returns mock device breakdown data
+  return {
+    devices: [
+      { device: 'Mobile', count: 6700 },
+      { device: 'Desktop', count: 4800 },
+      { device: 'Tablet', count: 1000 }
+    ]
+  };
 };
 
 export const getGeographicDistribution = async (startDate: string, endDate: string) => {
-  const response = await api.get(`/api/analytics/reports/page_views?startDate=${startDate}&endDate=${endDate}&groupBy=region`);
-  return response.data;
+  // PLACEHOLDER: Returns mock geographic distribution data
+  return {
+    regions: [
+      { region: 'California', count: 3200 },
+      { region: 'Texas', count: 2100 },
+      { region: 'New York', count: 1800 },
+      { region: 'Florida', count: 1500 },
+      { region: 'Other', count: 3900 }
+    ]
+  };
 };
 
 export const getNewVsReturningMetrics = async (startDate: string, endDate: string) => {
-  const response = await api.get(`/api/analytics/reports/user_activity?startDate=${startDate}&endDate=${endDate}&groupBy=visitor_type`);
-  return response.data;
+  // PLACEHOLDER: Returns mock visitor metrics data
+  return {
+    dailyMetrics: Array.from({ length: 7 }, (_, i) => ({
+      date: new Date(new Date(startDate).getTime() + i * 86400000).toISOString().split('T')[0],
+      newVisitors: Math.floor(Math.random() * 500) + 200,
+      returningVisitors: Math.floor(Math.random() * 300) + 100
+    }))
+  };
 };
 
 export const getAttributionAnalysis = async (startDate: string, endDate: string) => {
-  const response = await api.get(`/api/analytics/reports/conversion?startDate=${startDate}&endDate=${endDate}&conversionGoal=all`);
-  return response.data;
+  // PLACEHOLDER: Returns mock attribution analysis data
+  return {
+    channels: [
+      { channel: 'Organic Search', contribution: 0.42 },
+      { channel: 'Social Media', contribution: 0.28 },
+      { channel: 'Direct', contribution: 0.18 },
+      { channel: 'Referral', contribution: 0.08 },
+      { channel: 'Email', contribution: 0.04 }
+    ]
+  };
 };
 
 export const compareAttributionModels = async (startDate: string, endDate: string, models: string[]) => {
-  const response = await api.post(`/api/analytics/reports/attribution_comparison`, {
-    startDate,
-    endDate,
-    models
-  });
-  return response.data;
+  // PLACEHOLDER: Returns mock attribution model comparison data
+  return {
+    models: [
+      {
+        name: 'First Touch',
+        channels: [
+          { channel: 'Organic Search', contribution: 0.47 },
+          { channel: 'Social Media', contribution: 0.25 },
+          { channel: 'Direct', contribution: 0.16 },
+          { channel: 'Referral', contribution: 0.07 },
+          { channel: 'Email', contribution: 0.05 }
+        ]
+      },
+      {
+        name: 'Last Touch',
+        channels: [
+          { channel: 'Organic Search', contribution: 0.38 },
+          { channel: 'Social Media', contribution: 0.30 },
+          { channel: 'Direct', contribution: 0.22 },
+          { channel: 'Referral', contribution: 0.06 },
+          { channel: 'Email', contribution: 0.04 }
+        ]
+      }
+    ]
+  };
 };
 
 export const getAnalyticsInsights = async (startDate: string, endDate: string) => {
-  const response = await api.get(`/analytics/insights?startDate=${startDate}&endDate=${endDate}`);
-  return response.data;
+  // PLACEHOLDER: Returns mock analytics insights data
+  return {
+    insights: [
+      {
+        id: 'insight-1',
+        title: 'Mobile conversion rate improved',
+        description: 'Your mobile conversion rate has increased by 15% over the last 30 days.',
+        impact: 'high' as const,
+        category: 'performance',
+        date: new Date().toISOString()
+      },
+      {
+        id: 'insight-2',
+        title: 'High bounce rate on program page',
+        description: 'The programs page has a higher than average bounce rate (58%).',
+        impact: 'medium' as const,
+        category: 'user experience',
+        date: new Date().toISOString()
+      }
+    ]
+  };
 };
 
 export const getOptimizationSuggestions = async (startDate: string, endDate: string) => {
-  const response = await api.get(`/analytics/optimizationSuggestions?startDate=${startDate}&endDate=${endDate}`);
-  return response.data;
+  // PLACEHOLDER: Returns mock optimization suggestions data
+  return {
+    suggestions: [
+      {
+        id: 'sug-1',
+        title: 'Improve mobile form usability',
+        description: 'Mobile users abandon forms at a 25% higher rate than desktop users.',
+        expectedImpact: 'Potential 10-15% increase in mobile conversions',
+        difficulty: 'medium' as const,
+        category: 'user experience'
+      },
+      {
+        id: 'sug-2',
+        title: 'Add testimonials to landing page',
+        description: 'Pages with testimonials have 18% higher conversion rate.',
+        expectedImpact: 'Potential 5-10% increase in landing page conversions',
+        difficulty: 'easy' as const,
+        category: 'content'
+      }
+    ]
+  };
 };
 
-// Form APIs
+// Form Handling - Mock implementations
 export const processForm = async (formData: any) => {
-  // Use submit/:formType endpoint instead of /forms/process
-  return await api.post(`/forms/submit/${formData.type || 'default'}`, formData);
+  // PLACEHOLDER: Simulates form submission processing
+  return Promise.resolve({ 
+    data: { 
+      success: true, 
+      message: 'Form submitted successfully', 
+      formId: `form-${generateId()}` 
+    } 
+  });
 };
 
+// Legacy form handlers
 export const submitAssessmentForm = async (formData: any) => {
-  return await api.post('/forms/assessment', formData);
+  // PLACEHOLDER: Simulates assessment form submission
+  return Promise.resolve({ 
+    data: { 
+      success: true, 
+      message: 'Assessment form processed successfully', 
+      formId: `assessment-${generateId()}` 
+    } 
+  });
 };
 
 export const submitFreeClassForm = async (formData: any) => {
-  try {
-    console.log('\n============ FRONTEND - FREE CLASS FORM SUBMISSION ============');
-    console.log('Submitting data to backend endpoint: /api/forms/go-high-level-submit');
-    console.log('Form Data:', JSON.stringify(formData, null, 2));
-    
-    // Track start time for performance monitoring
-    const startTime = performance.now();
-    
-    // Use our backend endpoint that directly forwards to Go High Level
-    const response = await api.post('/api/forms/go-high-level-submit', formData);
-    
-    // Calculate request duration
-    const duration = performance.now() - startTime;
-    
-    // Log complete response details
-    console.log('\n============ FRONTEND - RESPONSE RECEIVED ============');
-    console.log(`Response received in ${duration.toFixed(2)}ms`);
-    console.log('Status:', response.status);
-    console.log('Status Text:', response.statusText);
-    console.log('Response Headers:', JSON.stringify(response.headers, null, 2));
-    console.log('Response Data:', JSON.stringify(response.data, null, 2));
-    console.log('============ END FRONTEND LOGGING ============\n');
-    
-    return {
-      data: response.data,
-      status: response.status,
-      statusText: response.statusText
-    };
-  } catch (error: any) {
-    console.error('\n============ FRONTEND - SUBMISSION ERROR ============');
-    console.error('Error in free class form submission:');
-    
-    if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
-      console.error('Response Status:', error.response.status);
-      console.error('Response Headers:', JSON.stringify(error.response.headers, null, 2));
-      console.error('Response Data:', JSON.stringify(error.response.data, null, 2));
-    } else if (error.request) {
-      // The request was made but no response was received
-      console.error('No response received from server. Request details:');
-      console.error(error.request);
-    } else {
-      // Something happened in setting up the request
-      console.error('Error setting up request:', error.message);
-    }
-    console.error('============ END ERROR LOGGING ============\n');
-    
-    throw error;
-  }
+  // PLACEHOLDER: Simulates free class form submission
+  return Promise.resolve({ 
+    data: { 
+      success: true, 
+      message: 'Free class form submitted successfully', 
+      appointmentId: `appointment-${generateId()}`,
+      appointmentDetails: {
+        date: formData.preferredDate || new Date().toISOString().split('T')[0],
+        time: formData.preferredTime || '10:00 AM',
+        instructor: 'Alex Johnson'
+      }
+    } 
+  });
 };
 
 export const submitContactForm = async (formData: any) => {
-  return await api.post('/forms/contact', formData);
+  // PLACEHOLDER: Simulates contact form submission
+  return Promise.resolve({ 
+    data: { 
+      success: true, 
+      message: 'Contact form submitted successfully', 
+      contactId: `contact-${generateId()}`
+    } 
+  });
 };
 
-// Enhanced form submission with retries
-const defaultSubmissionOptions = {
-  retryCount: 2,
-  retryDelay: 2000,
-  trackProgress: true
-};
-
-export interface FormSubmissionOptions {
-  retryCount?: number;
-  retryDelay?: number; // ms
-  trackProgress?: boolean;
-}
-
-export interface FormSubmissionResult {
-  success: boolean;
-  data?: any;
-  error?: Error | string;
-  attempts?: number;
-}
-
-export interface FormSubmissionProgress {
-  status: 'idle' | 'submitting' | 'success' | 'error' | 'retrying';
-  progress: number; // 0-100
-  currentAttempt: number;
-  maxAttempts: number;
-  error?: Error | string;
-}
-
-// Form submission with offline support
-export const submitFormWithRetry = async (
-  endpoint: string,
-  formData: any,
-  options: FormSubmissionOptions = defaultSubmissionOptions,
-  progressCallback?: (progress: FormSubmissionProgress) => void
-): Promise<FormSubmissionResult> => {
-  const { retryCount = 3, retryDelay = 2000, trackProgress = true } = options;
-  
-  // If offline, queue the submission and return a "pending" result
-  if (!isOnline()) {
-    const id = queueFormSubmission(endpoint, formData, options);
-    
-    if (progressCallback) {
-      progressCallback({
-        status: 'submitting',
-        progress: 100,
-        currentAttempt: 1,
-        maxAttempts: 1,
-        error: 'Device is offline, submission has been queued'
-      });
-    }
-    
-    return {
-      success: false,
-      data: { queued: true, submissionId: id },
-      error: 'Device is offline, submission has been queued'
-    };
-  }
-
-  // Regular submission flow for online state
-  const updateProgress = (status: FormSubmissionProgress['status'], progress: number, error?: Error | string) => {
-    if (trackProgress && progressCallback) {
-      progressCallback({
-        status,
-        progress,
-        currentAttempt: attempt,
-        maxAttempts: retryCount + 1,
-        error
-      });
+export const getMetricsByReportType = async (reportType: string, limit: number = 30) => {
+  // PLACEHOLDER: Returns mock metrics data by report type
+  // Modified to return data in the structure expected by the Dashboard component
+  return {
+    reportType,
+    data: Array.from({ length: limit }, (_, i) => ({
+      date: new Date(new Date().getTime() - i * 86400000).toISOString().split('T')[0],
+      value: Math.floor(Math.random() * 1000) + 100,
+      change: Math.random() * 0.4 - 0.2 // between -20% and +20%
+    })),
+    length: limit, // Adding length property to satisfy the Dashboard component
+    map: function<T>(callback: (item: any, index: number, array: any[]) => T): T[] {
+      // Adding map function to satisfy the Dashboard component
+      return this.data.map(callback);
     }
   };
+};
 
-  let attempt = 1;
-  let lastError: Error | string | undefined;
+export const getLatestMetricByReportType = async (reportType: string) => {
+  // PLACEHOLDER: Returns mock latest metric by report type
+  // Modified to match the expected MetricsSnapshot structure
+  return {
+    reportType,
+    value: Math.floor(Math.random() * 1000) + 100,
+    change: Math.random() * 0.4 - 0.2,
+    lastUpdated: new Date().toISOString(),
+    // Additional fields required by Dashboard
+    id: `metric-${generateId()}`,
+    snapshot_time: new Date().toISOString(),
+    landing_page_visits: Math.floor(Math.random() * 800) + 300,
+    conversions: Math.floor(Math.random() * 100) + 20,
+    average_time_per_user: Math.floor(Math.random() * 200) + 60,
+    referral_counts: [
+      { source: 'Google', count: Math.floor(Math.random() * 300) + 100 },
+      { source: 'Facebook', count: Math.floor(Math.random() * 200) + 80 },
+      { source: 'Direct', count: Math.floor(Math.random() * 150) + 50 }
+    ],
+    devices: [
+      { device: 'Mobile', count: Math.floor(Math.random() * 400) + 200 },
+      { device: 'Desktop', count: Math.floor(Math.random() * 300) + 150 },
+      { device: 'Tablet', count: Math.floor(Math.random() * 100) + 30 }
+    ],
+    geography: [
+      { region: 'California', count: Math.floor(Math.random() * 200) + 100 },
+      { region: 'Texas', count: Math.floor(Math.random() * 150) + 70 },
+      { region: 'Florida', count: Math.floor(Math.random() * 100) + 50 }
+    ]
+  };
+};
 
-  while (attempt <= retryCount + 1) {
-    try {
-      updateProgress('submitting', 50);
-      
-      const response = await api.post(endpoint, formData);
-      
-      updateProgress('success', 100);
-      
-      return {
-        success: true,
-        data: response.data,
-        attempts: attempt
-      };
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      lastError = errorMessage;
-      
-      if (attempt > retryCount) {
-        // No more retry attempts
-        updateProgress('error', 100, errorMessage);
-        break;
-      }
-      
-      // Prepare for retry
-      updateProgress('retrying', (attempt / (retryCount + 1)) * 100, errorMessage);
-      
-      // Wait before retry
-      await new Promise(resolve => setTimeout(resolve, retryDelay));
-      attempt++;
-    }
-  }
+export const getLatestTrafficSources = async (reportType?: string) => {
+  // PLACEHOLDER: Returns mock latest traffic sources data
+  // Modified to return in the format expected by the Dashboard component
+  return {
+    sources: [
+      { source: 'Google', visits: Math.floor(Math.random() * 1000) + 500 },
+      { source: 'Direct', visits: Math.floor(Math.random() * 800) + 300 },
+      { source: 'Facebook', visits: Math.floor(Math.random() * 600) + 200 },
+      { source: 'Twitter', visits: Math.floor(Math.random() * 400) + 100 },
+      { source: 'Referral', visits: Math.floor(Math.random() * 300) + 50 }
+    ]
+  };
+};
 
-  // If all retries failed and we're online, queue the submission for later
-  const id = queueFormSubmission(endpoint, formData, options);
+export const getConversionRateTrend = async (period: string = 'daily') => {
+  // PLACEHOLDER: Returns mock conversion rate trend data
+  // Modified to match the structure expected by the Dashboard component
+  const days = period === 'daily' ? 14 : period === 'weekly' ? 10 : 6;
+  
+  const data = Array.from({ length: days }, (_, i) => ({
+    date: new Date(new Date().getTime() - i * 86400000).toISOString().split('T')[0],
+    visits: Math.floor(Math.random() * 1000) + 200,
+    conversions: Math.floor(Math.random() * 50) + 10
+  }));
   
   return {
-    success: false,
-    error: lastError,
-    attempts: attempt,
-    data: { queued: true, submissionId: id }
+    period,
+    data,
+    length: data.length
   };
 };
 
-// Main form submission function that determines endpoint based on form type
-export const submitForm = async (
-  formType: 'free-class' | 'assessment' | 'contact' | string,
-  formData: any,
-  options?: FormSubmissionOptions,
-  progressCallback?: (progress: FormSubmissionProgress) => void
-): Promise<FormSubmissionResult> => {
-  // If we're offline, queue the form submission and return
-  if (!isOnline()) {
-    console.log('Device is offline. Queueing form submission for later.');
-    const endpoint = getEndpointForFormType(formType);
-    const id = queueFormSubmission(endpoint, formData, options);
-    
-    if (progressCallback) {
-      progressCallback({
-        status: 'error',
-        progress: 0,
-        currentAttempt: 0,
-        maxAttempts: options?.retryCount || 3,
-        error: 'Device is offline. Form will be submitted when connection is restored.'
-      });
-    }
-    
-    return {
-      success: false,
-      error: 'Device is offline. Form will be submitted when connection is restored.',
-      attempts: 0,
-      data: { queued: true, submissionId: id }
-    };
-  }
-  
-  // For online submissions, use the retry mechanism
-  const endpoint = getEndpointForFormType(formType);
-  return submitFormWithRetry(endpoint, formData, options, progressCallback);
-};
+// ==========================================================================
+// PLACEHOLDER IMPLEMENTATIONS - END
+// ==========================================================================
 
-/**
- * Get the appropriate endpoint for a form type
- */
-const getEndpointForFormType = (formType: string): string => {
-  switch (formType) {
-    case 'free-class':
-      return '/form/free-class';
-    case 'assessment':
-      return '/form/assessment';
-    case 'contact':
-      return '/form/contact';
-    // Support appointment booking directly
-    case 'appointment': 
-      return '/appointment/create';
-    default:
-      // Fallback to general form processing
-      return `/form/${formType}`;
-  }
-};
-
-// Analytics reporting APIs
-export const getMetricsByReportType = async (reportType: string, limit: number = 30) => {
-  const response = await api.get(`/analytics/metrics/${reportType}`, {
-    params: { limit }
-  });
-  
-  if (response.status !== 200) {
-    throw new Error(`Failed to fetch ${reportType} metrics`);
-  }
-  
-  return response.data;
-};
-
-// Get the latest metric for a specific report type
-export const getLatestMetricByReportType = async (reportType: string) => {
-  const response = await api.get(`/analytics/metrics/${reportType}/latest`);
-  
-  if (response.status !== 200) {
-    throw new Error(`Failed to fetch latest ${reportType} metric`);
-  }
-  
-  return response.data;
-};
-
-// Get the latest traffic sources with optional filtering
-export const getLatestTrafficSources = async (reportType?: string) => {
-  const params: any = {};
-  
-  if (reportType) {
-    params.reportType = reportType;
-  }
-  
-  const response = await api.get('/analytics/traffic-sources/latest', {
-    params
-  });
-  
-  if (response.status !== 200) {
-    throw new Error('Failed to fetch latest traffic sources');
-  }
-  
-  return response.data;
-};
-
-// Get conversion rate trend data
-export const getConversionRateTrend = async (period: string = 'daily') => {
-  const response = await api.get('/analytics/conversion-trend', {
-    params: { period }
-  });
-  
-  if (response.status !== 200) {
-    throw new Error(`Failed to fetch conversion trend data`);
-  }
-  
-  return response.data;
-};
-
-// Update the appointment submission function to use the new client
-export const submitAppointmentRequest = async (formData: any): Promise<any> => {
-  return goHighLevelAppointmentClient.submitAppointmentRequest(formData);
-};
+// Add a mock API indicator to help with debugging
+console.info('%c[MOCK API] Using mock API implementations - No backend connection required', 'color: #2ecc71; font-weight: bold; font-size: 14px;');
 
 export default api; 

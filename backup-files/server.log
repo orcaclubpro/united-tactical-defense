@@ -1,0 +1,14 @@
+Starting server...
+Initializing database connection pool with 10 connections
+Database connection pool initialized
+Connected to the SQLite database
+Running migrations: up
+All migrations completed successfully
+Database migrations completed
+Redis is disabled in configuration. Using in-memory storage instead.
+[RealTimeAnalyticsService] Subscribed to form events
+[RealTimeAnalyticsService] Started aggregation and persistence intervals
+Server listening on port 3000
+Health check available at: http://localhost:3000/api/health
+All migrations completed successfully
+Migrations completed successfully.

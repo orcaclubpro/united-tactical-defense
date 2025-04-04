@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import './Calendar.scss';
 
 // Placeholder icons - can be replaced with an icon library of your choice
 const CalendarIcon = () => (
@@ -249,72 +250,78 @@ const UDTCalendar: React.FC<UDTCalendarProps> = ({
   const getDaysArray = () => {
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
     
-    // Pre-allocate array for better performance
-    const days = Array(firstDay + daysInMonth).fill(null);
+    // First day of the month
+    const firstDayOfMonth = new Date(year, month, 1);
+    // Last day of the month
+    const lastDayOfMonth = new Date(year, month + 1, 0);
     
-    // Empty cells for days before month starts
-    for (let i = 0; i < firstDay; i++) {
-      days[i] = { empty: true };
+    // Get the day of the week for the first day (0 = Sunday, 6 = Saturday)
+    const dayOfWeekForFirst = firstDayOfMonth.getDay();
+    
+    // Calculate the number of empty cells to add at the beginning
+    const emptyCellsAtStart = dayOfWeekForFirst;
+    
+    // Calculate the total number of days in the month
+    const daysInMonth = lastDayOfMonth.getDate();
+    
+    // Create the array of days to display
+    const daysArray = [];
+    
+    // Add empty cells for days from previous month
+    for (let i = 0; i < emptyCellsAtStart; i++) {
+      daysArray.push({ day: 0, date: null });
     }
     
-    // Days of month with efficient date comparison
-    const todayDate = today.getDate();
-    const todayMonth = today.getMonth();
-    const todayYear = today.getFullYear();
-    
+    // Add cells for days in the current month
     for (let i = 1; i <= daysInMonth; i++) {
-      const dayIndex = firstDay + i - 1;
-      const date = new Date(year, month, i);
-      days[dayIndex] = {
-        date,
-        day: i,
-        isToday: i === todayDate && month === todayMonth && year === todayYear,
-        isPast: date < today
-      };
+      daysArray.push({ 
+        day: i, 
+        date: new Date(year, month, i)
+      });
     }
     
-    return days;
+    return daysArray;
   };
   
-  // Month navigation with boundary checks
+  // Change the displayed month
   const changeMonth = (increment: number) => {
     const newMonth = new Date(currentMonth);
     newMonth.setMonth(newMonth.getMonth() + increment);
     
-    // Enforce reasonable boundaries (12 months into future)
-    const maxDate = new Date();
-    maxDate.setMonth(maxDate.getMonth() + 12);
-    
+    // If moving back and we need to disable past months
     if (increment < 0) {
-      // Don't go before current month
       const today = new Date();
       if (newMonth.getFullYear() < today.getFullYear() || 
-         (newMonth.getFullYear() === today.getFullYear() && newMonth.getMonth() < today.getMonth())) {
-        return;
+          (newMonth.getFullYear() === today.getFullYear() && 
+           newMonth.getMonth() < today.getMonth())) {
+        return; // Don't allow past months
       }
-    } else if (increment > 0 && newMonth > maxDate) {
-      // Don't go beyond 12 months ahead
-      return;
     }
     
     setCurrentMonth(newMonth);
+    
+    // Clear selected date if it's not in the new month
+    if (selectedDate && 
+        (selectedDate.getMonth() !== newMonth.getMonth() || 
+         selectedDate.getFullYear() !== newMonth.getFullYear())) {
+      setSelectedDate(null);
+      setSelectedSlot(null);
+    }
   };
   
-  // Check if previous month button should be disabled
+  // Check if previous month navigation should be disabled
   const isPrevDisabled = () => {
     const today = new Date();
-    return currentMonth.getMonth() === today.getMonth() && 
-           currentMonth.getFullYear() === today.getFullYear();
+    return (
+      currentMonth.getFullYear() === today.getFullYear() && 
+      currentMonth.getMonth() === today.getMonth()
+    );
   };
   
-  // Handle day selection
+  // Handle date selection
   const handleDateClick = (day: any) => {
-    if (day.empty || day.isPast) return;
+    if (day.day === 0 || isPastDate(day.date)) return;
     
     setSelectedDate(day.date);
     setSelectedSlot(null);
@@ -333,84 +340,106 @@ const UDTCalendar: React.FC<UDTCalendarProps> = ({
     }
   };
   
-  // Format selected date
+  // Format date for display
   const formatDate = (date: Date | null) => {
     if (!date) return '';
-    return new Intl.DateTimeFormat('en-US', { 
-      weekday: 'short', 
-      month: 'short', 
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      month: 'long', 
       day: 'numeric' 
-    }).format(date);
+    });
   };
   
-  // Format month name and year
-  const monthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(currentMonth);
-  const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-
+  // Check if a date is in the past
+  const isPastDate = (date: Date | null) => {
+    if (!date) return false;
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    return date < today;
+  };
+  
+  // Check if a date is today
+  const isToday = (date: Date | null) => {
+    if (!date) return false;
+    
+    const today = new Date();
+    return (
+      date.getDate() === today.getDate() && 
+      date.getMonth() === today.getMonth() && 
+      date.getFullYear() === today.getFullYear()
+    );
+  };
+  
+  const monthYear = currentMonth.toLocaleDateString('en-US', { 
+    month: 'long', 
+    year: 'numeric' 
+  });
+  
   return (
     <CalendarContainer>
-      {/* Header */}
       <Header>
-        <h2>UNITED DEFENSE TACTICAL</h2>
-        <p>Anaheim Hills Firearms Training</p>
-        
+        <h3>Schedule Your Free Training Session</h3>
         <TrainingInfo>
           <div>
-            <ClockIcon /> 90 Min
+            <CalendarIcon />
+            <span>45 minutes</span>
           </div>
           <div>
-            <TargetIcon /> Simulator Training
+            <TargetIcon />
+            <span>Personalized</span>
+          </div>
+          <div>
+            <ClockIcon />
+            <span>Flexible Hours</span>
           </div>
         </TrainingInfo>
       </Header>
       
-      {/* Calendar */}
-      <div className="calendar-section">
-        <CalendarHeader>
-          <NavigationButton 
-            onClick={() => changeMonth(-1)}
-            disabled={isPrevDisabled()}
-          >
-            <ChevronLeftIcon />
-          </NavigationButton>
-          
-          <div className="month-title">
-            {monthName} {currentMonth.getFullYear()}
-          </div>
-          
-          <NavigationButton onClick={() => changeMonth(1)}>
-            <ChevronRightIcon />
-          </NavigationButton>
-        </CalendarHeader>
+      <CalendarHeader>
+        <NavigationButton 
+          onClick={() => changeMonth(-1)} 
+          disabled={isPrevDisabled()}
+        >
+          <ChevronLeftIcon />
+        </NavigationButton>
         
-        <WeekdaysRow>
-          {weekdays.map(day => (
-            <div key={day}>{day}</div>
-          ))}
-        </WeekdaysRow>
+        <div className="month-title">{monthYear}</div>
         
-        <DaysGrid>
-          {getDaysArray().map((day, index) => (
-            <DayCell 
-              key={index}
-              isEmpty={day.empty}
-              isToday={day.isToday}
-              isPast={day.isPast}
-              isSelected={selectedDate && day.date && 
-                selectedDate.toDateString() === day.date.toDateString()}
-              onClick={() => !day.empty && !day.isPast && handleDateClick(day)}
-            >
-              {day.empty ? '' : day.day}
-            </DayCell>
-          ))}
-        </DaysGrid>
-      </div>
+        <NavigationButton onClick={() => changeMonth(1)}>
+          <ChevronRightIcon />
+        </NavigationButton>
+      </CalendarHeader>
       
-      {/* Time Slots */}
+      <WeekdaysRow>
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
+          <div key={index}>{day}</div>
+        ))}
+      </WeekdaysRow>
+      
+      <DaysGrid>
+        {getDaysArray().map((day, index) => (
+          <DayCell 
+            key={index}
+            isEmpty={day.day === 0}
+            isPast={isPastDate(day.date)}
+            isToday={isToday(day.date)}
+            isSelected={selectedDate !== null && day.date !== null && 
+              day.date.getDate() === selectedDate.getDate() && 
+              day.date.getMonth() === selectedDate.getMonth()}
+            onClick={() => handleDateClick(day)}
+          >
+            {day.day !== 0 ? day.day : ''}
+          </DayCell>
+        ))}
+      </DaysGrid>
+      
       {selectedDate && (
         <TimeSlotsContainer>
           <h3>
-            <CalendarIcon /> {formatDate(selectedDate)}
+            <ClockIcon />
+            Available Time Slots for {formatDate(selectedDate)}
           </h3>
           
           <TimeSlotGrid>
@@ -428,9 +457,8 @@ const UDTCalendar: React.FC<UDTCalendarProps> = ({
         </TimeSlotsContainer>
       )}
       
-      {/* Notes */}
       <NotesSection>
-        <p>You may bring 1 guest to your tactical training session. No separate booking required.</p>
+        Note: All sessions are subject to instructor availability. We'll confirm your booking via email.
       </NotesSection>
     </CalendarContainer>
   );

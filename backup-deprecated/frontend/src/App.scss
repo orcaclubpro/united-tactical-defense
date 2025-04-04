@@ -1,0 +1,374 @@
+/* Base styles */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --primary-color: #d10000;
+  --primary-rgb: 209, 0, 0;
+  --secondary-color: #1a1a1a;
+  --secondary-rgb: 26, 26, 26;
+  --accent-color: #ffd700;
+  --accent-rgb: 255, 215, 0;
+  --text-color: #333;
+  --light-bg: #f8f8f8;
+  --light-gray: #f5f5f5;
+  --mid-gray: #cccccc;
+  --dark-gray: #555555;
+  --white: #ffffff;
+  --black: #000000;
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+  --info-color: #0277BD;
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 16px;
+  --box-shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.08);
+  --box-shadow-md: 0 5px 15px rgba(0, 0, 0, 0.1);
+  --box-shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+  --transition-fast: 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --transition-medium: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --transition-slow: 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Create a SCSS map for breakpoints for consistent media queries */
+$breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px
+);
+
+/* Mixin for media queries */
+@mixin breakpoint($point) {
+  @if map-has-key($breakpoints, $point) {
+    @media (min-width: map-get($breakpoints, $point)) {
+      @content;
+    }
+  } @else {
+    @warn "Breakpoint '#{$point}' not found in $breakpoints.";
+  }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--white);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Bebas Neue', sans-serif;
+  line-height: 1.2;
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+}
+
+h1 {
+  font-size: 4rem;
+  
+  @include breakpoint(md) {
+    font-size: 5rem;
+  }
+}
+
+h2 {
+  font-size: 2.5rem;
+  
+  @include breakpoint(md) {
+    font-size: 3.5rem;
+  }
+}
+
+h3 {
+  font-size: 1.75rem;
+  
+  @include breakpoint(md) {
+    font-size: 2.25rem;
+  }
+}
+
+p {
+  margin-bottom: 1.5rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color var(--transition-medium);
+  
+  &:hover {
+    color: darken(#d10000, 10%);
+  }
+}
+
+ul, ol {
+  margin-bottom: 1.5rem;
+  padding-left: 1.25rem;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  
+  @include breakpoint(lg) {
+    padding: 0 2rem;
+  }
+}
+
+/* Enhanced button styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  user-select: none;
+  border: 2px solid transparent;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: var(--border-radius-sm);
+  transition: all var(--transition-medium);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  
+  &:focus, &:hover {
+    outline: none;
+  }
+  
+  &.btn-primary {
+    background-color: var(--primary-color);
+    color: var(--white);
+    box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.25);
+    
+    &:hover {
+      background-color: darken(#d10000, 8%);
+      box-shadow: 0 6px 15px rgba(var(--primary-rgb), 0.35);
+      transform: translateY(-2px);
+    }
+    
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 5px rgba(var(--primary-rgb), 0.2);
+    }
+  }
+  
+  &.btn-secondary {
+    background-color: var(--secondary-color);
+    color: var(--white);
+    
+    &:hover {
+      background-color: lighten(#1a1a1a, 10%);
+      transform: translateY(-2px);
+    }
+  }
+  
+  &.btn-outline {
+    background-color: transparent;
+    border-color: rgba(255, 255, 255, 0.3);
+    color: var(--white);
+    
+    &:hover {
+      border-color: var(--white);
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+  
+  &.btn-lg {
+    font-size: 1.125rem;
+    padding: 1rem 2rem;
+    border-radius: 6px;
+  }
+  
+  /* Shine effect on hover */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.2) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    transition: left 0.8s ease;
+  }
+  
+  &:hover::after {
+    left: 100%;
+  }
+}
+
+/* Premium section styling */
+.section {
+  padding: 5rem 0;
+  position: relative;
+  
+  &-header {
+    margin-bottom: 3rem;
+    position: relative;
+    
+    h2 {
+      position: relative;
+      display: inline-block;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -0.5rem;
+        left: 0;
+        width: 4rem;
+        height: 3px;
+        background-color: var(--primary-color);
+      }
+    }
+    
+    &.center {
+      text-align: center;
+      
+      h2::after {
+        left: 50%;
+        transform: translateX(-50%);
+      }
+    }
+    
+    p {
+      max-width: 700px;
+      margin-top: 1.25rem;
+      font-size: 1.125rem;
+      color: rgba(0, 0, 0, 0.7);
+    }
+  }
+}
+
+/* Badge styling */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Utility classes */
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-left {
+  text-align: left;
+}
+
+/* Margin utilities */
+@each $size, $value in (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem) {
+  .mt-#{$size} {
+    margin-top: $value;
+  }
+  
+  .mb-#{$size} {
+    margin-bottom: $value;
+  }
+  
+  .ml-#{$size} {
+    margin-left: $value;
+  }
+  
+  .mr-#{$size} {
+    margin-right: $value;
+  }
+  
+  .mx-#{$size} {
+    margin-left: $value;
+    margin-right: $value;
+  }
+  
+  .my-#{$size} {
+    margin-top: $value;
+    margin-bottom: $value;
+  }
+}
+
+/* Padding utilities */
+@each $size, $value in (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem) {
+  .pt-#{$size} {
+    padding-top: $value;
+  }
+  
+  .pb-#{$size} {
+    padding-bottom: $value;
+  }
+  
+  .pl-#{$size} {
+    padding-left: $value;
+  }
+  
+  .pr-#{$size} {
+    padding-right: $value;
+  }
+  
+  .px-#{$size} {
+    padding-left: $value;
+    padding-right: $value;
+  }
+  
+  .py-#{$size} {
+    padding-top: $value;
+    padding-bottom: $value;
+  }
+}
+
+/* Accessibility improvements */
+:focus {
+  outline: 3px solid rgba(var(--primary-rgb), 0.3);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+} 

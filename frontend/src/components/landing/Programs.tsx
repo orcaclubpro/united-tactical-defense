@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { placeholderImages } from '../../utils/placeholderImages';
+import React, { useState, useEffect } from 'react';
 import './Programs.scss';
 
 interface Program {
@@ -8,7 +7,6 @@ interface Program {
   description: string;
   features: string[];
   image: string;
-  targetAudience: string;
   level: string;
 }
 
@@ -16,131 +14,156 @@ const programsData: Program[] = [
   {
     id: 1,
     title: "Firearm Simulator Training",
-    description: "Experience realistic scenario-based training in our state-of-the-art simulator without using real firearms.",
+    description: "Experience realistic scenarios in our state-of-the-art simulator. Perfect your technique in a controlled environment.",
     features: [
-      "Realistic scenario immersion",
-      "Decision-making under pressure",
-      "Force escalation/de-escalation",
-      "After-action performance review"
+      "Virtual scenarios from basic to complex",
+      "Instant feedback on accuracy and timing",
+      "Stress response training",
+      "Decision-making under pressure"
     ],
-    image: placeholderImages.programFundamentals,
-    targetAudience: "All experience levels, from beginners to experienced shooters",
+    image: "https://images.unsplash.com/photo-1595590424283-b8f17842773f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
     level: "All Levels"
   },
   {
     id: 2,
     title: "Self Defense Training",
-    description: "Learn practical hand-to-hand combat and defensive techniques for real-world situations.",
+    description: "Learn practical self-defense techniques that work in real-world situations for all skill levels.",
     features: [
+      "Hand-to-hand combat fundamentals",
       "Situational awareness",
-      "Hand-to-hand combat techniques",
-      "Defensive tactics against common attacks",
-      "Escape and evasion strategies"
+      "Threat assessment strategies",
+      "Escape and evasion tactics"
     ],
-    image: placeholderImages.programDefensive,
-    targetAudience: "Anyone seeking personal protection skills regardless of physical ability",
+    image: "https://images.unsplash.com/photo-1599058917212-d750089bc07e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
     level: "All Levels"
   },
   {
     id: 3,
     title: "UDT Indoor Range",
-    description: "Practice your skills in our controlled indoor environment with expert instruction and feedback.",
+    description: "Practice with expert guidance at our state-of-the-art indoor shooting range with multiple lanes and training areas.",
     features: [
-      "Controlled training environment",
-      "Personalized coaching",
-      "Progressive skill development",
-      "Performance tracking"
+      "Climate-controlled environment",
+      "Multiple shooting distances",
+      "Target analysis systems",
+      "One-on-one instruction available"
     ],
-    image: placeholderImages.programHome,
-    targetAudience: "Students looking to refine their tactical skills with guided practice",
+    image: "https://images.unsplash.com/photo-1550358864-518f202c02ba?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
     level: "All Levels"
   },
   {
     id: 4,
-    title: "CCW Program",
-    description: "Comprehensive training for concealed carry permit applicants, covering legal requirements and practical skills.",
+    title: "Workshops",
+    description: "Specialized training workshops focused on specific skills and scenarios, from beginners to advanced practitioners.",
     features: [
-      "Legal requirements and responsibilities",
-      "Concealed carry techniques",
-      "Draw from concealment practice", 
-      "Real-world application scenarios"
+      "Weekend intensives",
+      "Guest instructor series",
+      "Specialized equipment training",
+      "Certification preparation"
     ],
-    image: placeholderImages.programAdvanced,
-    targetAudience: "Those seeking concealed carry permits or wanting to improve concealed carry skills",
-    level: "Intermediate"
+    image: "https://images.unsplash.com/photo-1543269865-cbf427effbad?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+    level: "Varies"
   },
   {
     id: 5,
-    title: "Workshops",
-    description: "Specialized training sessions focusing on specific tactical skills and scenarios.",
+    title: "CCW Program",
+    description: "Complete training for Concealed Carry Weapon permit applicants, covering legal requirements, safety, and practical skills.",
     features: [
-      "Topic-focused intensive training",
-      "Small group learning environment",
-      "Hands-on skill development",
-      "Expert-led instruction"
+      "Legal requirements and responsibilities",
+      "Concealed carry techniques and holster selection",
+      "Defensive shooting scenarios",
+      "CCW application assistance"
     ],
-    image: placeholderImages.programAdvanced,
-    targetAudience: "Students looking to develop specific tactical competencies",
-    level: "Varies"
+    image: "https://images.unsplash.com/photo-1584552517218-5a35154a4b17?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+    level: "Beginner to Intermediate"
   }
 ];
 
 const Programs: React.FC = () => {
   const [activeProgram, setActiveProgram] = useState<number>(0);
+  const [autoScroll, setAutoScroll] = useState<boolean>(true);
+  
+  // Auto-rotate through programs every 5 seconds if autoScroll is true
+  useEffect(() => {
+    if (!autoScroll) return;
+    
+    const interval = setInterval(() => {
+      setActiveProgram((prev) => (prev + 1) % programsData.length);
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, [autoScroll]);
+
+  // Pause auto-scroll when user interacts with programs
+  const handleProgramClick = (index: number) => {
+    setActiveProgram(index);
+    setAutoScroll(false);
+    // Resume auto-scroll after 15 seconds of inactivity
+    setTimeout(() => setAutoScroll(true), 15000);
+  };
   
   return (
     <section id="programs" className="programs-section">
       <div className="container">
         <header className="section-header">
-          <h2>Training Programs</h2>
+          <div className="badge">SKILL DEVELOPMENT</div>
+          <h2>Training <span className="highlight">Programs</span></h2>
           <p>Comprehensive training tailored to your experience level and goals</p>
         </header>
         
-        <div className="programs-container">
-          <div className="program-tabs">
-            {programsData.map((program, index) => (
-              <button
-                key={program.id}
-                className={`program-tab ${index === activeProgram ? 'active' : ''}`}
-                onClick={() => setActiveProgram(index)}
-              >
-                <span className="program-title">{program.title}</span>
-                <span className="program-level">{program.level}</span>
-              </button>
-            ))}
-          </div>
-          
-          <div className="program-content">
-            <div className="program-schedule">
-              <img 
-                src={`${process.env.PUBLIC_URL}/assets/images/schedule.jpeg`} 
-                alt="Training schedule" 
-                className="schedule-image" 
-              />
+        <div className="programs-carousel">
+          <div className="carousel-container">
+            <div 
+              className="carousel-track" 
+              style={{ transform: `translateX(-${activeProgram * 100}%)` }}
+            >
+              {programsData.map((program) => (
+                <div key={program.id} className="carousel-card">
+                  <div className="carousel-card-image">
+                    <img src={program.image} alt={program.title} />
+                    <div className="program-level">{program.level}</div>
+                  </div>
+                  <div className="carousel-card-content">
+                    <h3>{program.title}</h3>
+                    <p>{program.description}</p>
+                    <div className="program-features">
+                      <h4>What You'll Learn:</h4>
+                      <ul>
+                        {program.features.map((feature, i) => (
+                          <li key={i}>{feature}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <a href="#training-assessment" className="btn btn-primary">Learn More</a>
+                  </div>
+                </div>
+              ))}
             </div>
             
-            <div className="program-details">
-              <h3>{programsData[activeProgram].title}</h3>
-              <p className="program-description">{programsData[activeProgram].description}</p>
-              
-              <div className="program-features">
-                <h4>What You'll Learn:</h4>
-                <ul>
-                  {programsData[activeProgram].features.map((feature, index) => (
-                    <li key={index}>{feature}</li>
-                  ))}
-                </ul>
-              </div>
-              
-              <div className="program-audience">
-                <strong>Target Audience:</strong> {programsData[activeProgram].targetAudience}
-              </div>
-              
-              <div className="program-cta">
-                <a href="#training-assessment" className="btn btn-primary">Find My Ideal Program</a>
-                <a href="#free-class" className="btn btn-secondary">Try a Free Class</a>
-              </div>
-            </div>
+            <button 
+              className="carousel-control prev" 
+              onClick={() => handleProgramClick((activeProgram - 1 + programsData.length) % programsData.length)}
+              aria-label="Previous program"
+            >
+              &#10094;
+            </button>
+            <button 
+              className="carousel-control next" 
+              onClick={() => handleProgramClick((activeProgram + 1) % programsData.length)}
+              aria-label="Next program"
+            >
+              &#10095;
+            </button>
+          </div>
+          
+          <div className="carousel-pagination">
+            {programsData.map((_, index) => (
+              <button 
+                key={index} 
+                className={`pagination-dot ${index === activeProgram ? 'active' : ''}`}
+                onClick={() => handleProgramClick(index)}
+                aria-label={`View program ${index + 1}`}
+              />
+            ))}
           </div>
         </div>
       </div>

@@ -3,7 +3,9 @@
 
 :root {
   --primary-color: #c13b3b;
+  --primary-color-dark: #a12b2b;
   --secondary-color: #2b2d42;
+  --secondary-color-dark: #1e1f30;
   --accent-color: #f8a145;
   --text-color: #333;
   --light-gray: #f5f5f5;
@@ -55,7 +57,7 @@ a {
   transition: color var(--transition-speed);
   
   &:hover {
-    color: darken(#c13b3b, 10%);
+    color: var(--primary-color-dark);
   }
 }
 
@@ -91,7 +93,7 @@ a {
     color: var(--white);
     
     &:hover {
-      background-color: darken(#c13b3b, 10%);
+      background-color: var(--primary-color-dark);
     }
   }
   
@@ -100,7 +102,7 @@ a {
     color: var(--white);
     
     &:hover {
-      background-color: darken(#2b2d42, 10%);
+      background-color: var(--secondary-color-dark);
     }
   }
   

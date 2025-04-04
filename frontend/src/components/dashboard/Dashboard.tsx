@@ -42,15 +42,19 @@ interface GeoData {
 }
 
 interface MetricsSnapshot {
-  id: number;
+  id: string | number;
   landing_page_visits: number;
   conversions: number;
-  referral_counts: Record<string, number>;
-  devices: Record<string, number>;
-  geography: Record<string, number>;
-  report_type: string;
+  referral_counts: Record<string, number> | { source: string; count: number }[];
+  devices: Record<string, number> | { device: string; count: number }[];
+  geography: Record<string, number> | { region: string; count: number }[];
+  report_type?: string;
+  reportType?: string;
   snapshot_time: string;
   average_time_per_user?: number;
+  value?: number;
+  change?: number;
+  lastUpdated?: string;
 }
 
 const Dashboard: React.FC = () => {
@@ -125,7 +129,9 @@ const Dashboard: React.FC = () => {
         const reportData = await getLatestMetricByReportType(reportType);
         
         if (reportData) {
-          const { landing_page_visits, conversions, referral_counts, devices, geography, average_time_per_user } = reportData as MetricsSnapshot;
+          // Use type assertion with unknown first to avoid direct type mismatch
+          const typedReportData = reportData as unknown as MetricsSnapshot;
+          const { landing_page_visits, conversions, referral_counts, devices, geography, average_time_per_user } = typedReportData;
           
           // Set summary metrics
           setSummaryMetrics({
@@ -136,25 +142,31 @@ const Dashboard: React.FC = () => {
           });
           
           // Transform referral counts to array format
-          const sourcesArray = Object.entries(referral_counts || {}).map(([source, count]) => ({
-            source,
-            visits: count // Use 'visits' instead of 'count' to match TrafficSource interface
-          })).sort((a, b) => b.visits - a.visits);
-          setTrafficSources(sourcesArray);
+          const sourcesArray = Array.isArray(referral_counts) 
+            ? referral_counts.map(item => ({ source: item.source, visits: item.count }))
+            : Object.entries(referral_counts || {}).map(([source, count]) => ({
+                source,
+                visits: count
+              }));
+          setTrafficSources(sourcesArray.sort((a, b) => b.visits - a.visits));
           
           // Transform devices to array format
-          const devicesArray = Object.entries(devices || {}).map(([device, count]) => ({
-            device,
-            count
-          })).sort((a, b) => b.count - a.count);
-          setDeviceData(devicesArray);
+          const devicesArray = Array.isArray(devices)
+            ? devices.map(item => ({ device: item.device, count: item.count }))
+            : Object.entries(devices || {}).map(([device, count]) => ({
+                device,
+                count
+              }));
+          setDeviceData(devicesArray.sort((a, b) => b.count - a.count));
           
           // Transform geography to array format
-          const geoArray = Object.entries(geography || {}).map(([region, count]) => ({
-            region,
-            count
-          })).sort((a, b) => b.count - a.count);
-          setGeoData(geoArray);
+          const geoArray = Array.isArray(geography)
+            ? geography.map(item => ({ region: item.region, count: item.count }))
+            : Object.entries(geography || {}).map(([region, count]) => ({
+                region,
+                count
+              }));
+          setGeoData(geoArray.sort((a, b) => b.count - a.count));
         }
         
         // Get historical report data for trend charts
@@ -213,8 +225,8 @@ const Dashboard: React.FC = () => {
       
       const conversionTrend = await getConversionRateTrend(period);
       
-      if (conversionTrend && conversionTrend.length > 0) {
-        setConversionData(conversionTrend);
+      if (conversionTrend && conversionTrend.data && conversionTrend.data.length > 0) {
+        setConversionData(conversionTrend.data);
       }
     } catch (error) {
       console.error('Error fetching conversion rate trend:', error);

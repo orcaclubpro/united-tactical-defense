@@ -2,108 +2,155 @@
   padding: 5rem 0;
   background-color: #fff;
   
+  .section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    
+    h2 {
+      margin-bottom: 1rem;
+      color: var(--primary-color);
+      font-size: 2.5rem;
+    }
+    
+    p {
+      color: var(--dark-gray);
+      font-size: 1.125rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+  }
+  
   .instructors-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 2rem;
-    margin: 3rem 0;
+    margin: 2rem 0 4rem;
   }
   
   .instructor-card {
-    display: flex;
-    background-color: var(--light-gray);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
+    position: relative;
+    height: 380px;
+    perspective: 1000px;
     
     &:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-    }
-    
-    .instructor-image {
-      width: 35%;
-      flex-shrink: 0;
-      position: relative;
-      
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
+      .card-front {
+        transform: rotateY(180deg);
       }
       
-      &:after {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        width: 20px;
-        background: linear-gradient(to right, rgba(0, 0, 0, 0.1), rgba(245, 245, 245, 0));
+      .card-back {
+        transform: rotateY(0);
       }
     }
     
-    .instructor-info {
-      flex: 1;
-      padding: 1.5rem;
+    .card-front,
+    .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-front {
+      background-color: var(--light-gray);
       
-      .instructor-name {
-        color: var(--primary-color);
-        margin-bottom: 0.25rem;
-        font-size: 1.5rem;
-      }
-      
-      .instructor-title {
-        font-weight: 600;
-        color: var(--secondary-color);
-        margin-bottom: 1rem;
-        font-size: 0.9rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-      
-      .instructor-bio {
-        color: var(--dark-gray);
-        margin-bottom: 1.25rem;
-        line-height: 1.5;
-        font-size: 0.95rem;
-      }
-      
-      .instructor-specialties {
-        margin-bottom: 1rem;
+      .instructor-image {
+        height: 200px;
+        overflow: hidden;
         
-        h4 {
-          font-weight: 600;
-          color: var(--secondary-color);
-          margin-bottom: 0.5rem;
-          font-size: 1rem;
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.5s ease;
+        }
+      }
+      
+      .instructor-info {
+        padding: 1.25rem;
+        
+        h3 {
+          color: var(--primary-color);
+          margin-bottom: 0.25rem;
+          font-size: 1.3rem;
         }
         
-        ul {
+        .title {
+          font-weight: 600;
+          color: var(--secondary-color);
+          font-size: 0.9rem;
+          margin-bottom: 0.75rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        
+        .specialties {
           display: flex;
           flex-wrap: wrap;
           gap: 0.5rem;
-          list-style: none;
           
-          li {
+          .specialty-tag {
             background-color: rgba(193, 59, 59, 0.1);
             color: var(--primary-color);
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 500;
             padding: 0.25rem 0.75rem;
             border-radius: 20px;
+            display: inline-block;
+            
+            &.more {
+              background-color: rgba(0, 0, 0, 0.05);
+              color: var(--dark-gray);
+            }
           }
         }
       }
+    }
+    
+    .card-back {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-color-dark));
+      color: white;
+      padding: 1.5rem;
+      transform: rotateY(-180deg);
+      display: flex;
+      flex-direction: column;
       
-      .instructor-experience {
+      h3 {
+        font-size: 1.3rem;
+        margin-bottom: 0.75rem;
+        color: white;
+      }
+      
+      .experience {
+        font-weight: 600;
         font-size: 0.9rem;
-        color: var(--dark-gray);
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      
+      .bio-excerpt {
+        flex: 1;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin-bottom: 1.5rem;
+      }
+      
+      .view-profile {
+        text-align: center;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 0.6rem;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background 0.3s ease;
         
-        strong {
-          color: var(--secondary-color);
+        &:hover {
+          background: rgba(255, 255, 255, 0.25);
         }
       }
     }
@@ -111,64 +158,36 @@
   
   .instructors-cta {
     text-align: center;
-    margin-top: 3rem;
-    
-    p {
-      font-size: 1.125rem;
-      color: var(--dark-gray);
-      margin-bottom: 1.5rem;
-    }
+    margin-top: 2rem;
     
     .btn {
       font-size: 1.1rem;
       padding: 0.75rem 2rem;
-    }
-  }
-  
-  /* Responsive styles */
-  @media (max-width: 1200px) {
-    .instructors-grid {
-      grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
-    }
-  }
-  
-  @media (max-width: 992px) {
-    .instructors-grid {
-      grid-template-columns: 1fr;
+      box-shadow: 0 4px 12px rgba(193, 59, 59, 0.3);
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(193, 59, 59, 0.4);
+      }
     }
   }
   
   @media (max-width: 768px) {
+    .instructors-grid {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+    
     .instructor-card {
-      flex-direction: column;
-      
-      .instructor-image {
-        width: 100%;
-        height: 250px;
-        
-        &:after {
-          display: none;
-        }
-      }
+      height: 360px;
     }
   }
   
-  @media (max-width: 480px) {
-    .instructor-card {
-      .instructor-info {
-        padding: 1.25rem;
-        
-        .instructor-specialties {
-          ul {
-            flex-direction: column;
-            gap: 0.25rem;
-            
-            li {
-              display: inline-block;
-            }
-          }
-        }
-      }
+  @media (max-width: 576px) {
+    .instructors-grid {
+      grid-template-columns: 1fr;
+      max-width: 320px;
+      margin-left: auto;
+      margin-right: auto;
     }
   }
 } 

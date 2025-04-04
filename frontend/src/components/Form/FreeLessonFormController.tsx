@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ModernModalUI from './ModernModalUI';
 import styled from 'styled-components';
 import UDTCalendar from '../Calendar/UDTCalendar';
-import { submitFreeClassBooking } from '../../services/appointment/appointment-service';
+import { submitFreeClassForm } from '../../services/api';
 
 interface FreeLessonFormControllerProps {
   isOpen?: boolean;
@@ -25,6 +25,8 @@ interface FormData {
 // Styled components for enhanced UI
 const FormWrapper = styled.div`
   max-width: 100%;
+  background-color: #1e1f21;
+  color: #e0e0e0;
 `;
 
 const FormField = styled.div`
@@ -34,7 +36,7 @@ const FormField = styled.div`
     display: block;
     margin-bottom: 8px;
     font-weight: 500;
-    color: #ddd;
+    color: #e0e0e0;
     text-transform: uppercase;
     font-size: 0.9rem;
     letter-spacing: 0.5px;
@@ -44,20 +46,20 @@ const FormField = styled.div`
     width: 100%;
     padding: 12px 16px;
     border: 1px solid #444;
-    border-radius: 4px;
+    border-radius: 6px;
     font-size: 1rem;
-    transition: all 0.2s ease;
     background-color: #2c2d30;
-    color: #fff;
+    color: #e0e0e0;
+    transition: all 0.2s ease;
     
     &:focus {
       outline: none;
-      border-color: #f44336;
-      box-shadow: 0 0 0 1px rgba(244, 67, 54, 0.2);
+      border-color: #b71c1c;
+      box-shadow: 0 0 0 1px rgba(183, 28, 28, 0.2);
     }
     
     &::placeholder {
-      color: #777;
+      color: #999;
     }
   }
   
@@ -84,20 +86,32 @@ const StepHeading = styled.h3`
   margin-bottom: 16px;
   font-weight: 600;
   letter-spacing: 0.5px;
+  position: relative;
+  padding-bottom: 10px;
+  
+  &:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(to right, rgba(255,255,255,0.1), transparent);
+  }
 `;
 
 const StepDescription = styled.p`
   margin-bottom: 24px;
-  color: #ccc;
+  color: #999;
   font-size: 0.95rem;
 `;
 
 const FreeClassInfo = styled.div`
-  background-color: rgba(244, 67, 54, 0.1);
+  background-color: rgba(183, 28, 28, 0.1);
   padding: 16px;
-  border-radius: 4px;
+  border-radius: 6px;
   margin-bottom: 20px;
-  border-left: 4px solid #f44336;
+  border-left: 4px solid #b71c1c;
   
   h4 {
     margin-top: 0;
@@ -108,7 +122,7 @@ const FreeClassInfo = styled.div`
   ul {
     margin-bottom: 0;
     padding-left: 20px;
-    color: #ddd;
+    color: #e0e0e0;
     
     li {
       margin-bottom: 4px;
@@ -119,7 +133,7 @@ const FreeClassInfo = styled.div`
 const ConfirmationDetails = styled.div`
   background-color: #2c2d30;
   padding: 16px;
-  border-radius: 4px;
+  border-radius: 6px;
   margin-top: 16px;
   
   .detail-row {
@@ -134,7 +148,7 @@ const ConfirmationDetails = styled.div`
     }
     
     .value {
-      color: #fff;
+      color: #e0e0e0;
     }
   }
 `;
@@ -148,9 +162,9 @@ const ActionButton = styled.button<{ isPrimary?: boolean }>`
     : 'transparent'};
   border: ${props => props.isPrimary 
     ? 'none' 
-    : '1px solid #666'};
-  color: ${props => props.isPrimary ? '#fff' : '#ccc'};
-  border-radius: 4px;
+    : '1px solid #444'};
+  color: ${props => props.isPrimary ? '#fff' : '#999'};
+  border-radius: 6px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -160,13 +174,13 @@ const ActionButton = styled.button<{ isPrimary?: boolean }>`
   &:hover {
     background: ${props => props.isPrimary 
       ? 'linear-gradient(to right, #c62828, #9a0f0f)' 
-      : 'rgba(255, 255, 255, 0.1)'};
-    color: #fff;
+      : 'rgba(255, 255, 255, 0.05)'};
+    color: ${props => props.isPrimary ? '#fff' : '#e0e0e0'};
   }
   
   &:disabled {
-    background: ${props => props.isPrimary ? '#555' : 'transparent'};
-    color: #777;
+    background: ${props => props.isPrimary ? '#333' : 'transparent'};
+    color: #666;
     cursor: not-allowed;
   }
 `;
@@ -185,8 +199,8 @@ const StepDot = styled.div<{ active?: boolean; completed?: boolean }>`
   margin: 0 6px;
   background: ${props => {
     if (props.completed) return '#28a745';
-    if (props.active) return '#f44336';
-    return '#555';
+    if (props.active) return '#b71c1c';
+    return '#444';
   }};
   transform: ${props => props.active ? 'scale(1.2)' : 'scale(1)'};
   transition: all 0.2s ease;
@@ -200,7 +214,7 @@ const StepDot = styled.div<{ active?: boolean; completed?: boolean }>`
     right: -10px;
     width: 14px;
     height: 2px;
-    background-color: ${props => props.completed ? '#28a745' : '#555'};
+    background-color: ${props => props.completed ? '#28a745' : '#444'};
     transform: translateY(-50%);
   }
   
@@ -226,28 +240,76 @@ const ProgressFill = styled.div<{ percent: number }>`
   transition: width 0.3s ease;
 `;
 
-const DarkFormWrapper = styled.div`
-  background-color: #1e1f21;
-  color: #e0e0e0;
-  border-radius: 8px;
-  padding: 1rem;
-`;
-
 const ErrorMessage = styled.div`
-  background-color: #ffebee;
-  color: #c62828;
+  background-color: rgba(244, 67, 54, 0.1);
+  color: #f44336;
   padding: 12px 16px;
-  border-radius: 4px;
+  border-radius: 6px;
   margin: 16px 0;
   font-size: 14px;
   display: flex;
   align-items: center;
-  border: 1px solid #ef9a9a;
+  border: 1px solid rgba(244, 67, 54, 0.3);
 
   &::before {
     content: "⚠️";
     margin-right: 8px;
     font-size: 16px;
+  }
+`;
+
+const SuccessContainer = styled.div`
+  text-align: center;
+  padding: 20px;
+  background-color: #1e1f21;
+  color: #e0e0e0;
+  
+  .success-icon {
+    width: 80px;
+    height: 80px;
+    background-color: #28a745;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    margin: 0 auto 20px;
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
+  }
+  
+  h3 {
+    color: #28a745;
+    margin-bottom: 12px;
+    font-size: 1.5rem;
+  }
+  
+  p {
+    color: #555;
+    margin-bottom: 24px;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  
+  .follow-up {
+    background-color: #f8f9fa;
+    padding: 12px 16px;
+    border-radius: 4px;
+    text-align: left;
+    margin-bottom: 16px;
+    border-left: 3px solid #28a745;
+    
+    h4 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      color: #333;
+      font-size: 1.1rem;
+    }
+    
+    p {
+      margin: 0;
+      color: #555;
+    }
   }
 `;
 
@@ -267,86 +329,99 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
     appointmentDate: initialData.appointmentDate || null,
     appointmentTime: initialData.appointmentTime || '',
     experience: initialData.experience || 'beginner',
+    source: formSource,
     ...initialData
   });
-  const [errors, setErrors] = useState<{[key: string]: string}>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  
-  // Sync with prop changes
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
+  const [submissionSuccess, setSubmissionSuccess] = useState(false);
+
+  // Handle modal opening from props
   useEffect(() => {
     setIsOpen(propIsOpen);
   }, [propIsOpen]);
 
-  // Handle opening the modal
-  const handleOpen = () => {
-    setIsOpen(true);
-  };
-
-  // Handle closing the modal
-  const handleClose = () => {
-    setIsOpen(false);
-    if (onClose) {
-      onClose();
+  // Add calendar styles when the form opens
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('modal-open');
+    } else {
+      document.body.classList.remove('modal-open');
     }
+    
+    return () => {
+      document.body.classList.remove('modal-open');
+    };
+  }, [isOpen]);
+
+  const handleClose = () => {
+    if (onClose) onClose();
+    setIsOpen(false);
+    document.body.classList.remove('modal-open');
+    
+    // Reset form after closing animation
+    setTimeout(() => {
+      if (!submissionSuccess) {
+        setCurrentStep(0);
+        setSubmissionError(null);
+      }
+    }, 300);
   };
 
-  // Handle form input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       [name]: value
-    });
+    }));
     
     // Clear error for this field
     if (errors[name]) {
-      setErrors({
-        ...errors,
+      setErrors(prev => ({
+        ...prev,
         [name]: ''
-      });
+      }));
     }
   };
 
-  // Handle calendar date selection
   const handleDateSelected = (date: Date) => {
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       appointmentDate: date
-    });
+    }));
     
-    // Clear date error
+    // Clear error
     if (errors.appointmentDate) {
-      setErrors({
-        ...errors,
+      setErrors(prev => ({
+        ...prev,
         appointmentDate: ''
-      });
+      }));
     }
   };
-  
-  // Handle time slot selection
+
   const handleTimeSlotSelected = (timeSlot: any) => {
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       appointmentTime: timeSlot.time,
       timeSlotId: timeSlot.id
-    });
+    }));
     
-    // Clear time error
+    // Clear error
     if (errors.appointmentTime) {
-      setErrors({
-        ...errors,
+      setErrors(prev => ({
+        ...prev,
         appointmentTime: ''
-      });
+      }));
     }
   };
 
-  // Validate the current step
   const validateCurrentStep = (): boolean => {
-    const newErrors: {[key: string]: string} = {};
+    const newErrors: Record<string, string> = {};
     
+    // Different validation rules based on the current step
     if (currentStep === 0) {
-      // Contact info validation
+      // Personal Information
       if (!formData.firstName?.trim()) {
         newErrors.firstName = 'First name is required';
       }
@@ -358,14 +433,14 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
       if (!formData.email?.trim()) {
         newErrors.email = 'Email is required';
       } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-        newErrors.email = 'Please enter a valid email';
+        newErrors.email = 'Please enter a valid email address';
       }
       
       if (!formData.phone?.trim()) {
         newErrors.phone = 'Phone number is required';
       }
     } else if (currentStep === 1) {
-      // Appointment validation
+      // Appointment
       if (!formData.appointmentDate) {
         newErrors.appointmentDate = 'Please select a date';
       }
@@ -379,351 +454,279 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle next step or form submission
   const handleNext = async () => {
-    if (validateCurrentStep()) {
-      if (currentStep < 2) { // We have 3 steps (0, 1, 2)
-        setCurrentStep(currentStep + 1);
+    const isValid = validateCurrentStep();
+    
+    if (isValid) {
+      if (currentStep < 2) {
+        setCurrentStep(prev => prev + 1);
       } else {
-        // Submit the form
-        handleSubmit();
+        await handleSubmit();
       }
     }
   };
 
-  // Handle going back a step
   const handlePrevious = () => {
     if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+      setCurrentStep(prev => prev - 1);
     }
   };
 
-  // Handle form submission
   const handleSubmit = async () => {
-    setIsSubmitting(true);
-    
-    // Enhanced debugging log
-    console.group('🔄 Free Lesson Form Submission');
-    console.log('Form data:', {
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      phone: formData.phone,
-      email: formData.email,
-      appointmentDate: formData.appointmentDate,
-      appointmentTime: formData.appointmentTime,
-      experience: formData.experience,
-      formSource: formSource,
-      timestamp: new Date().toISOString()
-    });
-    console.groupEnd();
+    setSubmitting(true);
+    setSubmissionError(null);
     
     try {
-      // Call the appointment service with form data
-      const result = await submitFreeClassBooking({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        phone: formData.phone,
-        email: formData.email,
-        appointmentDate: formData.appointmentDate,
-        appointmentTime: formData.appointmentTime,
-        experience: formData.experience,
-        formSource: formSource
-      });
+      // Format appointment date for API
+      const formattedData = {
+        ...formData,
+        preferredDate: formData.appointmentDate ? 
+          formData.appointmentDate.toISOString().split('T')[0] : '',
+        preferredTime: formData.appointmentTime
+      };
       
-      // Log detailed response
-      if (result.success) {
-        console.group('✅ Form Submission Success');
-        console.log('Response:', result);
-        console.groupEnd();
-      } else {
-        console.group('❌ Form Submission Error');
-        console.error('Error details:', result);
-        
-        // Log raw response if available
-        if (result.data?.rawResponse) {
-          console.error('Raw server response:', result.data.rawResponse);
-        }
-        console.groupEnd();
-      }
+      // Submit data to API
+      await submitFreeClassForm(formattedData);
       
-      // Handle response
-      if (result.success) {
-        setIsSubmitted(true);
-      } else {
-        setErrors({
-          form: result.message || 'There was an error submitting your form. Please try again.'
-        });
-      }
+      // Success state
+      setSubmissionSuccess(true);
+      setCurrentStep(3); // Move to success step
     } catch (error) {
-      console.group('💥 Form Submission Exception');
-      console.error('Unexpected error:', error);
-      console.groupEnd();
-      
-      setErrors({
-        form: 'An unexpected error occurred. Please try again later.'
-      });
-      console.error('Form submission error:', error);
+      console.error('Error submitting form:', error);
+      setSubmissionError('There was an error submitting your request. Please try again.');
     } finally {
-      setIsSubmitting(false);
+      setSubmitting(false);
     }
   };
 
-  // Render contact info step
   const renderContactInfoStep = () => (
-    <DarkFormWrapper>
-      <StepHeading>REGISTER FOR TACTICAL TRAINING</StepHeading>
-      <StepDescription>
-        Complete your registration details for your free tactical firearms training session.
-      </StepDescription>
+    <FormWrapper className="calendar-styled-form">
+      <StepHeading>Personal Information</StepHeading>
+      <StepDescription>Please provide your contact details so we can confirm your appointment.</StepDescription>
       
       <FreeClassInfo>
-        <h4>TRAINING INFORMATION</h4>
+        <h4>About Your Free Class</h4>
         <ul>
-          <li>90-minute live fire simulator session</li>
-          <li>Professional instructor-led training</li>
-          <li>All equipment and safety gear provided</li>
-          <li>No prior experience needed</li>
+          <li>45-minute personalized tactical defense session</li>
+          <li>Experienced instructor will assess your current skills</li>
+          <li>No experience required - all skill levels welcome</li>
         </ul>
       </FreeClassInfo>
       
       <FormGrid>
         <FormField>
-          <label htmlFor="firstName">FIRST NAME*</label>
+          <label htmlFor="firstName">First Name</label>
           <input
             type="text"
             id="firstName"
             name="firstName"
-            value={formData.firstName || ''}
+            value={formData.firstName}
             onChange={handleInputChange}
             placeholder="Your first name"
-            required
           />
           {errors.firstName && <div className="error-message">{errors.firstName}</div>}
         </FormField>
         
         <FormField>
-          <label htmlFor="lastName">LAST NAME*</label>
+          <label htmlFor="lastName">Last Name</label>
           <input
             type="text"
             id="lastName"
             name="lastName"
-            value={formData.lastName || ''}
+            value={formData.lastName}
             onChange={handleInputChange}
             placeholder="Your last name"
-            required
           />
           {errors.lastName && <div className="error-message">{errors.lastName}</div>}
         </FormField>
       </FormGrid>
       
       <FormField>
-        <label htmlFor="email">EMAIL*</label>
+        <label htmlFor="email">Email Address</label>
         <input
           type="email"
           id="email"
           name="email"
-          value={formData.email || ''}
+          value={formData.email}
           onChange={handleInputChange}
-          placeholder="your.email@example.com"
-          required
+          placeholder="Your email address"
         />
         {errors.email && <div className="error-message">{errors.email}</div>}
       </FormField>
       
       <FormField>
-        <label htmlFor="phone">PHONE NUMBER*</label>
+        <label htmlFor="phone">Phone Number</label>
         <input
           type="tel"
           id="phone"
           name="phone"
-          value={formData.phone || ''}
+          value={formData.phone}
           onChange={handleInputChange}
-          placeholder="(123) 456-7890"
-          required
+          placeholder="Your phone number"
         />
         {errors.phone && <div className="error-message">{errors.phone}</div>}
       </FormField>
       
       <FormField>
-        <label htmlFor="experience">EXPERIENCE LEVEL</label>
+        <label htmlFor="experience">Prior Experience</label>
         <select
           id="experience"
           name="experience"
-          value={formData.experience || 'beginner'}
+          value={formData.experience}
           onChange={handleInputChange}
         >
-          <option value="beginner">Beginner - No Experience</option>
-          <option value="novice">Novice - Some Experience</option>
-          <option value="intermediate">Intermediate - Regular Experience</option>
-          <option value="advanced">Advanced - Extensive Experience</option>
+          <option value="">Select your experience level</option>
+          <option value="none">No prior experience</option>
+          <option value="beginner">Beginner (0-1 year)</option>
+          <option value="intermediate">Intermediate (1-3 years)</option>
+          <option value="advanced">Advanced (3+ years)</option>
         </select>
+        {errors.experience && <div className="error-message">{errors.experience}</div>}
       </FormField>
-    </DarkFormWrapper>
+    </FormWrapper>
   );
 
-  // Render appointment step with calendar
   const renderAppointmentStep = () => (
-    <DarkFormWrapper>
-      <StepHeading>SELECT TRAINING DATE & TIME</StepHeading>
+    <>
+      <StepHeading>Schedule Your Free Class</StepHeading>
       <StepDescription>
-        Choose a date and time for your tactical training session.
+        Select a date and time for your complimentary tactical defense class.
       </StepDescription>
       
-      <UDTCalendar
-        onDateSelected={handleDateSelected}
-        onTimeSlotSelected={handleTimeSlotSelected}
-      />
+      <div className="udt-calendar">
+        <UDTCalendar
+          onDateSelected={handleDateSelected}
+          onTimeSlotSelected={handleTimeSlotSelected}
+        />
+      </div>
       
       {errors.appointmentDate && <div className="error-message">{errors.appointmentDate}</div>}
       {errors.appointmentTime && <div className="error-message">{errors.appointmentTime}</div>}
-    </DarkFormWrapper>
+    </>
   );
 
-  // Render confirmation step
   const renderConfirmationStep = () => (
-    <DarkFormWrapper>
-      <StepHeading>CONFIRM YOUR BOOKING</StepHeading>
+    <FormWrapper className="calendar-styled-form">
+      <StepHeading>Confirm Your Appointment</StepHeading>
       <StepDescription>
-        Please review your training session details before confirming.
+        Please review and confirm your appointment details below.
       </StepDescription>
       
       <ConfirmationDetails>
         <div className="detail-row">
-          <span className="label">Name:</span>
-          <span className="value">{formData.firstName} {formData.lastName}</span>
+          <div className="label">Name:</div>
+          <div className="value">{`${formData.firstName} ${formData.lastName}`}</div>
         </div>
         <div className="detail-row">
-          <span className="label">Email:</span>
-          <span className="value">{formData.email}</span>
+          <div className="label">Email:</div>
+          <div className="value">{formData.email}</div>
         </div>
         <div className="detail-row">
-          <span className="label">Phone:</span>
-          <span className="value">{formData.phone}</span>
+          <div className="label">Phone:</div>
+          <div className="value">{formData.phone}</div>
         </div>
         <div className="detail-row">
-          <span className="label">Experience:</span>
-          <span className="value">{formData.experience}</span>
+          <div className="label">Date:</div>
+          <div className="value">
+            {formData.appointmentDate ? 
+              formData.appointmentDate.toLocaleDateString('en-US', { 
+                weekday: 'long',
+                month: 'long', 
+                day: 'numeric'
+              }) : 'Not selected'}
+          </div>
         </div>
         <div className="detail-row">
-          <span className="label">Date:</span>
-          <span className="value">{formData.appointmentDate instanceof Date ? formData.appointmentDate.toLocaleDateString() : 'Not selected'}</span>
+          <div className="label">Time:</div>
+          <div className="value">{formData.appointmentTime}</div>
         </div>
         <div className="detail-row">
-          <span className="label">Time:</span>
-          <span className="value">{formData.appointmentTime || 'Not selected'}</span>
+          <div className="label">Experience:</div>
+          <div className="value">{formData.experience}</div>
         </div>
       </ConfirmationDetails>
       
-      <FreeClassInfo style={{ marginTop: '20px' }}>
-        <h4>IMPORTANT INFORMATION</h4>
+      <FreeClassInfo>
+        <h4>What to Expect</h4>
         <ul>
-          <li>Please arrive 15 minutes before your scheduled time</li>
-          <li>Bring a valid ID</li>
-          <li>Wear closed-toe shoes and comfortable clothing</li>
-          <li>You may bring one guest at no additional charge</li>
+          <li>Arrive 10 minutes before your scheduled time</li>
+          <li>Wear comfortable clothing you can move in</li>
+          <li>Bring a water bottle and a positive attitude</li>
+          <li>We'll send you an email confirmation with facility details</li>
         </ul>
       </FreeClassInfo>
       
-      {errors.form && <ErrorMessage>{errors.form}</ErrorMessage>}
-    </DarkFormWrapper>
+      {submissionError && (
+        <ErrorMessage>
+          There was an error submitting your form. Please try again or contact us directly.
+        </ErrorMessage>
+      )}
+    </FormWrapper>
   );
 
-  // Render success message
   const renderSuccessMessage = () => (
-    <DarkFormWrapper>
-      <div className="success-message" style={{ textAlign: 'center', padding: '20px 0' }}>
-        <div style={{ fontSize: '48px', color: '#4CAF50', marginBottom: '16px' }}>✓</div>
-        <StepHeading>BOOKING CONFIRMED</StepHeading>
-        <p>Your tactical training session has been successfully booked.</p>
-        <p>A confirmation email has been sent to <strong>{formData.email}</strong>.</p>
-        
-        <ConfirmationDetails style={{ maxWidth: '400px', margin: '20px auto' }}>
-          <div className="detail-row">
-            <span className="label">Date:</span>
-            <span className="value">{formData.appointmentDate instanceof Date ? formData.appointmentDate.toLocaleDateString() : 'Not specified'}</span>
-          </div>
-          <div className="detail-row">
-            <span className="label">Time:</span>
-            <span className="value">{formData.appointmentTime || 'Not specified'}</span>
-          </div>
-          <div className="detail-row">
-            <span className="label">Location:</span>
-            <span className="value">Anaheim Hills Training Center</span>
-          </div>
-        </ConfirmationDetails>
-        
-        <p style={{ marginTop: '20px', fontWeight: 'bold', color: '#f44336' }}>
-          PLEASE ARRIVE 15 MINUTES EARLY
-        </p>
-      </div>
-    </DarkFormWrapper>
+    <SuccessContainer className="calendar-styled-success">
+      <div className="success-icon">✓</div>
+      <h3>Appointment Confirmed!</h3>
+      <p>
+        Your tactical defense class has been scheduled. We've sent a confirmation
+        email to {formData.email} with all the details.
+      </p>
+      <p className="next-steps">
+        Please arrive 10 minutes before your scheduled time. Our instructor is looking 
+        forward to meeting you!
+      </p>
+      <ActionButton isPrimary onClick={handleClose} style={{ marginTop: '20px' }}>
+        Close
+      </ActionButton>
+    </SuccessContainer>
   );
 
-  // Get content based on current step
   const getStepContent = () => {
-    if (isSubmitted) {
-      return renderSuccessMessage();
-    }
-    
-    switch(currentStep) {
+    switch (currentStep) {
       case 0:
         return renderContactInfoStep();
       case 1:
         return renderAppointmentStep();
       case 2:
         return renderConfirmationStep();
+      case 3:
+        return renderSuccessMessage();
       default:
         return null;
     }
   };
 
-  // Determine button text based on current step
   const getButtonText = () => {
-    if (isSubmitting) return 'PROCESSING...';
-    
-    switch (currentStep) {
-      case 0:
-        return 'CONTINUE';
-      case 1:
-        return 'CONTINUE';
-      case 2:
-        return 'CONFIRM BOOKING';
-      default:
-        return 'NEXT';
-    }
+    if (currentStep === 0) return 'Choose Date & Time';
+    if (currentStep === 1) return 'Review Details';
+    if (currentStep === 2) return submitting ? 'Submitting...' : 'Schedule My Session';
+    return '';
   };
 
-  // The progress for the progress bar
   const getProgress = () => {
-    return ((currentStep + 1) / 3) * 100;
+    // Calculate progress percentage based on the current step
+    return (currentStep / 3) * 100;
   };
 
-  // Footer buttons
   const renderFooterContent = () => {
-    if (isSubmitted) {
-      return (
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <ActionButton
-            isPrimary
-            onClick={handleClose}
-          >
-            CLOSE
-          </ActionButton>
-        </div>
-      );
-    }
+    // Don't show buttons on success step
+    if (currentStep === 3) return null;
     
     return (
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <ActionButton
-          onClick={currentStep === 0 ? handleClose : handlePrevious}
-        >
-          {currentStep === 0 ? 'CANCEL' : 'BACK'}
-        </ActionButton>
-        <ActionButton
-          isPrimary
+        {currentStep > 0 ? (
+          <ActionButton onClick={handlePrevious}>
+            Back
+          </ActionButton>
+        ) : (
+          <div></div> // Empty div for spacing
+        )}
+        
+        <ActionButton 
+          isPrimary 
           onClick={handleNext}
-          disabled={isSubmitting}
+          disabled={submitting}
         >
           {getButtonText()}
         </ActionButton>
@@ -732,63 +735,24 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
   };
 
   return (
-    <>
-      {/* Trigger button when modal is closed */}
-      {!isOpen && (
-        <button
-          className="btn btn-primary booking-trigger"
-          onClick={handleOpen}
-          style={{
-            background: 'linear-gradient(to right, #b71c1c, #880e0e)',
-            border: 'none',
-            padding: '12px 20px',
-            borderRadius: '4px',
-            color: 'white',
-            fontWeight: 'bold',
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px'
-          }}
-        >
-          BOOK FREE TRAINING
-        </button>
-      )}
-
-      {/* Modal with form content */}
-      {isOpen && (
-        <ModernModalUI
-          isOpen={isOpen}
-          onClose={handleClose}
-          title="TACTICAL TRAINING REGISTRATION"
-          footerContent={renderFooterContent()}
-          showHook={!isSubmitted}
-          hookMessage="LIMITED SLOTS AVAILABLE THIS WEEK!"
-          darkMode={true}
-        >
-          <div>
-            {/* Progress bar */}
-            {!isSubmitted && (
-              <ProgressBar>
-                <ProgressFill percent={getProgress()} />
-              </ProgressBar>
-            )}
-            
-            {/* Step indicators */}
-            {!isSubmitted && (
-              <StepIndicator>
-                {[0, 1, 2].map(step => (
-                  <StepDot 
-                    key={step}
-                    active={currentStep === step}
-                    completed={currentStep > step}
-                  />
-                ))}
-              </StepIndicator>
-            )}
-            
-            {getStepContent()}
-          </div>
-        </ModernModalUI>
-      )}
-    </>
+    <ModernModalUI
+      isOpen={isOpen}
+      onClose={handleClose}
+      title={
+        currentStep === 4
+          ? "Confirmation"
+          : "Schedule Your Free Tactical Defense Class"
+      }
+      darkMode={true}
+      showHook={currentStep === 1}
+      hookMessage="Limited spots available for this week!"
+      footerContent={renderFooterContent()}
+    >
+      <div className="udt-calendar">
+        {getStepContent()}
+      </div>
+    </ModernModalUI>
   );
-}; 
+};
+
+export default FreeLessonFormController; 

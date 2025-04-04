@@ -15,39 +15,48 @@ interface Instructor {
 const instructorsData: Instructor[] = [
   {
     id: 1,
-    name: "Jack Reynolds",
+    name: "Chris Wiles",
     title: "Chief Instructor",
     image: placeholderImages.instructor1,
-    bio: "Jack is a former Special Forces operator with 15 years of military experience. He specializes in tactical training and has instructed military, law enforcement, and civilians for over a decade.",
-    specialties: ["Close Quarters Combat", "Tactical Firearms", "Team Tactics"],
-    experience: "15 years military, 12 years training"
+    bio: "Chris served over 22 years in the US Army as a Lieutenant Colonel. He also served as the S3 Operations Officer for a military police task force, overseeing training and mission planning with a primary focus on detainee operations. His expertise extended to lethal and non-lethal weapons handling, escalation of force training, and tactical operations, providing invaluable instruction in critical decision-making and force application. Since 2020, Chris has also been a NRA-certified small arms instructor, further solidifying his credentials in civilian firearms instruction. His ability to translate military training principles into practical, effective teaching methods makes him a valuable asset to any team.",
+    specialties: ["Tactical Firearms"],
+    experience: "22 Years Lieutenant Colonel, NRA-Certified Pistol Instructor"
   },
   {
     id: 2,
-    name: "Maria Sanchez",
-    title: "Lead Firearms Instructor",
+    name: "Lamar Keeble",
+    title: "Instructor",
     image: placeholderImages.instructor2,
-    bio: "Maria served in law enforcement for 10 years before joining our team. She is a certified firearms instructor and specializes in defensive handgun techniques for civilians.",
-    specialties: ["Handgun Instruction", "Women's Self-Defense", "CCW Training"],
-    experience: "10 years law enforcement, 8 years training"
+    bio: "With over 15 years of law enforcement experience, Lamar Keeble is a highly skilled firearms instructor dedicated to training individuals in firearm safety, tactical proficiency, and situational awareness. His expertise extends beyond marksmanship, emphasizing real-world application under high-stress conditions. Throughout his law-enforcement career, Lamar has extensive experience in civil disturbance management, where he has navigated large-scale protests and volatile scenarios with precision and control. His ability to de-escalate tensions and enforce public safety measures makes him a valuable asset in both training and operational roles.",
+    specialties: ["Tactical Firearms", "Women's Self-Defense", "Legal Use of Force", "Tactical Medicine", "Brazilian Jiu Jitsu", "CCW Certification", "Krav Maga", "Boxing"],
+    experience: "15 Years Law Enforcement, NRA-Certified Pistol Instructor, Active Shooter Response, Counter-Terrorism Response Team"
   },
   {
     id: 3,
-    name: "Derek Wilson",
-    title: "Tactical Operations Instructor",
+    name: "John Idio",
+    title: "Instructor",
     image: placeholderImages.instructor3,
-    bio: "Derek's background includes 8 years with SWAT and extensive experience in high-risk operations. He brings real-world expertise to our tactical scenarios and advanced training programs.",
-    specialties: ["Urban Tactics", "Vehicle Defense", "Night Operations"],
-    experience: "12 years SWAT, 7 years training"
+    bio: "John is a seasoned professional with extensive experience in criminal justice education, security operations, and firearms instruction. With over a decade in law enforcement training, security management, and public safety, he has developed a comprehensive understanding of security protocols, investigations, and use-of-force applications.",
+    specialties: ["Tactical Firearms", "Close Quarters Combat", "Tactical Medicine"],
+    experience: "20+ Years of Public Safety, Executive Protection Specialist, Armed Guard, NRA-Certified Pistol Instructor, POST Certified Firearms Instructor"
   },
   {
     id: 4,
-    name: "Sarah Thompson",
-    title: "Civilian Defense Specialist",
+    name: "Mike Avery",
+    title: "Instructor",
     image: placeholderImages.instructor4,
-    bio: "Sarah specializes in practical self-defense techniques for everyday civilians. Her approachable teaching style makes her a favorite among beginners and those new to firearms.",
-    specialties: ["Basic Firearms Safety", "Home Defense", "Situational Awareness"],
-    experience: "9 years training civilians"
+    bio: "Mike brings an incredible wealth of experience to our team. With 25 years as a professional stuntman, he's no stranger to high-adrenaline situations. His background includes serving as an EMT and first responder with the National Ski Patrol in Big Bear, CA, along with 10+ years in Executive Protection for high-profile clientele. Mike is a Certified Protection Specialist and an NRA-Certified Pistol Instructor, making him an exceptional asset for training and safety.",
+    specialties: ["Tactical Firearms", "Women's Self-Defense", "Tactical Medicine"],
+    experience: "NRA-Certified Pistol Instructor, EMT and First-Responder"
+  },
+  {
+    id: 5,
+    name: "Katie Davis",
+    title: "Instructor",
+    image: placeholderImages.instructor5,
+    bio: "Katie brings a wealth of experience in law enforcement, emergency medicine, and firearms instruction. She served as a Police Volunteer with Orange PD for over 4 years, specializing in both the K-9 and Gang Unit, gaining valuable hands-on experience in tactical operations. She also worked as a Deputy Sheriff Trainee, focusing on the CCW sector, further enhancing her expertise in concealed carry regulations and training. In addition to her law enforcement background, Katie has an impressive 6-year career as an EMT, providing critical care in high-pressure environments. She also spent 5 years as a Firearms Instructor at Artemis, where she trained civilians and professionals in defensive shooting and firearms safety. As a certified NRA Pistol Instructor, she is passionate about firearm education and skill development.",
+    specialties: ["Tactical Firearms", "Women's Self-Defense", "Tactical Medicine", "CCW Education"],
+    experience: "Law Enforcement Volunteer work, EMT, NRA-certified pistol instructor"
   }
 ];
 
@@ -63,33 +72,34 @@ const Instructors: React.FC = () => {
         <div className="instructors-grid">
           {instructorsData.map(instructor => (
             <div key={instructor.id} className="instructor-card">
-              <div className="instructor-image">
-                <img src={instructor.image} alt={instructor.name} />
-              </div>
-              <div className="instructor-info">
-                <h3 className="instructor-name">{instructor.name}</h3>
-                <div className="instructor-title">{instructor.title}</div>
-                <p className="instructor-bio">{instructor.bio}</p>
-                
-                <div className="instructor-specialties">
-                  <h4>Specialties:</h4>
-                  <ul>
-                    {instructor.specialties.map((specialty, index) => (
-                      <li key={index}>{specialty}</li>
+              <div className="card-front">
+                <div className="instructor-image">
+                  <img src={instructor.image} alt={instructor.name} />
+                </div>
+                <div className="instructor-info">
+                  <h3>{instructor.name}</h3>
+                  <p className="title">{instructor.title}</p>
+                  <div className="specialties">
+                    {instructor.specialties.slice(0, 3).map((specialty, index) => (
+                      <span key={index} className="specialty-tag">{specialty}</span>
                     ))}
-                  </ul>
+                    {instructor.specialties.length > 3 && (
+                      <span className="specialty-tag more">+{instructor.specialties.length - 3}</span>
+                    )}
+                  </div>
                 </div>
-                
-                <div className="instructor-experience">
-                  <strong>Experience:</strong> {instructor.experience}
-                </div>
+              </div>
+              <div className="card-back">
+                <h3>{instructor.name}</h3>
+                <p className="experience">{instructor.experience}</p>
+                <p className="bio-excerpt">{instructor.bio.substring(0, 120)}...</p>
+                <div className="view-profile">View Full Profile</div>
               </div>
             </div>
           ))}
         </div>
         
         <div className="instructors-cta">
-          <p>Our instructors bring decades of real-world experience to the classroom and range</p>
           <a href="#free-class" className="btn btn-primary">Train With Our Experts</a>
         </div>
       </div>

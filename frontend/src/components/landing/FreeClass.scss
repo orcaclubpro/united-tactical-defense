@@ -1,0 +1,321 @@
+.free-class-section {
+  padding: 5rem 0;
+  background-color: #fff;
+  
+  .free-class-content {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    
+    .content-text {
+      flex: 1;
+      
+      h2 {
+        color: var(--secondary-color);
+        margin-bottom: 1rem;
+        font-size: 2.5rem;
+      }
+      
+      .lead {
+        font-size: 1.25rem;
+        color: var(--dark-gray);
+        margin-bottom: 2rem;
+      }
+      
+      .benefits {
+        margin-bottom: 2.5rem;
+        
+        h3 {
+          color: var(--primary-color);
+          margin-bottom: 1rem;
+          font-size: 1.5rem;
+        }
+        
+        ul {
+          list-style: none;
+          
+          li {
+            padding-left: 1.75rem;
+            position: relative;
+            margin-bottom: 0.75rem;
+            color: var(--dark-gray);
+            
+            &:before {
+              content: '✓';
+              position: absolute;
+              left: 0;
+              top: 0;
+              color: var(--primary-color);
+              font-weight: bold;
+            }
+          }
+        }
+      }
+      
+      .cta-button {
+        .btn-lg {
+          padding: 0.75rem 2rem;
+          font-size: 1.125rem;
+        }
+      }
+    }
+    
+    .content-image {
+      flex: 1;
+      
+      img {
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+      }
+    }
+  }
+}
+
+/* Modal Styles */
+.modal-open {
+  overflow: hidden;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  padding: 1rem;
+  
+  &.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .modal-content {
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    animation: modalSlideIn 0.4s ease forwards;
+    
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--dark-gray);
+      cursor: pointer;
+      transition: color 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      
+      &:hover {
+        color: var(--primary-color);
+        background-color: rgba(193, 59, 59, 0.1);
+      }
+    }
+    
+    .modal-header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--light-gray);
+      
+      h3 {
+        color: var(--secondary-color);
+        margin-bottom: 0.5rem;
+        font-size: 1.75rem;
+      }
+      
+      p {
+        color: var(--dark-gray);
+      }
+    }
+    
+    .free-class-form {
+      padding: 2rem;
+      
+      .form-row {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        
+        .form-group {
+          flex: 1;
+        }
+      }
+      
+      .form-group {
+        margin-bottom: 1.5rem;
+        
+        label {
+          display: block;
+          margin-bottom: 0.5rem;
+          font-weight: 500;
+          color: var(--secondary-color);
+        }
+        
+        input, select, textarea {
+          width: 100%;
+          padding: 0.75rem;
+          border: 1px solid var(--mid-gray);
+          border-radius: 4px;
+          font-size: 1rem;
+          transition: border-color 0.3s ease;
+          
+          &:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(193, 59, 59, 0.1);
+          }
+        }
+        
+        select {
+          appearance: none;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23333' viewBox='0 0 16 16'%3E%3Cpath d='M8 12L2 6h12z'/%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: right 0.75rem center;
+          background-size: 12px;
+          padding-right: 2rem;
+        }
+        
+        textarea {
+          resize: vertical;
+          min-height: 100px;
+        }
+      }
+      
+      .form-error {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+        padding: 0.75rem;
+        border-radius: 4px;
+        margin-bottom: 1.5rem;
+        font-size: 0.875rem;
+      }
+      
+      .form-actions {
+        text-align: center;
+        
+        .btn {
+          min-width: 150px;
+        }
+      }
+    }
+    
+    .form-success {
+      padding: 3rem 2rem;
+      text-align: center;
+      
+      .success-icon {
+        width: 70px;
+        height: 70px;
+        background-color: var(--success-color);
+        color: var(--white);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin: 0 auto 1.5rem;
+      }
+      
+      h4 {
+        color: var(--secondary-color);
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+      
+      p {
+        color: var(--dark-gray);
+        max-width: 400px;
+        margin: 0 auto;
+      }
+    }
+  }
+}
+
+@keyframes modalSlideIn {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+  .free-class-section {
+    .free-class-content {
+      flex-direction: column;
+      
+      .content-text, .content-image {
+        width: 100%;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .modal-overlay {
+    .modal-content {
+      max-width: 90%;
+      
+      .free-class-form {
+        padding: 1.5rem;
+        
+        .form-row {
+          flex-direction: column;
+          gap: 0;
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .free-class-section {
+    .free-class-content {
+      .content-text {
+        h2 {
+          font-size: 2rem;
+        }
+      }
+    }
+  }
+  
+  .modal-overlay {
+    .modal-content {
+      .modal-header {
+        padding: 1.25rem 1.5rem;
+        
+        h3 {
+          font-size: 1.5rem;
+        }
+      }
+      
+      .free-class-form {
+        padding: 1.25rem;
+      }
+    }
+  }
+} 

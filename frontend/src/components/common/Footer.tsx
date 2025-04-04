@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { placeholderImages } from '../../utils/placeholderImages';
 import './Footer.scss';
 
 const Footer: React.FC = () => {
@@ -13,10 +12,10 @@ const Footer: React.FC = () => {
           <div className="footer-grid">
             <div className="footer-column">
               <div className="footer-logo">
-                <img src={placeholderImages.logoWhite} alt="United Tactical Defense" />
+                <img src={`${process.env.PUBLIC_URL}/assets/images/logo.png`} alt="United Tactical Defense" />
               </div>
               <p className="footer-tagline">
-                Elite Tactical Training for Law Enforcement, Military & Civilians
+                Real World Tactical Training for Civilians, Law Enforcement & Military
               </p>
               <div className="social-icons">
                 <a href="https://www.facebook.com/unitedtacticaldefense" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
@@ -41,7 +40,7 @@ const Footer: React.FC = () => {
                 <li><Link to="/programs/military">Military</Link></li>
                 <li><Link to="/programs/civilian">Civilian</Link></li>
                 <li><Link to="/programs/executive-protection">Executive Protection</Link></li>
-                <li><Link to="/programs/certification">Certification Programs</Link></li>
+                <li><Link to="/programs/ccw">CCW Program</Link></li>
               </ul>
             </div>
             
@@ -59,9 +58,9 @@ const Footer: React.FC = () => {
             <div className="footer-column">
               <h4>Contact Us</h4>
               <address className="contact-info">
-                <p><i className="fas fa-map-marker-alt"></i> 5790 Radar Way, Anaheim Hills, CA 92807</p>
-                <p><i className="fas fa-phone"></i> <a href="tel:+17148789030">(714) 878-9030</a></p>
-                <p><i className="fas fa-envelope"></i> <a href="mailto:info@unitedtacticaldefense.com">info@unitedtacticaldefense.com</a></p>
+                <p><i className="fas fa-map-marker-alt"></i> 160 S. Old Springs rd suite 155, Anaheim, CA 92808</p>
+                <p><i className="fas fa-phone"></i> <a href="tel:+16572760457">(657) 276-0457</a></p>
+                <p><i className="fas fa-envelope"></i> <a href="mailto:anaheimhills@uniteddefensetactical.com">anaheimhills@uniteddefensetactical.com</a></p>
               </address>
               <Link to="/contact" className="btn btn-outline-light btn-sm">Get in Touch</Link>
             </div>
@@ -80,6 +79,9 @@ const Footer: React.FC = () => {
               <li><Link to="/terms-of-service">Terms of Service</Link></li>
               <li><Link to="/sitemap">Sitemap</Link></li>
             </ul>
+          </div>
+          <div className="footer-motto">
+            Real World Tactical Training for Civilians, Law Enforcement & Military
           </div>
         </div>
       </div>

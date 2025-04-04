@@ -1,6 +1,5 @@
 import React, { ReactElement, useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { FormData } from '../../contexts/FormContext';
 
 interface ModernModalUIProps {
   isOpen: boolean;
@@ -38,7 +37,7 @@ const ModalBackdrop = styled.div<{ isOpen: boolean }>`
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.65);
+  background-color: rgba(0, 0, 0, 0.75);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -47,12 +46,13 @@ const ModalBackdrop = styled.div<{ isOpen: boolean }>`
   visibility: ${props => props.isOpen ? 'visible' : 'hidden'};
   transition: opacity 0.3s ease, visibility 0.3s ease;
   backdrop-filter: blur(3px);
+  animation: ${props => props.isOpen ? fadeIn : 'none'} 0.3s ease forwards;
 `;
 
 const ModalContainer = styled.div<{ isOpen: boolean; darkMode?: boolean }>`
-  background-color: ${props => props.darkMode ? '#1a1b1d' : 'white'};
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  background-color: ${props => props.darkMode ? '#1e1f21' : 'white'};
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   width: 95%;
   max-width: 600px;
   max-height: 90vh;
@@ -60,6 +60,23 @@ const ModalContainer = styled.div<{ isOpen: boolean; darkMode?: boolean }>`
   padding: 0;
   animation: ${props => props.isOpen ? slideUp : 'none'} 0.4s ease forwards;
   position: relative;
+  
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: ${props => props.darkMode ? '#2c2d30' : '#f1f1f1'};
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: ${props => props.darkMode ? '#444' : '#c1c1c1'};
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: ${props => props.darkMode ? '#555' : '#a1a1a1'};
+  }
 `;
 
 const ModalHeader = styled.div<{ darkMode?: boolean }>`
@@ -68,6 +85,18 @@ const ModalHeader = styled.div<{ darkMode?: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
+  
+  &:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+    display: ${props => props.darkMode ? 'block' : 'none'};
+  }
   
   h2 {
     margin: 0;
@@ -98,14 +127,14 @@ const CloseButton = styled.button<{ darkMode?: boolean }>`
 
 const ModalBody = styled.div<{ darkMode?: boolean }>`
   padding: 24px;
-  background-color: ${props => props.darkMode ? '#1a1b1d' : 'white'};
+  background-color: ${props => props.darkMode ? '#1e1f21' : 'white'};
   color: ${props => props.darkMode ? '#e0e0e0' : 'inherit'};
 `;
 
 const ModalFooter = styled.div<{ darkMode?: boolean }>`
   padding: 16px 24px;
   border-top: 1px solid ${props => props.darkMode ? '#333' : '#f0f0f0'};
-  background-color: ${props => props.darkMode ? '#1a1b1d' : 'white'};
+  background-color: ${props => props.darkMode ? '#2c2d30' : '#f8f8f8'};
 `;
 
 const HookBanner = styled.div<{ darkMode?: boolean }>`
@@ -117,8 +146,8 @@ const HookBanner = styled.div<{ darkMode?: boolean }>`
   text-align: center;
   font-weight: 500;
   animation: ${pulse} 2s infinite ease-in-out;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
 `;
 
 /**
@@ -134,17 +163,21 @@ const ModernModalUI: React.FC<ModernModalUIProps> = ({
   showHook = false,
   hookMessage = 'Limited spots available for this week!',
   footerContent = null,
-  darkMode = false
+  darkMode = true
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   
   useEffect(() => {
     if (isOpen) {
       setIsVisible(true);
+      // Add the modal-open class to body when modal is open
+      document.body.classList.add('modal-open');
     } else {
       // Delay hiding to allow for animation
       const timer = setTimeout(() => {
         setIsVisible(false);
+        // Remove the modal-open class from body when modal is closed
+        document.body.classList.remove('modal-open');
       }, 300);
       return () => clearTimeout(timer);
     }

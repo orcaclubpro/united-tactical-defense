@@ -1,0 +1,136 @@
+// Main Colors
+$primary-color: #d10000;
+$primary-color-dark: darken($primary-color, 10%);
+$primary-color-light: lighten($primary-color, 10%);
+$secondary-color: #1a1a1a;
+$accent-color: #ffd700;
+
+// RGB Values for opacity usage
+$primary-rgb: 209, 0, 0;
+$secondary-rgb: 26, 26, 26;
+$accent-rgb: 255, 215, 0;
+
+// Neutrals
+$white: #ffffff;
+$black: #000000;
+$text-color: #333333;
+$light-bg: #f8f8f8;
+$light-gray: #f5f5f5;
+$mid-gray: #cccccc;
+$dark-gray: #555555;
+
+// Status Colors
+$success-color: #28a745;
+$warning-color: #ffc107;
+$danger-color: #dc3545;
+$info-color: #0277BD;
+
+// Typography
+$font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+$heading-font-family: 'Bebas Neue', sans-serif;
+$font-weight-light: 300;
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+$font-weight-extrabold: 800;
+
+// Breakpoints
+$breakpoint-xs: 0;
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+$breakpoint-xxl: 1400px;
+
+// Container
+$container-max-width: 1400px;
+
+// Spacing
+$spacing-unit: 1rem;
+$spacing-xs: $spacing-unit * 0.25;
+$spacing-sm: $spacing-unit * 0.5;
+$spacing-md: $spacing-unit;
+$spacing-lg: $spacing-unit * 1.5;
+$spacing-xl: $spacing-unit * 3;
+$spacing-xxl: $spacing-unit * 5;
+
+// Border Radius
+$border-radius-sm: 4px;
+$border-radius-md: 8px;
+$border-radius-lg: 16px;
+$border-radius-xl: 24px;
+$border-radius-rounded: 9999px;
+
+// Shadows
+$shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 5px 15px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+$shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.2);
+
+// Transitions
+$transition-fast: 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+$transition-medium: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+$transition-slow: 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+// Z-index
+$z-index-dropdown: 1000;
+$z-index-sticky: 1020;
+$z-index-fixed: 1030;
+$z-index-modal-backdrop: 1040;
+$z-index-modal: 1050;
+$z-index-popover: 1060;
+$z-index-tooltip: 1070;
+
+// Animation
+$animation-curve-fast-out-slow-in: cubic-bezier(0.4, 0, 0.2, 1);
+$animation-curve-linear-out-slow-in: cubic-bezier(0, 0, 0.2, 1);
+$animation-curve-fast-out-linear-in: cubic-bezier(0.4, 0, 1, 1);
+
+// Functions and Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin absoluteCenter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin glass-effect {
+  background: rgba($white, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba($white, 0.1);
+}
+
+@mixin breakpoint($point) {
+  @if $point == xs {
+    @media (min-width: $breakpoint-xs) { @content; }
+  }
+  @else if $point == sm {
+    @media (min-width: $breakpoint-sm) { @content; }
+  }
+  @else if $point == md {
+    @media (min-width: $breakpoint-md) { @content; }
+  }
+  @else if $point == lg {
+    @media (min-width: $breakpoint-lg) { @content; }
+  }
+  @else if $point == xl {
+    @media (min-width: $breakpoint-xl) { @content; }
+  }
+  @else if $point == xxl {
+    @media (min-width: $breakpoint-xxl) { @content; }
+  }
+} 

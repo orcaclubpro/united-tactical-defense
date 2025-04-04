@@ -1,0 +1,23 @@
+<svg width="120" height="120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="tactical-grid" patternUnits="userSpaceOnUse" width="40" height="40">
+      <path d="M0,20 L40,20" stroke="#000" stroke-width="0.5" fill="none" opacity="0.3"/>
+      <path d="M20,0 L20,40" stroke="#000" stroke-width="0.5" fill="none" opacity="0.3"/>
+      <circle cx="20" cy="20" r="2" fill="#000" opacity="0.3"/>
+    </pattern>
+    <pattern id="tactical-crosshair" patternUnits="userSpaceOnUse" width="120" height="120">
+      <circle cx="60" cy="60" r="30" stroke="#000" stroke-width="0.5" fill="none" opacity="0.3"/>
+      <path d="M60,40 L60,50" stroke="#000" stroke-width="1" opacity="0.5"/>
+      <path d="M60,70 L60,80" stroke="#000" stroke-width="1" opacity="0.5"/>
+      <path d="M40,60 L50,60" stroke="#000" stroke-width="1" opacity="0.5"/>
+      <path d="M70,60 L80,60" stroke="#000" stroke-width="1" opacity="0.5"/>
+      <circle cx="60" cy="60" r="2" fill="#000" opacity="0.5"/>
+    </pattern>
+    <pattern id="tactical-dots" patternUnits="userSpaceOnUse" width="20" height="20">
+      <circle cx="10" cy="10" r="1" fill="#000" opacity="0.2"/>
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#tactical-grid)"/>
+  <rect width="100%" height="100%" fill="url(#tactical-crosshair)"/>
+  <rect width="100%" height="100%" fill="url(#tactical-dots)"/>
+</svg> 

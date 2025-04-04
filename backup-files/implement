@@ -1,0 +1,57 @@
+HIGH PRIORITY: IMPLEMENT MODERN UI/UX CHOICES
+rework the the hero section make the layout cleaner, add logo.png in to the left of the text and add the video in the backgroud playing called training.mov 
+clean up the assesment section and remove the next or previous button and have the assessment automatically move on after the user makes a selection and change 
+I want the training programs section to only update the program description. To the left of the updating training section, I want you to put a placeholder image, This will be a schedule called schedule.jpeg
+Redesign the Your training path to make it look modern and implement a martial arts aesthetic
+video needs to stand out
+logo on the header needs to be scaled properly but don't change the size of the header
+
+Prompts:
+hero: 
+rework our hero section to be really eye catching and hook the user. I want to use ty.mov to run in the background of this section to set the aesthetic. I want logo.png to be on the right side of the text. Implement the new text to sythesize well with this new layout and change 5000 to 3000+. Change the claim free class button to book free class button which should bring up the pop up when pressed. This section should be clean and modern while serving to catch the users attention.
+
+new hero
+chante the marketing in hero to "Our story/WHY we started awareness, confidence, empowerment" and make the logo bigger
+
+video section: put emphasis on video play ty.mov
+<div class="Homepage_prepare_wrap__4P_qA aos-init aos-animate" data-aos="fade-right" data-aos-easing="linear" data-aos-duration="400" data-aos-delay="0" data-acc-font="16px"><h1 class="primary-header" data-acc-font="68px">The threat is <br>out there.<!-- --> </h1><h6 class="Homepage_pre_header__g40fY pre-header" data-acc-font="26px">Are You Prepared?<!-- --> </h6><div class="threat-wrap" data-acc-font="16px"><div class="Homepage_threat__Xv6fS aos-init aos-animate" data-aos="fade-right" data-aos-easing="linear" data-aos-duration="300" data-aos-delay="100" data-acc-font="16px"><h5 class="Homepage_blk_small__qrS_l" data-acc-font="22px">A violent crime occurs every<!-- --> </h5><h6 class="Homepage_red_big__Und1V" data-acc-font="28px">24.6 seconds</h6><div class="Homepage_threadt_desc__j_FVI" data-acc-font="16px"><p data-acc-font="25px">Learn what to do if you’re in danger.</p></div></div><div class="Homepage_threat__Xv6fS aos-init" data-aos="fade-right" data-aos-easing="linear" data-aos-duration="300" data-aos-delay="100" data-acc-font="16px"><h6 class="Homepage_red_big__Und1V" data-acc-font="28px">77% of shots fired miss </h6><h5 class="Homepage_blk_small__qrS_l" data-acc-font="22px">the target if it's over 6 ft away</h5><div class="Homepage_threadt_desc__j_FVI" data-acc-font="16px"><p data-acc-font="25px">Improve your accuracy and stop the threat.</p></div></div><div class="Homepage_threat__Xv6fS aos-init" data-aos="fade-right" data-aos-easing="linear" data-aos-duration="300" data-aos-delay="100" data-acc-font="16px"><h5 class="Homepage_blk_small__qrS_l" data-acc-font="22px">The number of shooting victims has gone up<!-- --> </h5><h6 class="Homepage_red_big__Und1V" data-acc-font="28px">55% in the last 2 years.</h6><div class="Homepage_threadt_desc__j_FVI" data-acc-font="16px"><p data-acc-font="25px">Protect yourself and your loved ones when it matters.</p></div></div></div></div> implement something like this and style it properly for the statistics section
+
+accessory:
+Remove 100% Satisfaction, change to Hand-to-hand Self Defenses and make this section feel more sleek
+
+8stage training:
+implement something like this and copy the image <div class="container" data-acc-font="16px"><div class="Homepage_row__21Ptj row" data-acc-font="16px"><div class="col-6 aos-init" data-aos="fade-left" data-aos-easing="linear" data-aos-duration="450" data-aos-delay="200" data-acc-font="16px"><img src="/images/from-novice-to-navy-seal.png" alt="From novice to Navy Seal" class="img-responsive"></div><div class="col-6" data-acc-font="16px"><div class="Homepage_novice_navy_wrap__QarEt aos-init" data-aos="fade-left" data-aos-easing="linear" data-aos-duration="350" data-aos-delay="300" data-acc-font="16px"><h2 class="secondary-header" data-acc-font="32px">From novice to <br>Navy Seal</h2><div class="Homepage_text__9DzQ2" data-acc-font="16px"><p data-acc-font="16px">Our 8-level firearms training curriculum covers everyone from new shooters to advanced experts. Track your earned skills while you interact with friends and grow within the global UDT community.<!-- --> </p></div></div></div></div></div>
+
+FIND YOUR IDEAL TRAINING PROGRAM section:
+redesign this section to look more sleek and styled with the website and 
+replace safety protocol qusestion with
+"How to throw off the threats OODA Loop" 
+ Assessment, Draw, move, communicate, de-escalate, if they reach, shoot and related sections
+
+
+7. Training Programs: Firearm Simulator Training, Self Defense Training, UDT Indoor Range, Workshops
+I want you to separate the container that contains the updating descriptions and on the left side i want you to put schedule.jpeg
+
+ free class section
+ redisgn this section to combine the call to action and free class section to just one big free class hook keep the styling of the 
+
+
+
+information modification
+1. Make IOS more user friendly by zooming things 
+2. Our story/WHY we started awareness, confidence, empowerment. Home invasion- active shooter - I can work with you on this or use Chat gbt
+3. Remove 100% Satisfaction, change to Hand-to-hand Self Defenses
+4. 3000+ Trained Students, 15 Training Programs, 8+ years experience
+5. Where does the answer to the questionnaire go?
+6. First name, last name after they finish questionnaire 
+7. Training Programs: Firearm Simulator Training, Self Defense Training, UDT Indoor Range, Workshops - I will provide more info for every individual
+8. Your Training Path: Instead of diving into the levels just put the patches White -Black
+9. After the patches add in "How to throw off the threats OODA Loop" 
+ Assessment, Draw, move, communicate, de-escalate, if they reach, shoot
+10. Training Packages: Don't include Pricing or enrollment/background fee. 12 month commitment 11. Frequently asked questions: What every AI you used for the questions, state the there are no real firearms involved in our facility
+12.remove the safety protocol question.
+13. Proficiency training we suggest at least 2 times a month
+14. No one-on-one classes, but it is small groups with a max of 5 people per class
+15.  Age requirement is 18+ we do not have youth programs
+16. What to expect in your free class: below is exactly what we
+✅ Grip, stance, sight picture, trigger control ✅ Drawing from concealment & commands ✅ De-escalation & legal considerations ✅ Real-life threat simulation to test your response under pressure 17. Our map/location is 160 S. Old Springs rd suite 155, Anaheim, 92808 18. Training Hours: Monday-Friday 9am-8pm, Saturday-Sunday 8am-5pm 19. Contact email: anaheimhills@uniteddefensetactical.com 20. At the way bottom. Real World Tactical Training for Civilians, Law Enforcement & Military 21. Fix contact info on the bottom 22. Programs: Use the programs i mentioned above. Add in CCW program as well

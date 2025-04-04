@@ -1,10 +1,10 @@
 .testimonials-section {
-  padding: 5rem 0;
+  padding: 3rem 0;
   background-color: #fff;
   
   .testimonials-container {
     position: relative;
-    margin: 3rem 0;
+    margin: 2rem 0;
     display: flex;
     align-items: center;
   }
@@ -51,21 +51,23 @@
   
   .testimonial-item {
     min-width: 100%;
-    padding: 3rem;
+    padding: 2rem;
     background-color: var(--light-gray);
     display: flex;
     flex-direction: column;
     
     .testimonial-content {
       flex: 1;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
       
       .testimonial-quote {
-        font-size: 1.25rem;
+        font-size: 1.1rem;
         font-style: italic;
-        line-height: 1.6;
+        line-height: 1.5;
         color: var(--secondary-color);
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
+        max-height: 180px;
+        overflow-y: auto;
       }
       
       .testimonial-rating {
@@ -109,9 +111,21 @@
           margin-bottom: 0.25rem;
         }
         
-        .author-role {
+        .author-location {
           font-size: 0.875rem;
           color: var(--dark-gray);
+          margin-bottom: 0.25rem;
+        }
+        
+        .author-date {
+          font-size: 0.75rem;
+          color: var(--mid-gray);
+          margin-bottom: 0.25rem;
+        }
+        
+        .author-photos {
+          font-size: 0.75rem;
+          color: var(--primary-color);
         }
       }
     }
@@ -120,7 +134,7 @@
   .testimonial-indicators {
     display: flex;
     justify-content: center;
-    margin-top: 2rem;
+    margin-top: 1rem;
     
     .indicator {
       width: 12px;

@@ -1,12 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import GlobalFormTrigger from '../Form/GlobalTrigger';
-import { placeholderImages } from '../../utils/placeholderImages';
+import heroImage from '../../assets/images/hero.jpg';
 import './CallToAction.scss';
 
 const CallToAction: React.FC = () => {
   return (
-    <section id="cta" className="cta-section" style={{ backgroundImage: `url(${placeholderImages.ctaBackground})` }}>
+    <section id="cta" className="cta-section" style={{ backgroundImage: `url(${heroImage})` }}>
       <div className="cta-overlay"></div>
       <div className="container">
         <div className="cta-content">
@@ -16,13 +15,9 @@ const CallToAction: React.FC = () => {
             and enthusiasts committed to the highest standards of training and preparedness.
           </p>
           <div className="cta-buttons">
-            <GlobalFormTrigger 
-              buttonText="Book Your Free Class" 
-              buttonVariant="primary" 
-              buttonSize="lg" 
-              className="cta-primary"
-              formType="free-class"
-            />
+            <Link to="/assessment" className="btn btn-primary btn-lg">
+              Start Your Assessment
+            </Link>
             <Link to="/programs" className="btn btn-outline btn-lg">
               Explore Programs
             </Link>

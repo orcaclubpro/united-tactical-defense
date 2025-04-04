@@ -13,7 +13,7 @@ const Location: React.FC = () => {
         <div className="location-container">
           <div className="location-map">
             <iframe 
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3313.887811086248!2d-117.75910858479216!3d33.844911280659076!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80dcd0ab6c42a6c3%3A0x8f1293d0e7169571!2s160%20S%20Old%20Springs%20Rd%20Suite%20155%2C%20Anaheim%2C%20CA%2092808!5e0!3m2!1sen!2sus!4v1649456892029!5m2!1sen!2sus" 
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d26510.96990236813!2d-117.7909698634709!3d33.85145306855301!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80dcd72ebccbc051%3A0xafd7a9af2e2e2e09!2sAnaheim%20Hills%2C%20Anaheim%2C%20CA!5e0!3m2!1sen!2sus!4v1649456892029!5m2!1sen!2sus" 
               width="100%" 
               height="450" 
               style={{ border: 0 }} 
@@ -31,9 +31,9 @@ const Location: React.FC = () => {
               </div>
               <div className="card-content">
                 <h3>Address</h3>
-                <p>160 S. Old Springs Rd, Suite 155<br />Anaheim, CA 92808</p>
+                <p>160 S. Old Springs rd suite 155<br />Anaheim, 92808</p>
                 <a 
-                  href="https://maps.google.com/?q=160+S.+Old+Springs+Rd,+Suite+155,+Anaheim,+CA+92808" 
+                  href="https://maps.google.com/?q=160+S.+Old+Springs+rd+suite+155,+Anaheim,+92808" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="directions-link"
@@ -101,12 +101,6 @@ const Location: React.FC = () => {
               <button type="submit" className="btn btn-primary">Send Message</button>
             </div>
           </form>
-        </div>
-      </div>
-      
-      <div className="tagline">
-        <div className="container">
-          <p>Real World Tactical Training for Civilians, Law Enforcement & Military</p>
         </div>
       </div>
     </section>
