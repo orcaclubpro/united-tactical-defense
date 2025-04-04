@@ -45,7 +45,7 @@ const Header: React.FC = () => {
           <ul className={`nav-links ${isMenuOpen ? 'active' : ''}`}>
             <li><a href="#programs" onClick={closeMenu}>Programs</a></li>
             <li><a href="#instructors" onClick={closeMenu}>Instructors</a></li>
-            <li><a href="#pricing" onClick={closeMenu}>Pricing</a></li>
+            <li><a href="#pricing" onClick={closeMenu}>Memberships</a></li>
             <li><a href="#faq" onClick={closeMenu}>FAQ</a></li>
             <li><a href="#location" onClick={closeMenu}>Location</a></li>
             <li><a href="#contact" onClick={closeMenu}>Contact</a></li>

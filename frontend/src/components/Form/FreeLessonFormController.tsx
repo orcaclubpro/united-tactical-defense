@@ -749,6 +749,20 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
       footerContent={renderFooterContent()}
     >
       <div className="udt-calendar">
+        {currentStep < 4 && (
+          <>
+            <StepIndicator>
+              <StepDot active={currentStep === 1} completed={currentStep > 1} />
+              <StepDot active={currentStep === 2} completed={currentStep > 2} />
+              <StepDot active={currentStep === 3} completed={currentStep > 3} />
+            </StepIndicator>
+            
+            <ProgressBar>
+              <ProgressFill percent={getProgress()} />
+            </ProgressBar>
+          </>
+        )}
+        
         {getStepContent()}
       </div>
     </ModernModalUI>

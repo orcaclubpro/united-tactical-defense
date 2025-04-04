@@ -115,7 +115,7 @@
 
     img {
       max-width: 100%;
-      max-height: 300px;
+      max-height: 350px;
       filter: drop-shadow(2px 2px 5px rgba(0, 0, 0, 0.5));
     }
   }
@@ -130,11 +130,14 @@
 
     .hero-content {
       max-width: 90%;
-      text-align: center;
+      text-align: left;
       margin-bottom: 2rem;
+      padding-left: 1rem;
       
       h1 {
-        font-size: 3rem;
+        font-size: 2.8rem;
+        line-height: 1.15;
+        letter-spacing: 0.5px;
       }
       
       .hero-tagline {
@@ -144,57 +147,95 @@
       .hero-benefits {
         text-align: left;
         display: inline-block;
+        margin-left: 0;
       }
     }
 
     .hero-logo {
-      max-width: 60%;
+      max-width: 70%;
       margin-top: 1rem;
       order: -1;
 
+      img {
+        max-height: 220px;
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    min-height: 550px;
+    
+    .hero-content {
+      padding: 1.5rem 1rem;
+      
+      h1 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+      }
+      
+      .hero-tagline {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+      }
+      
+      .hero-benefits {
+        margin-bottom: 1.5rem;
+        
+        li {
+          line-height: 1.4;
+          font-size: 1rem;
+          margin-bottom: 0.4rem;
+        }
+      }
+      
+      .cta-buttons {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-start;
+        
+        .btn {
+          width: 100%;
+          text-align: center;
+          padding: 0.75rem 1rem;
+          font-size: 1rem;
+        }
+      }
+    }
+    
+    .hero-logo {
+      max-width: 75%;
+      
       img {
         max-height: 200px;
       }
     }
   }
   
-  @media (max-width: 768px) {
-    .hero-content {
-      padding: 1.5rem;
-      
-      h1 {
-        font-size: 2.5rem;
-      }
-      
-      .hero-tagline {
-        font-size: 1.2rem;
-      }
-      
-      .cta-buttons {
-        flex-direction: column;
-        gap: 0.75rem;
-        
-        .btn {
-          width: 100%;
-          text-align: center;
-        }
-      }
-    }
-  }
-  
   @media (max-width: 480px) {
+    min-height: 500px;
+    
     .hero-content {
       h1 {
-        font-size: 2rem;
+        font-size: 1.8rem;
+        line-height: 1.2;
       }
       
       .hero-tagline {
         font-size: 1.1rem;
       }
+      
+      .hero-benefits li {
+        font-size: 0.95rem;
+      }
     }
 
-    .hero-logo img {
-      max-height: 150px;
+    .hero-logo {
+      max-width: 80%;
+      
+      img {
+        max-height: 180px;
+      }
     }
   }
 } 
