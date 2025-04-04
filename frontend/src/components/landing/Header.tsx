@@ -19,6 +19,19 @@ const Header: React.FC = () => {
     };
   }, []);
 
+  // Prevent body scroll when menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMenuOpen]);
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -42,10 +55,14 @@ const Header: React.FC = () => {
             <span></span>
             <span></span>
           </button>
+          <div 
+            className={`nav-overlay ${isMenuOpen ? 'active' : ''}`} 
+            onClick={closeMenu}
+          ></div>
           <ul className={`nav-links ${isMenuOpen ? 'active' : ''}`}>
             <li><a href="#programs" onClick={closeMenu}>Programs</a></li>
             <li><a href="#instructors" onClick={closeMenu}>Instructors</a></li>
-            <li><a href="#pricing" onClick={closeMenu}>Memberships</a></li>
+            <li><a href="#pricing" onClick={closeMenu}>Membership</a></li>
             <li><a href="#faq" onClick={closeMenu}>FAQ</a></li>
             <li><a href="#location" onClick={closeMenu}>Location</a></li>
             <li><a href="#contact" onClick={closeMenu}>Contact</a></li>

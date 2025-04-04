@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './Programs.scss';
 
 interface Program {
@@ -21,7 +21,7 @@ const programsData: Program[] = [
       "Stress response training",
       "Decision-making under pressure"
     ],
-    image: "https://images.unsplash.com/photo-1595590424283-b8f17842773f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+    image: "/assets/images/firearmsim.JPG",
     level: "All Levels"
   },
   {
@@ -34,7 +34,7 @@ const programsData: Program[] = [
       "Threat assessment strategies",
       "Escape and evasion tactics"
     ],
-    image: "https://images.unsplash.com/photo-1599058917212-d750089bc07e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+    image: "/assets/images/selfdefense.jpeg",
     level: "All Levels"
   },
   {
@@ -47,7 +47,7 @@ const programsData: Program[] = [
       "Target analysis systems",
       "One-on-one instruction available"
     ],
-    image: "https://images.unsplash.com/photo-1550358864-518f202c02ba?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+    image: "/assets/images/udtrange.JPG",
     level: "All Levels"
   },
   {
@@ -60,7 +60,7 @@ const programsData: Program[] = [
       "Specialized equipment training",
       "Certification preparation"
     ],
-    image: "https://images.unsplash.com/photo-1543269865-cbf427effbad?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+    image: "/assets/images/udt1.jpg",
     level: "Varies"
   },
   {
@@ -73,7 +73,7 @@ const programsData: Program[] = [
       "Defensive shooting scenarios",
       "CCW application assistance"
     ],
-    image: "https://images.unsplash.com/photo-1584552517218-5a35154a4b17?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+    image: "/assets/images/ccw.jpg",
     level: "Beginner to Intermediate"
   }
 ];
@@ -81,6 +81,9 @@ const programsData: Program[] = [
 const Programs: React.FC = () => {
   const [activeProgram, setActiveProgram] = useState<number>(0);
   const [autoScroll, setAutoScroll] = useState<boolean>(true);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef<number>(0);
+  const touchEndX = useRef<number>(0);
   
   // Auto-rotate through programs every 5 seconds if autoScroll is true
   useEffect(() => {
@@ -100,6 +103,35 @@ const Programs: React.FC = () => {
     // Resume auto-scroll after 15 seconds of inactivity
     setTimeout(() => setAutoScroll(true), 15000);
   };
+
+  // Touch handlers for mobile swipe
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    setAutoScroll(false);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    // Minimum swipe distance (in px) to register as a swipe
+    const minSwipeDistance = 50;
+    const swipeDistance = touchEndX.current - touchStartX.current;
+    
+    if (Math.abs(swipeDistance) > minSwipeDistance) {
+      if (swipeDistance > 0) {
+        // Swiped right - go to previous
+        handleProgramClick((activeProgram - 1 + programsData.length) % programsData.length);
+      } else {
+        // Swiped left - go to next
+        handleProgramClick((activeProgram + 1) % programsData.length);
+      }
+    }
+    
+    // Resume auto-scroll after 15 seconds
+    setTimeout(() => setAutoScroll(true), 15000);
+  };
   
   return (
     <section id="programs" className="programs-section">
@@ -111,15 +143,21 @@ const Programs: React.FC = () => {
         </header>
         
         <div className="programs-carousel">
-          <div className="carousel-container">
+          <div 
+            className="carousel-container"
+            ref={carouselRef}
+          >
             <div 
               className="carousel-track" 
               style={{ transform: `translateX(-${activeProgram * 100}%)` }}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
             >
               {programsData.map((program) => (
                 <div key={program.id} className="carousel-card">
                   <div className="carousel-card-image">
-                    <img src={program.image} alt={program.title} />
+                    <img src={program.image} alt={program.title} loading="lazy" />
                     <div className="program-level">{program.level}</div>
                   </div>
                   <div className="carousel-card-content">

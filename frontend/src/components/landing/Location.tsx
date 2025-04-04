@@ -45,8 +45,7 @@ const Location: React.FC = () => {
                 <h3>Training Hours</h3>
                 <ul className="hours-list">
                   <li><span>Monday - Friday:</span> 9:00 AM - 8:00 PM</li>
-                  <li><span>Saturday:</span> 8:00 AM - 5:00 PM</li>
-                  <li><span>Sunday:</span> By appointment only</li>
+                  <li><span>Sat/Sun:</span> 8:00 AM - 5:00 PM</li>
                 </ul>
               </div>
             </div>

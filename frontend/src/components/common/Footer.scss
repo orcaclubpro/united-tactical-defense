@@ -176,82 +176,157 @@
       grid-template-columns: 1fr 1fr;
       gap: 2rem 1rem;
     }
+
+    // Make sure contact info is full width when it wraps
+    .footer-column:last-child {
+      grid-column: span 2;
+    }
   }
   
   @media (max-width: 768px) {
-    .footer-top {
-      padding: 2rem 0;
-    }
-    
-    .footer-grid {
-      grid-template-columns: 1fr;
-      gap: 2rem;
-    }
-    
-    .footer-column {
-      text-align: center;
-      
-      h4:after {
-        left: 50%;
-        transform: translateX(-50%);
+    .site-footer {
+      .footer-top {
+        padding: 2rem 0;
       }
-    }
-    
-    .footer-logo {
-      margin: 0 auto 1.5rem;
-    }
-    
-    .social-icons {
-      justify-content: center;
-    }
-    
-    .footer-links li a {
-      padding: 0.5rem 0;
-    }
-    
-    .contact-info p {
-      justify-content: center;
       
-      i {
-        margin-top: 0;
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
       }
-    }
-    
-    .footer-bottom-content {
-      flex-direction: column;
-      gap: 1rem;
-      text-align: center;
-    }
-    
-    .legal-links {
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 1rem;
+      
+      .footer-column {
+        text-align: center;
+        
+        h4 {
+          font-size: 1.3rem;
+          margin-bottom: 1.5rem;
+          
+          &:after {
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px; /* Longer underline */
+          }
+        }
+      }
+      
+      .footer-logo {
+        margin: 0 auto 1.5rem;
+        max-width: 150px;
+      }
+      
+      .social-icons {
+        justify-content: center;
+        gap: 1.5rem; /* More space between icons */
+        
+        a {
+          width: 45px; /* Larger touch targets */
+          height: 45px;
+          
+          i {
+            font-size: 1.2rem;
+          }
+        }
+      }
+      
+      .footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem 1.5rem;
+        
+        li {
+          margin-bottom: 0.75rem;
+          
+          a {
+            padding: 0.5rem 0;
+            font-size: 1.05rem; /* Larger font */
+          }
+        }
+      }
+      
+      .contact-info {
+        max-width: 300px;
+        margin: 0 auto;
+        
+        p {
+          justify-content: flex-start;
+          text-align: left;
+          margin-bottom: 1rem;
+          
+          i {
+            margin-top: 0.25rem;
+            margin-right: 15px;
+            font-size: 1.1rem;
+          }
+          
+          a {
+            font-size: 1.05rem;
+          }
+        }
+      }
+      
+      .footer-bottom-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+      
+      .legal-links {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1rem 2rem; /* More horizontal space */
+      }
+      
+      .footer-motto {
+        font-size: 1rem;
+        line-height: 1.5;
+        padding: 0 1rem;
+      }
+
+      // Full width contact button
+      .btn-outline-light {
+        display: block;
+        width: 100%;
+        padding: 0.75rem;
+        margin-top: 1rem;
+        font-size: 1.05rem;
+      }
     }
   }
   
   @media (max-width: 480px) {
-    .footer-top {
-      padding: 1.5rem 0;
-    }
-    
-    .footer-column h4 {
-      font-size: 1.1rem;
-    }
-    
-    .footer-links a, 
-    .contact-info a, 
-    .contact-info p {
-      font-size: 0.95rem;
-    }
-    
-    .copyright,
-    .legal-links a {
-      font-size: 0.85rem;
-    }
-    
-    .footer-motto {
-      font-size: 0.85rem;
+    .site-footer {
+      .footer-top {
+        padding: 1.5rem 0;
+      }
+      
+      .footer-column {
+        margin-bottom: 0;
+        
+        h4 {
+          font-size: 1.2rem;
+        }
+      }
+      
+      .footer-links a, 
+      .contact-info a, 
+      .contact-info p {
+        font-size: 1rem;
+      }
+      
+      .social-icons a {
+        width: 40px;
+        height: 40px;
+      }
+      
+      .copyright,
+      .legal-links a {
+        font-size: 0.85rem;
+      }
+      
+      .footer-motto {
+        font-size: 0.9rem;
+      }
     }
   }
 } 

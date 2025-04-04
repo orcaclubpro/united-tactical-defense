@@ -51,11 +51,11 @@ const Hero: React.FC = () => {
       <div className="container hero-container">
         <div className="hero-content">
           <h1>REALITY-BASED TACTICAL TRAINING FOR REAL-WORLD DEFENSE</h1>
-          <p className="hero-tagline">awareness. confidence. empowerment.</p>
+          <p className="hero-tagline">Train to be safe. Train to be confident. Train to survive.</p>
           <ul className="hero-benefits">
-            <li>Train with former special forces operators & law enforcement</li>
-            <li>Master proven techniques in state-of-the-art facilities</li>
-            <li>Join over 3000+ trained civilians, military & police</li>
+            <li>Awareness: We teach situational awareness to help clients recognize and avoid threats before they happen—key to staying safe.</li>
+            <li>Confidence: Our reality-based training builds true confidence under pressure, so clients feel ready and in control.</li>
+            <li>Empower: We empower everyday people with the skills to protect themselves and others—strength through preparation.</li>
           </ul>
           <div className="cta-buttons">
             <a href="#free-class" className="btn btn-red btn-lg">BOOK FREE CLASS</a>

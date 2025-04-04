@@ -3,19 +3,68 @@ import './VideoSection.scss';
 
 const VideoSection: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const timeProgressRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isChanging, setIsChanging] = useState(true);
   const countersInitialized = useRef(false);
 
   const toggleVideo = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
+    const video = videoRef.current;
+    if (!video) return;
+    
+    if (video.paused) {
+      video.play();
+      setIsPlaying(true);
+    } else {
+      video.pause();
+      setIsPlaying(false);
     }
   };
+
+  useEffect(() => {
+    const videoElement = videoRef.current;
+    const progressElement = timeProgressRef.current;
+    
+    // Update time progress bar during video playback
+    const updateTimeProgress = () => {
+      if (videoElement && progressElement) {
+        const percentage = (videoElement.currentTime / videoElement.duration) * 100;
+        progressElement.style.width = `${percentage}%`;
+      }
+    };
+    
+    // Handle video loading events
+    const handleLoadStart = () => setIsChanging(true);
+    const handleCanPlay = () => setIsChanging(false);
+    
+    if (videoElement) {
+      videoElement.addEventListener('timeupdate', updateTimeProgress);
+      videoElement.addEventListener('loadstart', handleLoadStart);
+      videoElement.addEventListener('canplay', handleCanPlay);
+      videoElement.addEventListener('waiting', handleLoadStart);
+      videoElement.addEventListener('playing', handleCanPlay);
+      
+      // Reset progress bar when video ends
+      videoElement.addEventListener('ended', () => {
+        setIsPlaying(false);
+        if (progressElement) {
+          progressElement.style.width = '0%';
+        }
+      });
+    }
+    
+    // Clean up event listeners
+    return () => {
+      if (videoElement) {
+        videoElement.removeEventListener('timeupdate', updateTimeProgress);
+        videoElement.removeEventListener('loadstart', handleLoadStart);
+        videoElement.removeEventListener('canplay', handleCanPlay);
+        videoElement.removeEventListener('waiting', handleLoadStart);
+        videoElement.removeEventListener('playing', handleCanPlay);
+        videoElement.removeEventListener('ended', () => setIsPlaying(false));
+      }
+    };
+  }, []);
 
   useEffect(() => {
     // Initialize counter animations when they come into view
@@ -64,9 +113,11 @@ const VideoSection: React.FC = () => {
 
   return (
     <section className="video-section">
+      <div className="industrial-grid-overlay"></div>
       <div className="container">
         {/* Video Section Heading */}
         <div className="video-section-heading">
+          <div className="section-label">TRAINING SHOWCASE</div>
           <h2>TACTICAL TRAINING <span className="text-highlight">IN ACTION</span></h2>
           <div className="heading-accent"></div>
           <p>Experience our elite training methodology in real-world scenarios</p>
@@ -75,6 +126,11 @@ const VideoSection: React.FC = () => {
         {/* Main Video Display */}
         <div className="video-showcase">
           <div className="video-frame">
+            <div className="tech-corner top-left"></div>
+            <div className="tech-corner top-right"></div>
+            <div className="tech-corner bottom-left"></div>
+            <div className="tech-corner bottom-right"></div>
+            
             <div className="video-container">
               {/* Video Element */}
               <video
@@ -91,13 +147,29 @@ const VideoSection: React.FC = () => {
               
               {/* Play/Pause Button */}
               <button 
-                className={`video-play-button ${isPlaying ? 'playing' : ''}`}
+                className={`video-play-button ${isPlaying ? 'playing' : ''} ${isChanging ? 'changing' : ''}`}
                 onClick={toggleVideo}
                 aria-label={isPlaying ? 'Pause video' : 'Play video'}
               >
-                <span className="play-icon"></span>
+                <svg className="play-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  {isPlaying ? (
+                    <>
+                      <rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor" />
+                      <rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor" />
+                    </>
+                  ) : (
+                    <path d="M6 4.75C6 4.04777 6.74921 3.55719 7.4 3.8L20.4 9.05C21.0593 9.29698 21.0593 10.203 20.4 10.45L7.4 15.7C6.74921 15.9428 6 15.4522 6 14.75V4.75Z" fill="currentColor" />
+                  )}
+                </svg>
                 <span className="pulse"></span>
               </button>
+              
+              <div className="video-time-indicator">
+                <div className="time-bar">
+                  <div ref={timeProgressRef} className="time-progress"></div>
+                </div>
+                <div className="time-label">TRAINING FOOTAGE</div>
+              </div>
             </div>
             
             {/* Video Caption */}
@@ -111,6 +183,7 @@ const VideoSection: React.FC = () => {
         {/* Key Features Section */}
         <div className="features-section">
           <div className="features-header">
+            <div className="section-label">PERFORMANCE METRICS</div>
             <h2>PREPARED FOR <span className="text-highlight">REALITY</span></h2>
             <div className="heading-accent"></div>
             <p>KEY TRAINING BENEFITS</p>
@@ -119,6 +192,7 @@ const VideoSection: React.FC = () => {
           <div className="feature-cards">
             {/* Feature Card 1 */}
             <div className="feature-card" data-aos="fade-up" data-aos-duration="300" data-aos-delay="100">
+              <div className="card-indicator"></div>
               <div className="feature-icon">
                 <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
@@ -137,6 +211,7 @@ const VideoSection: React.FC = () => {
             
             {/* Feature Card 2 */}
             <div className="feature-card" data-aos="fade-up" data-aos-duration="300" data-aos-delay="200">
+              <div className="card-indicator"></div>
               <div className="feature-icon">
                 <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="12" cy="12" r="10"></circle>
@@ -157,6 +232,7 @@ const VideoSection: React.FC = () => {
             
             {/* Feature Card 3 */}
             <div className="feature-card" data-aos="fade-up" data-aos-duration="300" data-aos-delay="300">
+              <div className="card-indicator"></div>
               <div className="feature-icon">
                 <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M17 18a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2"></path>
