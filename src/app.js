@@ -11,6 +11,7 @@ const path = require('path');
 // Import configuration
 const config = require('./config/app');
 const { initDatabase, runMigrations, getDatabase } = require('./config/database');
+const { initRedisClient } = require('./config/redis');
 
 // Import middleware
 const requestLogger = require('./api/middleware/requestLogger');
@@ -18,6 +19,8 @@ const { errorHandler, notFoundHandler } = require('./api/middleware/errorHandler
 const { setAuthService, authenticate, authorize } = require('./api/middleware/auth');
 const { sanitizeData } = require('./api/middleware/validators');
 const createEventTrackingMiddleware = require('./api/middleware/eventTrackingMiddleware');
+const rateLimiter = require('./api/middleware/rateLimiter');
+const cache = require('./api/middleware/cache');
 
 // Import routes
 const authRoutes = require('./api/routes/authRoutes');
@@ -56,6 +59,9 @@ const initializeApp = async () => {
   
   // Run migrations
   await runMigrations();
+  
+  // Initialize Redis if enabled
+  await initRedisClient();
   
   const db = getDatabase();
   
@@ -113,7 +119,7 @@ const initializeApp = async () => {
   // Initialize Express app
   const app = express();
   
-  // Middleware
+  // Global middleware
   app.use(cors({
     origin: config.corsOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -130,21 +136,54 @@ const initializeApp = async () => {
   
   // Event tracking middleware
   app.use(createEventTrackingMiddleware(eventEmitter));
+
+  // Global rate limiting - protect against brute force attacks
+  app.use(rateLimiter.default);
   
-  // API Routes
-  app.use('/api/auth', authRoutes);
-  app.use('/api/leads', leadRoutes);
-  app.use('/api/appointments', appointmentRoutes);
-  app.use('/api/forms', formRoutes);
-  app.use('/api/analytics', setupAnalyticsRoutes(analyticsController));
+  // API Routes with specific rate limiting and caching
+  app.use('/api/auth', rateLimiter.auth, authRoutes);
   
-  // Health check endpoint
-  app.get('/api/health', (req, res) => {
+  // Apply caching to read-only endpoints
+  app.use('/api/leads', rateLimiter.api, (req, res, next) => {
+    if (req.method === 'GET') {
+      cache.medium(req, res, next);
+    } else {
+      next();
+    }
+  }, leadRoutes);
+  
+  app.use('/api/appointments', rateLimiter.api, (req, res, next) => {
+    if (req.method === 'GET') {
+      cache.short(req, res, next);
+    } else {
+      next();
+    }
+  }, appointmentRoutes);
+  
+  app.use('/api/forms', rateLimiter.api, (req, res, next) => {
+    // Cache form configurations longer as they rarely change
+    if (req.method === 'GET' && req.path.startsWith('/config/')) {
+      cache.long(req, res, next);
+    } else {
+      next();
+    }
+  }, formRoutes);
+  
+  // Apply short cache for analytics routes that are read-only
+  app.use('/api/analytics', rateLimiter.api, (req, res, next) => {
+    if (req.method === 'GET' && !req.path.includes('/realtime/')) {
+      cache.short(req, res, next);
+    } else {
+      next();
+    }
+  }, setupAnalyticsRoutes(analyticsController));
+  
+  // Cache health and status endpoints for 5 seconds
+  app.get('/api/health', cache.short, (req, res) => {
     res.json({ status: 'ok', environment: config.nodeEnv });
   });
   
-  // Status endpoint
-  app.get('/api/status', (req, res) => {
+  app.get('/api/status', cache.short, (req, res) => {
     res.json({ 
       status: 'online', 
       version: '1.0.0',

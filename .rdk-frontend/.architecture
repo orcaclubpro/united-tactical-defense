@@ -1,0 +1,420 @@
+# Architecture: United Tactical Defense Frontend Integration
+
+## DEVELOPMENT STATUS
+
+### Implementation Progress
+- **Core Components**: ✅ Implemented (ModernModalUI, BookingResponseHandler, FreeLessonFormController)
+- **Landing Page Integration**: ✅ Completed
+- **Mobile Responsiveness**: ✅ Implemented
+- **User Preferences Storage**: ✅ Implemented
+- **A/B Testing Framework**: 🔄 In Progress
+- **Offline Submission Support**: ✅ Implemented
+- **Integration Testing**: 📅 Scheduled
+
+### Next Components to Implement
+- **ABTestingDashboard**: Administrative interface for viewing test results
+- **OfflineSubmissionQueue**: System for handling form submissions when offline
+- **OfflineIndicationSystem**: Enhanced visual indicators for offline state throughout the application
+- **OfflineSubmissionTesting**: Test framework for offline functionality validation
+
+## UPDATED ARCHITECTURE: Centralized Form Processing
+
+### Unified Form Flow
+- **FreeLessonFormController**: Centralized controller for all form submissions
+  - Interfaces: `IFormController`
+  - Responsibilities: Managing all form interactions and submissions
+  - Implementation: React component with context provider
+  - Status: ✅ Implemented
+
+- **ModernModalUI**: Enhanced modal with improved user engagement features
+  - Interfaces: `IModal`
+  - Responsibilities: Providing visually appealing and engaging form presentation
+  - Implementation: Styled-components with animation hooks
+  - Status: ✅ Implemented
+
+- **BookingResponseHandler**: Dedicated handler for processing booking responses
+  - Interfaces: `IResponseHandler`
+  - Responsibilities: Success/failure notifications, user feedback
+  - Implementation: Notification service
+  - Status: ✅ Implemented
+
+- **UserPreferencesService**: Management system for user form preferences
+  - Interfaces: `IPreferencesService` 
+  - Responsibilities: Store and retrieve user form data preferences
+  - Implementation: LocalStorage-based service with privacy controls
+  - Status: ✅ Implemented
+
+### Integration Plan
+- **LandingPage Components**: 
+  - Replace existing `FreeClass` component with `FreeLessonFormController`
+  - Implement shared modal state across components
+  - Status: ✅ Completed
+  
+- **Global Access System**:
+  - Create `GlobalTrigger` component for site-wide form access
+  - Implement URL parameter handling for deep linking
+  - Status: ✅ Implemented
+
+- **A/B Testing Framework**:
+  - Integrate `ABTestingVariant` component for conditional rendering
+  - Connect with analytics for performance tracking
+  - Create admin dashboard for results monitoring
+  - Status: 🔄 In Progress
+
+## System Components
+
+### Form Processing System
+- **ModalFormContainer**: Top-level container managing form state and multi-step flow
+  - Interfaces: `IFormContainer`, `IStepNavigation`
+  - Responsibilities: Step management, data persistence, submission handling
+  - Implementation: React component with context provider
+  - Status: ✅ Implemented
+
+- **FormStepManager**: Controls form step navigation and validation
+  - Interfaces: `IStepManager`
+  - Responsibilities: Step transitions, validation triggering, completion tracking
+  - Implementation: Custom hook with state machine pattern
+  - Status: ✅ Implemented
+
+- **FormValidator**: Client-side validation with error handling
+  - Interfaces: `IValidator`
+  - Responsibilities: Field validation, error collection, validation state management
+  - Implementation: Validation service with rule-based engine
+  - Status: ✅ Implemented
+
+- **FormAPIClient**: Connects frontend components to form submission endpoints
+  - Interfaces: `IAPIClient`
+  - Responsibilities: Data submission, error handling, retry logic
+  - Implementation: API service with fetch/axios
+  - Status: ✅ Implemented
+
+### User Flow System
+- **NavigationController**: Manages form steps and return to submission process
+  - Interfaces: `INavigation`
+  - Responsibilities: Step transition, history management, deep linking
+  - Implementation: React context with navigation helpers
+  - Status: ✅ Implemented
+
+- **FormStateManager**: Handles form data persistence across steps
+  - Interfaces: `IStateManager`
+  - Responsibilities: State persistence, hydration, session management
+  - Implementation: Context provider with localStorage/sessionStorage
+  - Status: ✅ Implemented
+
+- **NotificationSystem**: Provides feedback on submission status
+  - Interfaces: `INotifier`
+  - Responsibilities: Success/error messaging, toast notifications
+  - Implementation: Toast component system
+  - Status: ✅ Implemented (via BookingResponseHandler)
+
+- **UserPreferencesService**: Stores user form preferences
+  - Interfaces: `IPreferencesService`
+  - Responsibilities: Data persistence, privacy management, form pre-filling
+  - Implementation: LocalStorage-based service with opt-in controls
+  - Status: ✅ Implemented
+
+### Integration Layer
+- **AppointmentAdapter**: Formats form data for backend processing
+  - Interfaces: `IDataAdapter`
+  - Responsibilities: Data transformation, validation preparation
+  - Implementation: Adapter service
+  - Status: ✅ Implemented
+
+- **CalendarAPIClient**: Retrieves available time slots from backend
+  - Interfaces: `ICalendarAPI`
+  - Responsibilities: Timeslot fetching, availability checking, selection management
+  - Implementation: API client service
+  - Status: ✅ Implemented
+
+- **AnalyticsTracker**: Records user interactions with form components
+  - Interfaces: `IAnalytics`
+  - Responsibilities: Event tracking, conversion monitoring, A/B test tracking
+  - Implementation: Analytics service
+  - Status: ✅ Implemented
+
+- **ABTestingService**: Manages A/B test variant assignments
+  - Interfaces: `IABTestingService`
+  - Responsibilities: Variant assignment, conversion tracking, test reporting
+  - Implementation: Client-side service with backend reporting
+  - Status: 🔄 In Progress
+
+### New Components
+- **GlobalFormTrigger**: Provides site-wide access to the unified form flow
+  - Interfaces: `ITrigger`
+  - Responsibilities: Form activation, data pre-filling, deeplink handling
+  - Implementation: React component with context consumption
+  - Status: ✅ Implemented
+
+- **FormAnalyticsService**: Tracks form interactions for optimization
+  - Interfaces: `IAnalyticsService`
+  - Responsibilities: Step tracking, drop-off analysis, conversion monitoring
+  - Implementation: Service with API integration
+  - Status: ✅ Implemented
+
+- **ABTestingVariant**: Component for conditional rendering based on test variants
+  - Interfaces: `IABTestingVariant`
+  - Responsibilities: Variant-based rendering, reporting variant views
+  - Implementation: React component with ABTestingService integration
+  - Status: ✅ Implemented
+
+- **ABTestingDashboard**: Admin interface for viewing test results
+  - Interfaces: `IABTestingDashboard`
+  - Responsibilities: Result visualization, test management, variant performance comparison
+  - Implementation: React component with data visualization
+  - Status: 📅 Planned
+
+- **ConnectionStatus**: Component for displaying online/offline status with queued form counts
+  - Interfaces: `IConnectionStatus`
+  - Responsibilities: Displaying connection state, managing queued submissions UI, providing manual retry options
+  - Implementation: React component with connection monitoring
+  - Status: ✅ Implemented
+
+- **OfflineSubmissionQueue**: System for handling form submissions when offline
+  - Interfaces: `ISubmissionQueue`
+  - Responsibilities: Queue management, persistence, background sync, exponential backoff
+  - Implementation: LocalStorage-based queue with processing system
+  - Status: ✅ Implemented
+
+## Component Interactions
+
+```
+┌─────────────────┐      ┌──────────────────┐      ┌────────────────┐
+│FreeLessonFormController│─────▶│  FormStepManager │─────▶│  FormValidator │
+└─────────────────┘      └──────────────────┘      └────────────────┘
+        │                         │                        │
+        ▼                         ▼                        ▼
+┌─────────────────┐      ┌──────────────────┐      ┌────────────────┐
+│ FormStateManager │◀────▶│NavigationController│    │  FormAPIClient │
+└─────────────────┘      └──────────────────┘      └────────────────┘
+        │                         │                        │
+        │                         │                        │
+        ▼                         ▼                        ▼
+┌─────────────────┐      ┌──────────────────┐      ┌────────────────┐
+│AppointmentAdapter│─────▶│CalendarAPIClient │─────▶│AnalyticsTracker│
+└─────────────────┘      └──────────────────┘      └────────────────┘
+        │                         │                        │
+        │                         │                        │
+        │                ┌──────────────────┐     ┌────────────────┐
+        │                │BookingResponseHandler│─────▶│ABTestingService│
+        │                └──────────────────┘     └────────────────┘
+        │                         │                        │
+        │                         │                        │
+        │                ┌──────────────────┐     ┌────────────────┐
+        └─────────────────▶│UserPreferencesService│  │  Backend APIs  │
+                         └──────────────────┘     └────────────────┘
+                                  │                        ▲
+                                  ▼                        │
+                         ┌──────────────────┐              │
+                         │OfflineSubmissionQueue│──────────┘
+                         └──────────────────┘
+```
+
+## Frontend Testing Architecture
+
+The frontend testing follows a comprehensive approach centered around component and service testing:
+
+### Testing Structure
+
+```
+/frontend/src
+├── components/
+│   ├── Form/
+│   │   ├── FreeLessonFormController.tsx        # Component implementation
+│   │   ├── FreeLessonFormController.test.tsx   # Component test
+│   │   ├── BookingResponseHandler.tsx
+│   │   ├── BookingResponseHandler.test.tsx
+│   │   └── ...
+│   └── ...
+├── services/
+│   ├── api.ts
+│   ├── api.test.ts
+│   ├── userPreferences.ts
+│   ├── userPreferences.test.ts
+│   └── ...
+├── hooks/
+│   ├── useFormStep.ts
+│   ├── useFormStep.test.ts
+│   └── ...
+└── mocks/                               # Testing mocks
+    ├── handlers.ts                      # API request mock handlers
+    └── server.ts                        # Mock server setup
+```
+
+### Testing Approach
+
+1. **Component Testing**:
+   - Tests located alongside component files
+   - Test component rendering, interaction, and state management
+   - Mocked context providers for isolated testing
+   - Data-testid attributes for reliable element selection
+
+2. **Service Testing**:
+   - Tests located alongside service files
+   - Test service functionality with mocked dependencies
+   - Verify data transformation and error handling
+   - Mock external dependencies (LocalStorage, API calls)
+
+3. **Hook Testing**:
+   - Tests located alongside hook files
+   - Use react-hooks-testing-library for hook testing
+   - Verify state updates and side effects
+   - Ensure proper cleanup
+
+4. **Integration Testing**:
+   - Test interaction between multiple components
+   - Verify data flow through contexts and services
+   - Test complete user flows (e.g., form submission process)
+
+### Testing Technologies
+
+- **Jest**: Testing framework and runner
+- **React Testing Library**: Component testing utilities
+- **Testing Library User Event**: User interaction simulation
+- **MSW (Mock Service Worker)**: API mocking
+- **Jest DOM**: DOM testing assertions
+- **React Hooks Testing Library**: Hook testing utilities
+
+### Running Tests
+
+- `npm test`: Run all tests in watch mode
+- `npm run test:coverage`: Generate test coverage report
+- `npm run test:components`: Run component tests only
+- `npm run test:services`: Run service tests only
+- `npm run test:ci`: Run all tests once (for CI/CD pipelines)
+
+### Test Coverage Requirements
+
+The frontend codebase maintains a minimum of 70% test coverage for:
+- Components
+- Services
+- Hooks
+- Context providers
+
+Coverage is measured for:
+- Statements
+- Branches
+- Functions
+- Lines
+
+## Updated Directory Structure
+
+> **IMPORTANT**: The frontend codebase is now exclusively contained in the `/frontend` directory. 
+> All React components previously found in the root `/src` have been removed to avoid duplication.
+
+```
+/frontend
+├── src/
+│   ├── components/
+│   │   ├── Form/
+│   │   │   ├── ModernModalUI.tsx       # ✅ Implemented
+│   │   │   ├── BookingResponseHandler.tsx # ✅ Implemented
+│   │   │   ├── FreeLessonFormController.tsx # ✅ Implemented
+│   │   │   ├── GlobalTrigger.tsx       # ✅ Implemented
+│   │   │   ├── ABTestingVariant.tsx    # ✅ Implemented
+│   │   │   ├── ModalForm.tsx           # ✅ Implemented
+│   │   │   ├── FormStep.tsx            # ✅ Implemented
+│   │   │   ├── AppointmentStep.tsx     # ✅ Implemented
+│   │   │   ├── FormDemo.tsx            # ✅ Implemented and enhanced with preferences
+│   │   │   └── FormFields/             # ✅ Implemented
+│   │   │       ├── TextField.tsx
+│   │   │       ├── SelectField.tsx
+│   │   │       └── DatePicker.tsx
+│   │   ├── Calendar/                   # ✅ Implemented with enhanced mobile responsiveness
+│   │   │   ├── BookingCalendar.tsx
+│   │   │   ├── TimeSlotPicker.tsx
+│   │   │   └── Calendar.scss
+│   │   ├── landing/                    # ✅ Implemented
+│   │   │   ├── LandingPage.tsx         
+│   │   │   ├── FreeClass.tsx           # Replaced with FreeLessonFormController
+│   │   │   └── ...
+│   │   ├── dashboard/
+│   │   ├── common/
+│   │   └── Notifications/
+│   │       ├── Toast.tsx
+│   │       ├── ErrorDisplay.tsx
+│   │       └── SuccessMessage.tsx
+│   ├── contexts/
+│   │   ├── FormContext.tsx             # ✅ Implemented
+│   │   ├── NavigationContext.tsx       # ✅ Implemented
+│   │   └── NotificationContext.tsx     # ✅ Implemented
+│   ├── services/
+│   │   ├── api.ts                      # ✅ Implemented
+│   │   ├── userPreferences.ts          # ✅ Implemented
+│   │   ├── analytics/
+│   │   │   ├── formAnalytics.ts        # ✅ Implemented
+│   │   │   ├── abTesting.ts            # 🔄 In Progress
+│   │   │   └── index.ts
+│   │   └── validation/
+│   │       ├── formValidator.ts        # ✅ Implemented
+│   │       └── validationRules.ts      # ✅ Implemented
+│   ├── hooks/
+│   │   ├── useFormStep.ts              # ✅ Implemented
+│   │   ├── useFormValidation.ts        # ✅ Implemented
+│   │   ├── useABTest.ts                # 🔄 In Progress
+│   │   └── useCalendarData.ts          # ✅ Implemented
+│   ├── utils/
+│   │   ├── formUtils.ts
+│   │   ├── dateUtils.ts
+│   │   └── storageUtils.ts
+│   ├── pages/
+│   │   └── admin/
+│   │       └── ABTestingDashboard.tsx  # 📅 Planned
+│   ├── App.tsx                         # ✅ Updated for global form access
+│   └── index.tsx
+```
+
+## Integration Updates
+
+### Mobile Responsiveness Enhancements
+- **Description**: The Calendar component has been enhanced with comprehensive mobile optimizations to ensure a smooth experience across all device sizes.
+- **Key Updates**:
+  - Added viewport-specific styles for small screens
+  - Implemented larger touch targets for better mobile usability
+  - Added iOS Safari specific fixes for tap highlights and scrolling
+  - Improved layout for landscape orientation on mobile devices
+  - Optimized time slot grid for different screen sizes
+
+### User Preferences Integration
+- **Description**: The system now supports persistent user preferences for form data, with privacy-compliant controls.
+- **Key Components**:
+  - `userPreferences.ts`: Service for managing preferences storage
+  - `FormDemo.tsx`: Updated with opt-in UI and preference integration
+  - Form components: Enhanced to support pre-filling from saved preferences
+- **Integration Points**:
+  - Connected to form submission to save preferences
+  - Added preference loading for form pre-filling
+  - Implemented privacy controls with user opt-in
+  - Added timestamp tracking for preference freshness
+
+### AppointmentStep Integration
+- **Description**: The `AppointmentStep` component has been created as a specialized `FormStep` that integrates the `BookingCalendar` directly.
+- **Key Components**:
+  - `AppointmentStep.tsx`: FormStep wrapper that coordinates calendar selections with form state
+  - `BookingCalendar.tsx`: Calendar UI component with date selection capabilities
+  - `TimeSlotPicker.tsx`: Time slot grid with availability indicators
+- **Integration Points**:
+  - Connected to form context for state management
+  - Automatic step progression on complete selection
+  - API integration for fetching available slots
+
+### FreeLessonFormController Integration
+- **Description**: The `FreeLessonFormController` serves as a centralized controller for all form submissions, using the free training session form as the primary entry point.
+- **Key Components**:
+  - `FreeLessonFormController.tsx`: Main container component with form state management
+  - `ModernModalUI.tsx`: Enhanced modal UI with visual hooks
+  - `BookingResponseHandler.tsx`: Feedback component for booking status
+- **Integration Points**:
+  - Replaces existing FreeClass component in landing page
+  - Provides global form access via GlobalTrigger
+  - Centralizes all booking functionality through a single flow
+
+### A/B Testing Framework Integration
+- **Description**: The A/B testing framework provides the ability to test different form layouts, components, and styles.
+- **Key Components**:
+  - `ABTestingVariant.tsx`: React component for variant-based rendering
+  - `abTesting.ts`: Service for managing variant assignments
+  - `useABTest.ts`: Hook for consuming test variants in components
+- **Integration Points**:
+  - Connected to analytics for tracking variant performance
+  - Provides consistent variant assignment across sessions
+  - Enables controlled experimentation with form elements 

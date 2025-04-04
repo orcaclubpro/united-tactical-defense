@@ -1,51 +1,101 @@
 # United Tactical Defense
 
 ## Overview
-United Tactical Defense is a comprehensive web platform for a reality-based firearms and self-defense training center. The application serves as both a marketing tool and a business management system, designed to showcase our training programs, facilitate lead generation, and streamline appointment scheduling.
+United Tactical Defense is a comprehensive web platform for a reality-based firearms and self-defense training center. The application serves as both a marketing tool and a business management system, designed to showcase training programs, facilitate lead generation, and streamline appointment scheduling.
 
-## Key Features
+## Architecture
 
-### Customer-Facing Features
-- **Interactive Homepage**: Showcases training programs, instructor profiles, and facility highlights
-- **Lead Generation**: Contact forms for potential clients to express interest
-- **Appointment Scheduling**: Easy-to-use system for booking training sessions
-- **Testimonials & Media**: Video testimonials and photo galleries showcasing our facilities and training
-- **Analytics Dashboard**: Track visitor engagement and conversion metrics
+United Tactical Defense follows the clean architecture pattern, which separates concerns into distinct layers:
 
-### Business Management
-- **Lead Management**: Track and manage potential client inquiries
-- **Appointment Management**: Organize and schedule training sessions
-- **Analytics**: Monitor website performance and marketing campaign effectiveness
-- **Content Management**: Update website content and media assets
+### Core Layer
+- Contains domain entities and business rules
+- Defines interfaces for outer layers
+- Has no dependencies on other layers
+- Components include domain models, interfaces, and use cases
 
-## Marketing Strategy
+### Service Layer
+- Contains implementation of business logic
+- Depends only on the Core layer
+- Implements interfaces defined in the Core layer
+- Includes service implementations, business logic operations, and data adapters
 
-### Digital Presence
-- **SEO Optimization**: Built with modern web standards for optimal search engine visibility
-- **Content Marketing**: Rich media content showcasing training programs and facilities
-- **Lead Capture**: Strategic placement of contact forms and call-to-action buttons
-- **Social Proof**: Integration of testimonials and success stories
+### Data Access Layer
+- Contains database and external service access
+- Implements repository interfaces from Core layer
+- Handles data persistence and retrieval
+- Includes repository implementations, data models, and database operations
+- Features connection pooling with automatic failure recovery
 
-### User Experience
-- **Mobile-First Design**: Responsive layout ensuring optimal viewing on all devices
-- **Fast Loading**: Optimized assets and efficient code structure
-- **Clear Navigation**: Intuitive interface guiding users to key information
-- **Engagement Features**: Interactive elements to increase user interaction
+### API Layer
+- Contains HTTP endpoints and controllers
+- Handles request validation and response formatting
+- Depends on Service layer for business logic
+- Includes controllers, middleware, routes, and validators
+
+## Key Components
+
+### Authentication System
+- JWT-based authentication with refresh tokens
+- Role-based authorization
+- User registration and login
+- Secure token management
+
+### Lead Management System
+- Processes and stores lead information
+- Manages lead status and assignment
+- Provides search and filtering capabilities
+- Tracks lead activities and conversion
+
+### Appointment System
+- Handles scheduling, rescheduling, and cancellation
+- Manages availability through time slots
+- Integrates with lead management
+- Prevents double-bookings
+- Sends notifications for upcoming appointments
+
+### Enhanced Form Processing System
+- Multi-step form implementation with validation at each step
+- Integrated booking calendar with real-time availability checking
+- Global form access from anywhere in the application
+- Deep linking support with form pre-filling capabilities
+- Comprehensive form analytics tracking
+- Centralized form submission through FreeLessonFormController
+- Responsive design optimized for all devices
+- Consistent form styling and behavior across the application
+
+### Analytics Engine
+- Tracks user interactions and events
+- Generates reports and insights
+- Identifies trends and patterns
+- Provides dashboard data
+- Form usage analytics with step completion tracking
+- Conversion funnel visualization for form submissions
+
+### Database Connection Management
+- Connection pooling for efficient database access
+- Automatic connection reuse and release
+- Configurable pool size based on load
+- Retry mechanism with exponential backoff
+- Error classification and handling
+- Connection failure recovery
+- Transaction support with automatic rollback
+- Performance monitoring and metrics collection
 
 ## Technical Stack
 
 ### Frontend
-- React.js for dynamic user interface
-- Modern CSS with responsive design
-- Optimized media handling for images and videos
+- React.js with TypeScript
+- Context API for state management
+- Custom hooks for form validation and step navigation
+- Modern responsive CSS with SCSS
 - Progressive Web App capabilities
 
 ### Backend
-- Node.js/Express API server with Clean Architecture pattern
-- SQLite database for data persistence
+- Node.js/Express API server
+- SQLite database with connection pooling
+- JWT authentication
 - RESTful API architecture
-- Secure authentication and data handling
-- Event-driven analytics system
+- Robust error handling and recovery
 
 ## Getting Started
 
@@ -63,247 +113,195 @@ United Tactical Defense is a comprehensive web platform for a reality-based fire
    ```bash
    cp .env.example .env
    ```
-4. Edit the `.env` file to match your environment
+4. Edit the `.env` file with your environment settings
 5. Run database migrations:
    ```bash
    npm run migrate
    ```
 
 ### Running the Application
-To start both frontend and backend in development mode:
+Start the application in development mode:
 ```bash
 npm run dev
 ```
 
-This will start:
-- Backend API server on port 4000
-- Frontend development server on port 3000
+For a simpler development server:
+```bash
+NODE_ENV=development npm run simple
+```
 
 ### Access the application
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:4000/api
 
 ## Available Scripts
-- `npm start`: Start the backend server only
-- `npm run dev`: Start the backend with nodemon (auto-restart on changes)
-- `npm run client`: Start the frontend development server only
+- `npm start`: Start the backend server
+- `npm run dev`: Start backend with nodemon (auto-restart)
+- `npm run simple`: Start the simple server
+- `npm run client`: Start frontend development server
 - `npm run install-all`: Install dependencies for both frontend and backend
-- `npm run build`: Build the frontend for production
+- `npm run build`: Build frontend for production
+- `npm run test`: Run tests
+- `npm run test:coverage`: Run tests with coverage report
 - `npm run migrate`: Run database migrations
 - `npm run migrate:down`: Rollback database migrations
-- `npm test`: Run automated tests
-- `npm run test:coverage`: Run tests with coverage report
+- `npm run test:db-pooling`: Run database connection pooling tests
 
 ## Project Structure
 ```
 united-tactical-defense/
-├── README.md
-├── .env.example          # Example environment variables
-├── .env                  # Environment configuration
-├── package.json
 ├── src/                  # Backend with Clean Architecture pattern
-│   ├── app.js            # Express application setup
-│   ├── server.js         # Server entry point
-│   ├── core/             # Core domain layer (business rules and entities)
+│   ├── core/             # Core domain layer
 │   │   ├── entities/     # Domain models
-│   │   ├── interfaces/   # Interface definitions for outer layers
+│   │   ├── interfaces/   # Interface definitions
+│   │   ├── adapters/     # Interface adapters
 │   │   └── usecases/     # Business logic operations
-│   ├── services/         # Service layer (business logic implementation)
+│   ├── services/         # Service layer
 │   │   ├── auth/         # Authentication services
 │   │   ├── lead/         # Lead management services
 │   │   ├── appointment/  # Appointment scheduling services
-│   │   ├── form/         # Form processing services
-│   │   ├── analytics/    # Analytics services
-│   │   └── event/        # Event system for tracking and notifications
+│   │   └── form/         # Form processing services
 │   ├── data/             # Data access layer
 │   │   ├── models/       # Data models and schemas
 │   │   ├── repositories/ # Data access implementations
 │   │   └── migrations/   # Database migrations
-│   ├── api/              # API layer (controllers and routes)
-│   │   ├── controllers/  # Request handlers 
+│   ├── api/              # API layer
+│   │   ├── controllers/  # Request handlers
 │   │   ├── middleware/   # Express middleware
 │   │   ├── routes/       # API route definitions
 │   │   └── validators/   # Input validation
 │   ├── config/           # Configuration management
+│   │   ├── database.js   # Database configuration with connection pooling
+│   ├── app.js            # Express application setup
+│   ├── server.js         # Main server entry point
+│   ├── simple-server.js  # Simple development server
 │   └── utils/            # Utility functions
-├── tests/                # Automated tests
-│   ├── api/              # API tests
-│   ├── core/             # Core domain tests
-│   ├── data/             # Data layer tests
-│   ├── services/         # Service layer tests
-│   ├── integration/      # End-to-end integration tests
-│   └── utils/            # Test utilities
-├── frontend/             # React frontend (separate codebase)
-│   ├── public/           # Static files
-│   └── src/              # React source code
-└── data/                 # Data storage directory
-    └── unitedDT.db       # SQLite database (created by migrations)
+│       ├── dbErrorHandler.js # Database error handling and retry
+│       ├── dbPerformance.js  # Database performance monitoring
+├── frontend/             # React frontend application
+│   ├── src/              # Frontend source code
+│   │   ├── components/   # React components
+│   │   │   ├── Form/     # Enhanced form components
+│   │   │   │   ├── FreeLessonFormController.tsx # Main form controller
+│   │   │   │   ├── GlobalTrigger.tsx  # Global form access component
+│   │   │   │   ├── ModernModalUI.tsx  # Enhanced modal component
+│   │   │   │   └── ... # Other form components
+│   │   │   ├── Calendar/ # Calendar booking components
+│   │   │   ├── landing/  # Landing page components
+│   │   │   └── ...      # Other component directories
+│   │   ├── contexts/    # React context providers
+│   │   ├── services/    # Frontend services
+│   │   │   ├── api/     # API communication
+│   │   │   ├── analytics/ # Analytics services
+│   │   │   └── validation/ # Form validation
+│   │   ├── hooks/       # Custom React hooks
+│   │   └── utils/       # Utility functions
+│   ├── public/          # Public assets
+│   └── package.json     # Frontend dependencies
+├── tests/                # Test suites
+├── data/                 # Data storage
+├── public/               # Static public files
+└── .env                  # Environment configuration
 ```
 
-## Security & Privacy
-- Secure API endpoints with proper authentication
-- Data encryption for sensitive information
-- Regular security updates and maintenance
-- Compliance with data protection regulations
+## Database Connection Pooling
 
-## Software Architecture
+The application uses a robust database connection pooling system to optimize database access and improve reliability:
 
-### Clean Architecture Overview
-The application follows the clean architecture pattern with distinct layers:
+### Key Features
 
-1. **Core Layer** (Domain)
-   - Contains domain entities and business rules
-   - Defines interfaces for outer layers
-   - Has no dependencies on other layers
+1. **Connection Pooling**: Maintains a pool of database connections for improved performance
+   - Eliminates connection creation overhead
+   - Configurable pool size based on application needs
+   - Automatic connection reuse and efficient management
 
-2. **Service Layer** (Use Cases)
-   - Contains implementation of business logic
-   - Depends only on the Core layer
-   - Implements interfaces defined in the Core layer
+2. **Error Handling and Recovery**:
+   - Automatic retries for failed operations
+   - Error classification for targeted handling
+   - Exponential backoff for optimal retry timing
+   - Stale connection detection and recovery
 
-3. **Data Layer** (Infrastructure)
-   - Contains database and external service access
-   - Implements repository interfaces from Core layer
-   - Handles data persistence and retrieval
+3. **Transaction Support**:
+   - Automatic transaction management
+   - Rollback on errors to maintain data integrity
+   - Simplified transaction API
 
-4. **API Layer** (Interface)
-   - Contains HTTP endpoints and controllers
-   - Handles request validation and response formatting
-   - Depends on Service layer for business logic
+4. **Performance Monitoring**:
+   - Detailed metrics on connection usage
+   - Performance statistics collection
+   - Load testing utilities
 
-### Component Interactions
+### Usage Examples
 
-#### Authentication Flow
-1. Client sends credentials to /api/auth/login
-2. AuthController validates input using validation middleware
-3. AuthService authenticates user via UserRepository
-4. JWT token is generated and returned to client
-5. Subsequent requests use token in Authorization header
-6. AuthMiddleware verifies token and attaches user to request
+**Basic Database Operation with Retry:**
+```javascript
+const { executeWithRetry } = require('./utils/dbErrorHandler');
 
-#### Lead Management Flow
-1. LeadController receives lead creation request
-2. Input is validated by validation middleware
-3. LeadService processes the lead creation
-4. LeadRepository saves to database
-5. Events are published via EventSystem
-
-#### Appointment Scheduling Flow
-1. AppointmentController receives appointment request
-2. Validation middleware validates input
-3. AppointmentService checks availability via Repository
-4. If available, appointment is created via Repository
-5. Confirmation is sent back to client
-6. Lead is updated with appointment information
-
-### Database Schema
-```sql
--- Users Table
-CREATE TABLE users (
-    id INTEGER PRIMARY KEY,
-    email TEXT UNIQUE,
-    password_hash TEXT,
-    role TEXT,
-    created_at DATETIME
-);
-
--- Leads Table
-CREATE TABLE leads (
-    id INTEGER PRIMARY KEY,
-    name TEXT,
-    email TEXT,
-    phone TEXT,
-    status TEXT,
-    source TEXT,
-    created_at DATETIME
-);
-
--- Appointments Table
-CREATE TABLE appointments (
-    id INTEGER PRIMARY KEY,
-    lead_id INTEGER,
-    instructor_id INTEGER,
-    date DATETIME,
-    status TEXT,
-    notes TEXT,
-    FOREIGN KEY (lead_id) REFERENCES leads(id),
-    FOREIGN KEY (instructor_id) REFERENCES users(id)
-);
-
--- Analytics Table
-CREATE TABLE analytics (
-    id INTEGER PRIMARY KEY,
-    event_type TEXT,
-    event_data JSON,
-    created_at DATETIME
-);
+const user = await executeWithRetry(async (connection) => {
+  return new Promise((resolve, reject) => {
+    connection.get('SELECT * FROM users WHERE id = ?', [id], (err, row) => {
+      if (err) return reject(err);
+      resolve(row);
+    });
+  });
+});
 ```
 
-### Security Implementation
-1. **Authentication**
-   - JWT-based authentication with refresh tokens
-   - Password hashing with secure algorithms
-   - Rate limiting on auth endpoints
+**Transaction with Automatic Rollback:**
+```javascript
+const { executeTransaction } = require('./utils/dbErrorHandler');
 
-2. **Data Protection**
-   - Input validation and sanitization
-   - SQL injection prevention
-   - XSS protection
-   - CSRF protection
+const result = await executeTransaction(async (connection) => {
+  return new Promise((resolve, reject) => {
+    // Multiple operations that will automatically rollback on error
+    connection.run('INSERT INTO users (name) VALUES (?)', ['John'], function(err) {
+      if (err) return reject(err);
+      
+      const userId = this.lastID;
+      connection.run('INSERT INTO profiles (user_id) VALUES (?)', [userId], function(err) {
+        if (err) return reject(err);
+        resolve({ success: true, userId });
+      });
+    });
+  });
+});
+```
 
-3. **API Security**
-   - CORS configuration
-   - Security headers
-   - Request sanitization
-   - Role-based access control
+## Form System Architecture
 
-### Development Workflow
-1. **Local Development**
-   ```bash
-   # Start development server
-   npm run dev
-   
-   # Run tests
-   npm test
-   
-   # Run migrations
-   npm run migrate
-   ```
+The newly implemented form system provides a unified approach to form handling across the application:
 
-2. **Environment Configuration**
-   ```env
-   NODE_ENV=development
-   PORT=4000
-   JWT_SECRET=your_jwt_secret
-   DB_PATH=./data/unitedDT.db
-   ```
+### Key Components
 
-3. **Testing Strategy**
-   - Unit tests for business logic
-   - Integration tests for API endpoints
-   - Repository tests for data access
-   - End-to-end tests for critical flows
+1. **FreeLessonFormController**: Central component managing all form interactions
+   - Handles form state and validation
+   - Manages multi-step form navigation
+   - Processes form submission with retry capability
+   - Provides unified booking experience
 
-### Deployment Architecture
-1. **Production Setup**
-   - Node.js production server
-   - Process manager for reliability
-   - Reverse proxy with SSL/TLS
-   - Database backups
+2. **GlobalFormTrigger**: Enables access to forms from anywhere in the application
+   - Context provider for application-wide form state
+   - Trigger buttons with consistent styling
+   - Deep linking support with URL parameter handling
+   - Form pre-filling capabilities
 
-2. **Asset Management**
-   - Static asset optimization
-   - Image compression
-   - Efficient caching
+3. **ModernModalUI**: Enhanced modal experience for form presentation
+   - Animated transitions for improved user engagement
+   - Responsive design for all device sizes
+   - Accessibility features for keyboard navigation
+   - Visual hooks for increased conversion
 
-3. **Monitoring**
-   - Error tracking
-   - Performance monitoring
-   - API usage metrics
-   - User analytics
+4. **BookingResponseHandler**: Comprehensive status notifications
+   - Success confirmations with appointment details
+   - Error handling with actionable next steps
+   - Alternative time suggestions for unavailable slots
+   - Integrated with form analytics for tracking outcomes
 
-## Support & Maintenance
-For technical support or questions about the application, please contact the development team.
+### Form Analytics
 
-## License
-This project is proprietary software and is not licensed for distribution.
+The system includes comprehensive analytics tracking:
+- Step completion rates
+- Form abandonment analysis
+- Field interaction tracking
+- Submission success/failure rates
+- Conversion funnel visualization

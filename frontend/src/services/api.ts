@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { FormData } from '../contexts/FormContext';
 
 // Create an axios instance with default config
 const api = axios.create({
@@ -29,6 +30,15 @@ export interface Appointment {
   type: string;
   status: string;
   notes: string;
+}
+
+export interface TimeSlot {
+  id: string;
+  time: string;
+  date: string;
+  available: boolean;
+  capacity?: number;
+  remaining?: number;
 }
 
 export interface PageVisit {
@@ -120,6 +130,158 @@ export interface OptimizationSuggestion {
   category: string;
 }
 
+// Offline support types
+export interface QueuedFormSubmission {
+  id: string;
+  endpoint: string;
+  formData: any;
+  timestamp: number;
+  retryCount: number;
+  options?: FormSubmissionOptions;
+}
+
+// Constants for offline queue
+const QUEUE_STORAGE_KEY = 'offline_form_submission_queue';
+const MAX_RETRY_COUNT = 5;
+const INITIAL_RETRY_DELAY = 5000; // 5 seconds
+const EXPONENTIAL_BACKOFF_FACTOR = 1.5;
+
+// Check if online
+export const isOnline = (): boolean => {
+  return navigator.onLine;
+};
+
+// Listen for online/offline events
+export const setupConnectionListeners = (
+  onlineCallback?: () => void,
+  offlineCallback?: () => void
+) => {
+  window.addEventListener('online', () => {
+    console.log('Application is online. Processing queued submissions...');
+    if (onlineCallback) {
+      onlineCallback();
+    }
+    processQueuedSubmissions();
+  });
+
+  window.addEventListener('offline', () => {
+    console.log('Application is offline. Submissions will be queued.');
+    if (offlineCallback) {
+      offlineCallback();
+    }
+  });
+};
+
+// Get the submission queue from local storage
+export const getSubmissionQueue = (): QueuedFormSubmission[] => {
+  const queueString = localStorage.getItem(QUEUE_STORAGE_KEY);
+  if (!queueString) {
+    return [];
+  }
+  try {
+    return JSON.parse(queueString);
+  } catch (error) {
+    console.error('Error parsing submission queue:', error);
+    return [];
+  }
+};
+
+// Save the submission queue to local storage
+export const saveSubmissionQueue = (queue: QueuedFormSubmission[]): void => {
+  localStorage.setItem(QUEUE_STORAGE_KEY, JSON.stringify(queue));
+};
+
+// Add a submission to the queue
+export const queueFormSubmission = (
+  endpoint: string,
+  formData: any,
+  options?: FormSubmissionOptions
+): string => {
+  const queue = getSubmissionQueue();
+  const id = `submission_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
+  const submission: QueuedFormSubmission = {
+    id,
+    endpoint,
+    formData,
+    timestamp: Date.now(),
+    retryCount: 0,
+    options
+  };
+  
+  queue.push(submission);
+  saveSubmissionQueue(queue);
+  
+  // Schedule processing if online
+  if (isOnline()) {
+    setTimeout(() => processQueuedSubmissions(), 0);
+  }
+  
+  return id;
+};
+
+// Process all queued submissions
+export const processQueuedSubmissions = async (): Promise<void> => {
+  if (!isOnline()) {
+    console.log('Cannot process queue while offline');
+    return;
+  }
+  
+  const queue = getSubmissionQueue();
+  if (queue.length === 0) {
+    return;
+  }
+  
+  console.log(`Processing ${queue.length} queued submissions`);
+  
+  // Process submissions in order
+  const updatedQueue: QueuedFormSubmission[] = [];
+  
+  for (const submission of queue) {
+    try {
+      // Try to submit
+      await api.post(submission.endpoint, submission.formData);
+      console.log(`Successfully processed queued submission: ${submission.id}`);
+      // Don't add this one back to the queue since it succeeded
+    } catch (error) {
+      // If submission failed, increment retry count
+      const updatedSubmission = {
+        ...submission,
+        retryCount: submission.retryCount + 1
+      };
+      
+      // If under max retries, add back to queue
+      if (updatedSubmission.retryCount < MAX_RETRY_COUNT) {
+        updatedQueue.push(updatedSubmission);
+      } else {
+        console.error(`Submission ${submission.id} has exceeded max retry count and will be dropped`);
+      }
+    }
+  }
+  
+  // Update the queue
+  saveSubmissionQueue(updatedQueue);
+  
+  // Schedule next retry with exponential backoff if there are items left
+  if (updatedQueue.length > 0) {
+    const nextRetryDelay = calculateNextRetryDelay(updatedQueue);
+    setTimeout(() => processQueuedSubmissions(), nextRetryDelay);
+  }
+};
+
+// Calculate retry delay using exponential backoff
+const calculateNextRetryDelay = (queue: QueuedFormSubmission[]): number => {
+  // Find the submission with the highest retry count
+  const maxRetryCount = Math.max(...queue.map(sub => sub.retryCount));
+  // Calculate delay with exponential backoff
+  return INITIAL_RETRY_DELAY * Math.pow(EXPONENTIAL_BACKOFF_FACTOR, maxRetryCount);
+};
+
+// Clear the submission queue
+export const clearSubmissionQueue = (): void => {
+  localStorage.removeItem(QUEUE_STORAGE_KEY);
+};
+
 // Lead APIs
 export const getLeads = async () => {
   return await api.get('/leads');
@@ -160,6 +322,19 @@ export const updateAppointment = async (id: string, appointment: Partial<Appoint
 
 export const deleteAppointment = async (id: string) => {
   return await api.delete(`/appointments/${id}`);
+};
+
+// Time Slot APIs
+export const getAvailableTimeSlots = async (date: string, program: string) => {
+  return await api.get(`/timeslots?date=${date}&program=${program}`);
+};
+
+export const reserveTimeSlot = async (timeSlotId: string, leadId: string) => {
+  return await api.post(`/timeslots/${timeSlotId}/reserve`, { lead_id: leadId });
+};
+
+export const releaseTimeSlot = async (timeSlotId: string, leadId: string) => {
+  return await api.post(`/timeslots/${timeSlotId}/release`, { lead_id: leadId });
 };
 
 // Analytics APIs - Original
@@ -230,86 +405,231 @@ export const getOptimizationSuggestions = async (startDate: string, endDate: str
   return response.data;
 };
 
-// Form Handling
+// Form APIs
 export const processForm = async (formData: any) => {
-  return await api.post('/forms/submit', formData);
+  return await api.post('/forms/process', formData);
 };
 
-// Legacy form handlers
 export const submitAssessmentForm = async (formData: any) => {
-  return await api.post('/form/assessment', formData);
+  return await api.post('/forms/assessment', formData);
 };
 
 export const submitFreeClassForm = async (formData: any) => {
-  return await api.post('/form/free-class', formData);
+  return await api.post('/forms/free-class', formData);
 };
 
 export const submitContactForm = async (formData: any) => {
-  return await api.post('/form/contact', formData);
+  return await api.post('/forms/contact', formData);
 };
 
-/**
- * Get metrics reports by report type
- * @param reportType - 'daily', 'weekly', 'monthly', or 'realtime'
- * @param limit - Maximum number of records to return
- * @returns Report data
- */
-export const getMetricsByReportType = async (reportType: string, limit: number = 30) => {
-  try {
-    const response = await api.get(`/analytics/metrics?reportType=${reportType}&limit=${limit}`);
-    return response.data.data;
-  } catch (error) {
-    console.error('Error fetching metrics by report type:', error);
-    return [];
-  }
+// Enhanced form submission with retries
+const defaultSubmissionOptions = {
+  retryCount: 2,
+  retryDelay: 2000,
+  trackProgress: true
 };
 
-/**
- * Get latest metric by report type
- * @param reportType - 'daily', 'weekly', 'monthly', or 'realtime'
- * @returns Latest report data
- */
-export const getLatestMetricByReportType = async (reportType: string) => {
-  try {
-    const response = await api.get(`/analytics/metrics/${reportType}/latest`);
-    return response.data.data;
-  } catch (error) {
-    console.error(`Error fetching latest ${reportType} metric:`, error);
-    return null;
-  }
-};
+export interface FormSubmissionOptions {
+  retryCount?: number;
+  retryDelay?: number; // ms
+  trackProgress?: boolean;
+}
 
-/**
- * Get latest traffic sources
- * @param reportType - Optional: 'daily', 'weekly', or 'monthly'
- * @returns Traffic sources data
- */
-export const getLatestTrafficSources = async (reportType?: string) => {
-  try {
-    const url = reportType 
-      ? `/analytics/traffic-sources/latest?reportType=${reportType}`
-      : '/analytics/traffic-sources/latest';
+export interface FormSubmissionResult {
+  success: boolean;
+  data?: any;
+  error?: Error | string;
+  attempts?: number;
+}
+
+export interface FormSubmissionProgress {
+  status: 'idle' | 'submitting' | 'success' | 'error' | 'retrying';
+  progress: number; // 0-100
+  currentAttempt: number;
+  maxAttempts: number;
+  error?: Error | string;
+}
+
+// Form submission with offline support
+export const submitFormWithRetry = async (
+  endpoint: string,
+  formData: any,
+  options: FormSubmissionOptions = defaultSubmissionOptions,
+  progressCallback?: (progress: FormSubmissionProgress) => void
+): Promise<FormSubmissionResult> => {
+  const { retryCount = 3, retryDelay = 2000, trackProgress = true } = options;
+  
+  // If offline, queue the submission and return a "pending" result
+  if (!isOnline()) {
+    const submissionId = queueFormSubmission(endpoint, formData, options);
     
-    const response = await api.get(url);
-    return response.data.data;
-  } catch (error) {
-    console.error('Error fetching latest traffic sources:', error);
-    return { sources: [] };
+    if (progressCallback) {
+      progressCallback({
+        status: 'submitting',
+        progress: 100,
+        currentAttempt: 1,
+        maxAttempts: 1,
+        error: 'Device is offline, submission has been queued'
+      });
+    }
+    
+    return {
+      success: false,
+      data: { queued: true, submissionId },
+      error: 'Device is offline, submission has been queued'
+    };
   }
+
+  // Regular submission flow for online state
+  const updateProgress = (status: FormSubmissionProgress['status'], progress: number, error?: Error | string) => {
+    if (trackProgress && progressCallback) {
+      progressCallback({
+        status,
+        progress,
+        currentAttempt: attempt,
+        maxAttempts: retryCount + 1,
+        error
+      });
+    }
+  };
+
+  let attempt = 1;
+  let lastError: Error | string | undefined;
+
+  while (attempt <= retryCount + 1) {
+    try {
+      updateProgress('submitting', 50);
+      
+      const response = await api.post(endpoint, formData);
+      
+      updateProgress('success', 100);
+      
+      return {
+        success: true,
+        data: response.data,
+        attempts: attempt
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      lastError = errorMessage;
+      
+      if (attempt > retryCount) {
+        // No more retry attempts
+        updateProgress('error', 100, errorMessage);
+        break;
+      }
+      
+      // Prepare for retry
+      updateProgress('retrying', (attempt / (retryCount + 1)) * 100, errorMessage);
+      
+      // Wait before retry
+      await new Promise(resolve => setTimeout(resolve, retryDelay));
+      attempt++;
+    }
+  }
+
+  // If all retries failed and we're online, queue the submission for later
+  const submissionId = queueFormSubmission(endpoint, formData, options);
+  
+  return {
+    success: false,
+    error: lastError,
+    attempts: attempt,
+    data: { queued: true, submissionId }
+  };
 };
 
-/**
- * Get conversion rate trend
- * @param period - 'daily', 'weekly', or 'monthly'
- * @returns Conversion rate trend data
- */
+// Main form submission function that determines endpoint based on form type
+export const submitForm = async (
+  formType: 'free-class' | 'assessment' | 'contact' | string,
+  formData: any,
+  options?: FormSubmissionOptions,
+  progressCallback?: (progress: FormSubmissionProgress) => void
+): Promise<FormSubmissionResult> => {
+  // Determine the appropriate endpoint based on form type
+  let endpoint = '/forms/';
+  
+  switch (formType) {
+    case 'free-class':
+      endpoint += 'free-class';
+      break;
+    case 'assessment':
+      endpoint += 'assessment';
+      break;
+    case 'contact':
+      endpoint += 'contact';
+      break;
+    default:
+      endpoint += formType;
+  }
+  
+  // Call the retry function with the determined endpoint
+  return submitFormWithRetry(endpoint, formData, options, progressCallback);
+};
+
+// Analytics reporting APIs
+export const getMetricsByReportType = async (reportType: string, limit: number = 30) => {
+  const response = await api.get(`/analytics/metrics/${reportType}`, {
+    params: { limit }
+  });
+  
+  if (response.status !== 200) {
+    throw new Error(`Failed to fetch ${reportType} metrics`);
+  }
+  
+  return response.data;
+};
+
+// Get the latest metric for a specific report type
+export const getLatestMetricByReportType = async (reportType: string) => {
+  const response = await api.get(`/analytics/metrics/${reportType}/latest`);
+  
+  if (response.status !== 200) {
+    throw new Error(`Failed to fetch latest ${reportType} metric`);
+  }
+  
+  return response.data;
+};
+
+// Get the latest traffic sources with optional filtering
+export const getLatestTrafficSources = async (reportType?: string) => {
+  const params: any = {};
+  
+  if (reportType) {
+    params.reportType = reportType;
+  }
+  
+  const response = await api.get('/analytics/traffic-sources/latest', {
+    params
+  });
+  
+  if (response.status !== 200) {
+    throw new Error('Failed to fetch latest traffic sources');
+  }
+  
+  return response.data;
+};
+
+// Get conversion rate trend data
 export const getConversionRateTrend = async (period: string = 'daily') => {
-  try {
-    const response = await api.get(`/analytics/conversion-rate-trend?period=${period}`);
-    return response.data.data;
-  } catch (error) {
-    console.error('Error fetching conversion rate trend:', error);
-    return [];
+  const response = await api.get('/analytics/conversion-trend', {
+    params: { period }
+  });
+  
+  if (response.status !== 200) {
+    throw new Error(`Failed to fetch conversion trend data`);
+  }
+  
+  return response.data;
+};
+
+// API configuration for enhanced endpoints
+const API_CONFIG = {
+  baseUrl: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
+  endpoints: {
+    bookLesson: '/bookings/free-lesson',
+    checkAvailability: '/availability/check',
+    submitContact: '/contact/submit'
   }
 };
 

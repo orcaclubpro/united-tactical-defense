@@ -1,0 +1,425 @@
+# Knowledge Base: United Tactical Defense Frontend Integration
+
+## Architectural Decisions
+
+### Form State Management
+- **Decision**: Use React Context API with custom hooks for form state management
+- **Alternatives Considered**: Redux, Formik, React Hook Form
+- **Rationale**: Context API provides sufficient state management with less overhead; custom hooks allow for more flexible component composition
+- **Decided**: During project initialization
+
+### Component Structure
+- **Decision**: Create a composable form system with container and presentational components
+- **Alternatives Considered**: All-in-one form components, third-party form libraries
+- **Rationale**: Separation of concerns improves maintainability and allows for easier testing and feature extension
+- **Decided**: During architecture planning
+
+### API Integration
+- **Decision**: Create adapter pattern for backend API integration
+- **Alternatives Considered**: Direct API calls from components
+- **Rationale**: Adapters provide better separation between frontend and backend, allowing for easier mocking and future API changes
+- **Decided**: During architecture planning
+
+### Form Validation
+- **Decision**: Implement custom validation hook with schema-based validation
+- **Alternatives Considered**: Formik validation, Yup, Zod
+- **Rationale**: Custom validation provides more control over error messages and validation timing
+- **Decided**: During architecture planning
+
+## Development Patterns
+
+### Component Development Pattern
+```jsx
+// Container Component Pattern
+import React, { useState, useEffect } from 'react';
+import { useFormContext } from '../../contexts/FormContext';
+import { useSomeHook } from '../../hooks/useSomeHook';
+
+export const ContainerComponent = ({ prop1, prop2, children }) => {
+  // 1. Hook into contexts
+  const { someContextValue, someContextMethod } = useFormContext();
+  
+  // 2. Set up local state
+  const [localState, setLocalState] = useState(initialValue);
+  
+  // 3. Set up custom hooks
+  const { hookData, hookMethod } = useSomeHook(dependencies);
+  
+  // 4. Define handlers
+  const handleSomething = () => {
+    // Implementation
+  };
+  
+  // 5. Side effects
+  useEffect(() => {
+    // Side effect implementation
+    
+    return () => {
+      // Cleanup
+    };
+  }, [dependencies]);
+  
+  // 6. Return component JSX
+  return (
+    <div className="container-component">
+      {/* Component implementation */}
+    </div>
+  );
+};
+```
+
+### Form Step Pattern
+```jsx
+// Form Step Pattern
+import React from 'react';
+import { useFormStep } from '../../hooks/useFormStep';
+import { useFormValidation } from '../../hooks/useFormValidation';
+
+export const FormStep = ({ stepId, onNext, onPrevious, children }) => {
+  const { isActive, goToNext, goToPrevious } = useFormStep(stepId);
+  const { validateStep, errors } = useFormValidation(stepId);
+  
+  const handleNext = async () => {
+    const isValid = await validateStep();
+    if (isValid) {
+      onNext?.();
+      goToNext();
+    }
+  };
+  
+  if (!isActive) return null;
+  
+  return (
+    <div className="form-step">
+      {children}
+      
+      <div className="form-step-controls">
+        <button onClick={goToPrevious} disabled={!onPrevious}>
+          Previous
+        </button>
+        
+        <button onClick={handleNext}>
+          Next
+        </button>
+      </div>
+      
+      {errors.length > 0 && (
+        <div className="form-step-errors">
+          {errors.map(error => (
+            <div key={error.field} className="error-message">
+              {error.message}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+```
+
+## Common Challenges and Solutions
+
+### Challenge: Form State Persistence
+**Solution**: Implement auto-save to localStorage/sessionStorage on form changes
+
+```jsx
+// In FormContext.jsx
+useEffect(() => {
+  if (formState.isDirty) {
+    sessionStorage.setItem('formData', JSON.stringify(formState.data));
+  }
+}, [formState.data, formState.isDirty]);
+
+// On initial load
+useEffect(() => {
+  const savedData = sessionStorage.getItem('formData');
+  if (savedData) {
+    try {
+      const parsedData = JSON.parse(savedData);
+      setFormState(prev => ({
+        ...prev,
+        data: { ...prev.data, ...parsedData },
+        isHydrated: true
+      }));
+    } catch (e) {
+      console.error('Error hydrating form data', e);
+    }
+  }
+}, []);
+```
+
+### Challenge: API Error Handling
+**Solution**: Implement centralized error handling with user-friendly messages
+
+```jsx
+// In apiClient.js
+const handleApiError = (error) => {
+  if (error.response) {
+    // Server responded with error
+    const { status, data } = error.response;
+    
+    switch (status) {
+      case 400:
+        return {
+          type: 'validation',
+          message: 'Please check your information and try again',
+          details: data.errors || []
+        };
+      case 401:
+      case 403:
+        return {
+          type: 'authorization',
+          message: 'You are not authorized to perform this action',
+          details: []
+        };
+      case 500:
+      default:
+        return {
+          type: 'server',
+          message: 'Something went wrong. Please try again later',
+          details: process.env.NODE_ENV === 'development' ? [error.message] : []
+        };
+    }
+  }
+  
+  if (error.request) {
+    // Request made but no response received
+    return {
+      type: 'network',
+      message: 'Network error. Please check your connection and try again',
+      details: process.env.NODE_ENV === 'development' ? [error.message] : []
+    };
+  }
+  
+  // Error setting up request
+  return {
+    type: 'unknown',
+    message: 'An unexpected error occurred',
+    details: process.env.NODE_ENV === 'development' ? [error.message] : []
+  };
+};
+```
+
+## Testing Strategies
+
+### Component Testing
+```jsx
+// Example test for ModalFormContainer
+import { render, screen, fireEvent } from '@testing-library/react';
+import { FormProvider } from '../../contexts/FormContext';
+import { ModalFormContainer } from './ModalFormContainer';
+
+describe('ModalFormContainer', () => {
+  const setup = (props = {}) => {
+    return render(
+      <FormProvider>
+        <ModalFormContainer {...props} />
+      </FormProvider>
+    );
+  };
+  
+  test('renders first step by default', () => {
+    setup();
+    expect(screen.getByTestId('form-step-1')).toBeInTheDocument();
+  });
+  
+  test('navigates to next step when Next is clicked', () => {
+    setup();
+    fireEvent.click(screen.getByText('Next'));
+    expect(screen.getByTestId('form-step-2')).toBeInTheDocument();
+  });
+  
+  test('validates fields before proceeding to next step', () => {
+    setup();
+    // Trigger next without filling required fields
+    fireEvent.click(screen.getByText('Next'));
+    expect(screen.getByText('This field is required')).toBeInTheDocument();
+    expect(screen.getByTestId('form-step-1')).toBeInTheDocument();
+  });
+});
+```
+
+## Global Form System Integration
+
+### Step 1: Update App.tsx with GlobalFormProvider
+
+To enable site-wide access to the centralized form system, update the main App.tsx file to include the GlobalFormProvider:
+
+```tsx
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { LandingPage } from './components/landing';
+import Dashboard from './components/dashboard';
+import FormDemo from './components/Form/FormDemo';
+import { GlobalFormProvider } from './components/Form/GlobalTrigger';
+import './App.scss';
+
+function App() {
+  return (
+    <GlobalFormProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/form-demo" element={<FormDemo />} />
+        </Routes>
+      </BrowserRouter>
+    </GlobalFormProvider>
+  );
+}
+
+export default App;
+```
+
+### Step 2: Integrate GlobalFormTrigger in Navigation Components
+
+Replace existing "Book Free Class" buttons with the GlobalFormTrigger component:
+
+```tsx
+import React from 'react';
+import GlobalFormTrigger, { useGlobalForm } from './components/Form/GlobalTrigger';
+
+const Navigation: React.FC = () => {
+  return (
+    <nav className="main-navigation">
+      {/* ... other navigation items ... */}
+      <GlobalFormTrigger 
+        buttonText="Book Free Class"
+        buttonVariant="primary"
+        buttonSize="md"
+      />
+    </nav>
+  );
+};
+
+export default Navigation;
+```
+
+### Step 3: Replace FreeClass Implementation in LandingPage
+
+Update the LandingPage.tsx to use the GlobalFormTrigger instead of the legacy FreeClass component:
+
+```tsx
+import React, { useEffect } from 'react';
+import Header from './Header';
+import Hero from './Hero';
+import TrustBadges from './TrustBadges';
+import AssessmentForm from './AssessmentForm';
+import VideoSection from './VideoSection';
+import Testimonials from './Testimonials';
+import Programs from './Programs';
+import Instructors from './Instructors';
+import TrainingPath from './TrainingPath';
+import Pricing from './Pricing';
+import FAQ from './FAQ';
+// import FreeClass from './FreeClass'; // Remove this import
+import GlobalFormTrigger, { useGlobalForm } from '../Form/GlobalTrigger'; // Add this import
+import Location from './Location';
+import CallToAction from './CallToAction';
+import Footer from '../common/Footer';
+import { trackPageVisit } from '../../services/api';
+import './LandingPage.scss';
+
+const LandingPage: React.FC = () => {
+  // ...existing tracking code...
+
+  // Replace FreeClass component with custom section using GlobalFormTrigger
+  const FreeClassSection = () => (
+    <section id="free-class" className="free-class-section">
+      <div className="container">
+        <div className="free-class-content">
+          <div className="content-text">
+            <h2>Experience Our Training Firsthand</h2>
+            <p className="lead">Claim your complimentary training session to see if our approach is right for you</p>
+            
+            <div className="benefits">
+              <h3>What to Expect in Your Free Class:</h3>
+              <ul>
+                <li>Personal introduction to our training methodology</li>
+                <li>Hands-on experience with proper techniques</li>
+                <li>Assessment of your current skill level</li>
+                <li>Personalized training recommendations</li>
+                <li>Tour of our state-of-the-art facilities</li>
+              </ul>
+            </div>
+            
+            <div className="cta-button">
+              <GlobalFormTrigger 
+                buttonText="Schedule Your Free Class"
+                buttonVariant="primary"
+                buttonSize="lg"
+              />
+            </div>
+          </div>
+          
+          <div className="content-image">
+            <img src={placeholderImages.trainingSession} alt="Training session" />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+
+  return (
+    <div className="landing-page">
+      <Header />
+      <Hero />
+      <TrustBadges />
+      <VideoSection />
+      <AssessmentForm />
+      <Testimonials />
+      <Programs />
+      <Instructors />
+      <TrainingPath />
+      <Pricing />
+      <FAQ />
+      <FreeClassSection /> {/* Replace <FreeClass /> with this */}
+      <CallToAction />
+      <Location />
+      <Footer />
+    </div>
+  );
+};
+
+export default LandingPage;
+```
+
+### Step 4: Accessing the Form Programmatically
+
+You can trigger the form from any component using the useGlobalForm hook:
+
+```tsx
+import React from 'react';
+import { useGlobalForm } from '../Form/GlobalTrigger';
+
+const SomeComponent: React.FC = () => {
+  const { openForm } = useGlobalForm();
+
+  const handleSpecialPromotion = () => {
+    // Open form with pre-filled data
+    openForm('free-class', {
+      program: 'tactical-training',
+      utmSource: 'special-promotion'
+    });
+  };
+
+  return (
+    <div>
+      {/* ... component content ... */}
+      <button onClick={handleSpecialPromotion}>
+        Claim Special Offer
+      </button>
+    </div>
+  );
+};
+```
+
+### Step 5: Testing Deep Links
+
+You can test the deep linking functionality by adding query parameters to your URL:
+
+```
+https://yourdomain.com/?openForm=free-class&firstName=John&lastName=Doe&program=tactical-training
+```
+
+This will automatically open the form and pre-fill the fields with the provided values.

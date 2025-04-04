@@ -1,0 +1,56 @@
+Continue developing United Tactical Defense Frontend Integration using the current development state and continue implementation according to the framework guidelines below.
+
+## System Context
+- Current phase: 1/4 (Core Form Integration)
+- Phase focus: ModalFormContainer with multi-step support
+- Development approach: Modular, testable, maintainable, and responsive
+- Project structure: `/frontend/` contains all frontend code, `/src/` is strictly for backend code
+
+## Project Files
+The following files define the project and its current state:
+- .devflow: Development phases and tasks with deliverables
+- .architecture: Current system design and component integration
+- .changelog: Work completed, high priority tasks, and unsolved problems
+
+## Development Instructions
+1. **Identify Current Status**: Based on the changelog, we're in Phase 1 (Core Form Integration), implementing the ModalFormContainer with a focus on multi-step form support and state management.
+   
+2. **HIGH PRIORITY Implementation**: Focus on implementing Phase 1, specifically:
+   - Create the ModalFormContainer component with step management
+   - Implement form context for state persistence across steps
+   - Develop step navigation with progress indicators
+   
+3. **Technical Implementation**:
+   - Develop modular components with clear separation of concerns
+   - Follow interface-based design for extensibility
+   - Ensure code adheres to responsive design requirements
+   - Implement with testability and maintainability in mind
+
+4. **Update Documentation and context**:
+   - Update the HIGH PRIORITY section with the next immediate task
+   - List completed work with brief descriptions
+   - Prioritize next steps with integration context
+   - Document unsolved problems, prioritizing any blocking issues
+
+5. **Architecture Updates**:
+   - Update the .architecture file to reflect any structural changes
+   - Ensure component interactions are properly documented
+
+6. **Testing and Verification**:
+   - Test the implementation against Phase 1 deliverable requirements
+   - Verify responsive design on multiple device sizes
+
+7. **Continuous Improvement**:
+   - Identify and implement architectural improvements
+
+## Current Focus Area
+### In Progress
+- 🔄 Offline form submission support implementation
+
+Respond with:
+1. A brief analysis of the current development state
+2. Implementation of the ModalFormContainer with multi-step support
+3. Updated changelog entries
+4. Any architecture updates
+5. Test verification approach
+6. Suggestions for improvement

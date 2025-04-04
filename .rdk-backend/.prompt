@@ -31,6 +31,7 @@ The following files define the project and its current state:
 
 5. **Architecture Updates**:
    - Update the .architecture file to reflect any structural changes
+   - also update readme to amend changed to full architecture of app
    - Ensure component interactions are properly documented
 
 6. **Testing and Verification**:
@@ -41,7 +42,7 @@ The following files define the project and its current state:
    - Identify and implement architectural improvements
 
 ## Current Focus Area
-- Working directory: /src/api, /src/services, /src/data
+- Working directory: frontend/
 - Key files: API controllers, service interfaces, data repositories
 - Integration points: Layer interfaces, middleware pipeline, configuration system
 - Specific challenges: Ensuring proper separation of concerns while maintaining efficient data flow

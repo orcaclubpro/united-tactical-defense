@@ -5,6 +5,7 @@
 const initializeApp = require('./app');
 const config = require('./config/app');
 const { closeDatabase } = require('./config/database');
+const { closeRedisClient } = require('./config/redis');
 
 // Port to listen on
 const PORT = process.env.PORT || config.port;
@@ -27,6 +28,12 @@ const startServer = async () => {
       // Close database connection
       await closeDatabase();
       console.log('Database connection closed');
+      
+      // Close Redis connections if enabled
+      if (config.redisEnabled) {
+        await closeRedisClient();
+        console.log('Redis connection closed');
+      }
       
       // Close server
       server.close(() => {

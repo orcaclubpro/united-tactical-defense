@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import GlobalFormTrigger from '../Form/GlobalTrigger';
 import { placeholderImages } from '../../utils/placeholderImages';
 import './CallToAction.scss';
 
@@ -15,9 +16,13 @@ const CallToAction: React.FC = () => {
             and enthusiasts committed to the highest standards of training and preparedness.
           </p>
           <div className="cta-buttons">
-            <Link to="/assessment" className="btn btn-primary btn-lg">
-              Start Your Assessment
-            </Link>
+            <GlobalFormTrigger 
+              buttonText="Book Your Free Class" 
+              buttonVariant="primary" 
+              buttonSize="lg" 
+              className="cta-primary"
+              formType="free-class"
+            />
             <Link to="/programs" className="btn btn-outline btn-lg">
               Explore Programs
             </Link>

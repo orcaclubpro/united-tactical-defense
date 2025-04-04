@@ -25,6 +25,20 @@ const environments = {
     serveStaticFiles: true,
     analyticsEnabled: true,
     sessionTimeout: 30, // minutes
+    redisEnabled: process.env.REDIS_ENABLED === 'true',
+    redisUrl: process.env.REDIS_URL || 'redis://localhost:6379',
+    rateLimiting: {
+      enabled: true,
+      defaultLimit: 1000, // requests per windowMs
+      authLimit: 100,     // for auth endpoints
+      apiLimit: 500,      // for API endpoints
+      windowMs: 60 * 1000 // 1 minute window
+    },
+    caching: {
+      enabled: true,
+      defaultTtl: 60, // seconds
+      longTtl: 3600   // 1 hour
+    }
   },
   
   test: {
@@ -39,6 +53,13 @@ const environments = {
     serveStaticFiles: false,
     analyticsEnabled: false,
     sessionTimeout: 5, // minutes
+    redisEnabled: false,
+    rateLimiting: {
+      enabled: false
+    },
+    caching: {
+      enabled: false
+    }
   },
   
   production: {
@@ -57,6 +78,32 @@ const environments = {
     sessionTimeout: process.env.SESSION_TIMEOUT 
       ? parseInt(process.env.SESSION_TIMEOUT, 10) 
       : 30, // minutes
+    redisEnabled: process.env.REDIS_ENABLED === 'true',
+    redisUrl: process.env.REDIS_URL,
+    rateLimiting: {
+      enabled: process.env.RATE_LIMITING_ENABLED !== 'false',
+      defaultLimit: process.env.RATE_LIMIT_DEFAULT 
+        ? parseInt(process.env.RATE_LIMIT_DEFAULT, 10) 
+        : 500, // requests per windowMs
+      authLimit: process.env.RATE_LIMIT_AUTH
+        ? parseInt(process.env.RATE_LIMIT_AUTH, 10)
+        : 50, // for auth endpoints
+      apiLimit: process.env.RATE_LIMIT_API
+        ? parseInt(process.env.RATE_LIMIT_API, 10)
+        : 300, // for API endpoints
+      windowMs: process.env.RATE_LIMIT_WINDOW_MS
+        ? parseInt(process.env.RATE_LIMIT_WINDOW_MS, 10)
+        : 60 * 1000 // 1 minute window
+    },
+    caching: {
+      enabled: process.env.CACHING_ENABLED !== 'false',
+      defaultTtl: process.env.CACHE_DEFAULT_TTL
+        ? parseInt(process.env.CACHE_DEFAULT_TTL, 10)
+        : 60, // seconds
+      longTtl: process.env.CACHE_LONG_TTL
+        ? parseInt(process.env.CACHE_LONG_TTL, 10)
+        : 3600 // 1 hour
+    }
   }
 };
 
@@ -72,7 +119,10 @@ const features = {
   smsNotifications: process.env.FEATURE_SMS_NOTIFICATIONS === 'true',
   autoLeadAssignment: process.env.FEATURE_AUTO_LEAD_ASSIGNMENT === 'true',
   advancedAnalytics: process.env.FEATURE_ADVANCED_ANALYTICS === 'true',
-  calendarIntegration: process.env.FEATURE_CALENDAR_INTEGRATION === 'true'
+  calendarIntegration: process.env.FEATURE_CALENDAR_INTEGRATION === 'true',
+  distributedRateLimiting: process.env.FEATURE_DISTRIBUTED_RATE_LIMITING === 'true',
+  responseCompression: process.env.FEATURE_RESPONSE_COMPRESSION === 'true',
+  metricCollection: process.env.FEATURE_METRIC_COLLECTION === 'true'
 };
 
 // Final configuration with feature flags
@@ -119,6 +169,14 @@ if (currentEnv === 'production') {
   if (features.smsNotifications && 
       (!process.env.SMS_ACCOUNT_SID || !process.env.SMS_AUTH_TOKEN)) {
     console.error('WARNING: SMS notifications enabled but credentials not configured!');
+  }
+  
+  if (config.redisEnabled && !config.redisUrl) {
+    console.error('WARNING: Redis enabled but REDIS_URL not configured!');
+  }
+  
+  if (features.distributedRateLimiting && !config.redisEnabled) {
+    console.error('WARNING: Distributed rate limiting enabled but Redis is not configured!');
   }
 }
 

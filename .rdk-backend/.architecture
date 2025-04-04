@@ -1,8 +1,17 @@
 # System Architecture
 
+## Project Structure Overview
+
+The United Tactical Defense system follows a clear separation of frontend and backend:
+
+- **Frontend**: All React UI components and frontend logic are contained exclusively in the `/frontend` directory
+- **Backend**: All server-side code is contained in the root `/src` directory
+
+This separation ensures clean separation of concerns and avoids code duplication.
+
 ## Clean Architecture Overview
 
-The United Tactical Defense system follows the clean architecture pattern, which consists of the following layers:
+The backend system follows the clean architecture pattern, which consists of the following layers:
 
 ### Core Layer
 - Contains domain entities and business rules
@@ -43,29 +52,66 @@ The United Tactical Defense system follows the clean architecture pattern, which
   - Validators: Validate input data
 
 ## Directory Structure
-/src
-/core
-/entities       # Domain models
-/interfaces     # Contracts for repositories and services
-/adapters      # Interfaces for data adapters
-/usecases       # Business logic operations
-/api
-/controllers    # API endpoint controllers
-/middleware     # Request processing middleware
-/validators     # Input validation modules
-/routes         # Route definitions
-/services
-/auth           # Authentication services
-/lead           # Lead management services
-/appointment    # Appointment scheduling services
-/form           # Form processing services
-  /adapters     # Form data format adapters
-/data
-/models         # Data models and schemas
-/repositories   # Data access repositories
-/migrations     # Database migration scripts
-/config           # Configuration management
-/utils            # Utility functions and helpers
+/src                    # Root backend directory
+  /core
+    /entities           # Domain models
+    /interfaces         # Contracts for repositories and services
+    /adapters           # Interfaces for data adapters
+    /usecases           # Business logic operations
+  /api
+    /controllers        # API endpoint controllers
+    /middleware         # Request processing middleware
+    /validators         # Input validation modules
+    /routes             # Route definitions
+  /services
+    /auth               # Authentication services
+    /lead               # Lead management services
+    /appointment        # Appointment scheduling services
+    /form               # Form processing services
+      /adapters         # Form data format adapters
+  /data
+    /models             # Data models and schemas
+    /repositories       # Data access repositories
+    /migrations         # Database migration scripts
+  /config               # Configuration management
+  /utils                # Utility functions and helpers
+  server.js             # Main server entry point
+  app.js                # Express application setup
+
+/frontend               # Root frontend directory
+  /src                  # Frontend source code (React)
+  /public               # Static assets
+  /build                # Production build output
+  package.json          # Frontend dependencies
+
+## Testing Structure
+
+The backend testing follows a multi-layered approach that maps to the architecture layers:
+
+/tests                  # Root tests directory
+  /api                  # API layer tests
+    /controllers        # Controller tests
+    /middleware         # Middleware tests
+    /routes             # Route tests
+    auth.test.js        # Authentication API tests
+    appointment.test.js # Appointment API tests
+  /services             # Service layer tests
+    /auth               # Auth service tests
+    /lead               # Lead service tests
+    /appointment        # Appointment service tests
+    formService.test.js # Form service tests
+  /core                 # Core layer tests
+    /entities           # Entity tests
+    /usecases           # Use case tests
+  /data                 # Data layer tests
+    /repositories       # Repository tests
+  /utils                # Utility tests
+  /integration          # Integration tests across layers
+    booking-flow.test.js # Booking flow integration test
+  /performance          # Performance and load tests
+    api-load-test.js    # API load testing
+  /e2e                  # End-to-end tests
+    selenium.test.js    # Browser automation tests
 
 ## Component Interactions
 
@@ -108,6 +154,16 @@ The United Tactical Defense system follows the clean architecture pattern, which
 5. If configured, data is forwarded to external systems
 6. Processing result is returned to client
 
+### Rate Limiting and Caching Flow
+1. Request arrives at server and passes through global rate limiter
+2. If limit is exceeded, 429 Too Many Requests response is returned
+3. Request continues to endpoint-specific rate limiters
+4. If endpoint has caching enabled, cache is checked for existing response
+5. If cache hit, response is returned immediately
+6. If cache miss, request is processed normally
+7. Response is cached for future requests based on configuration
+8. Rate limit headers are included in response
+
 ## Core Components
 
 ### Authentication System
@@ -146,6 +202,20 @@ The United Tactical Defense system follows the clean architecture pattern, which
 - Identifies trends and patterns
 - Provides dashboard data
 
+### Rate Limiting System
+- Protects against abuse and DoS attacks
+- Configurable limits by endpoint
+- Supports distributed rate limiting
+- Provides rate limit information in headers
+- Configurable window sizes and limits
+
+### Caching System
+- Improves response time for frequent requests
+- Supports in-memory and Redis caching
+- Configurable TTL by endpoint
+- Includes cache headers
+- Provides cache invalidation mechanisms
+
 ## Middleware Components
 
 ### Authentication Middleware
@@ -171,6 +241,20 @@ The United Tactical Defense system follows the clean architecture pattern, which
 - Sanitizes input to prevent security issues
 - Provides detailed validation error messages
 - Supports custom validation rules for business logic
+
+### Rate Limiting Middleware
+- Limits request rates to prevent abuse
+- Supports different strategies (IP, user, endpoint)
+- Configurable limits and window sizes
+- Works with Redis for distributed deployments
+- Adds rate limit headers to responses
+
+### Caching Middleware
+- Caches API responses to improve performance
+- Configurable by HTTP method, path, and status code
+- Supports different TTLs for different endpoints
+- Can use Redis for distributed caching
+- Adds cache headers to responses
 
 ## Authentication System
 
@@ -211,3 +295,41 @@ The United Tactical Defense system follows the clean architecture pattern, which
 - AuthService: Provides authentication business logic
 - AuthController: Handles HTTP requests for authentication
 - AuthMiddleware: Verifies tokens and secures protected routes
+
+## Testing Approach
+
+### Testing Strategy
+The backend follows a comprehensive testing strategy with multiple layers:
+
+1. **Unit Tests**: Test individual functions and methods
+   - Located alongside the code they test
+   - Focus on isolated behavior with mocked dependencies
+
+2. **Integration Tests**: Test interactions between components
+   - Located in /tests/integration
+   - Test flows that span multiple services or layers
+
+3. **API Tests**: Verify API endpoints function correctly
+   - Located in /tests/api
+   - Verify request/response behavior with mocked services
+
+4. **Performance Tests**: Assess system behavior under load
+   - Located in /tests/performance
+   - Measure throughput, latency, and error rates
+
+### Test Technologies
+- **Mocha**: Test runner for all backend tests
+- **Chai**: Assertion library for expressive assertions
+- **Sinon**: Mocking library for isolating components
+- **Chai-HTTP**: HTTP testing utilities for API tests
+- **Autocannon**: Load testing library for performance tests
+- **Selenium WebDriver**: Browser automation for end-to-end tests
+
+### Running Tests
+- `npm test`: Run all tests
+- `npm run test:api`: Run API tests only
+- `npm run test:services`: Run service tests only
+- `npm run test:integration`: Run integration tests only
+- `npm run test:performance`: Run performance tests
+- `npm run test:coverage`: Generate test coverage report
+- `npm run test:runner`: Run custom test runner with summary
