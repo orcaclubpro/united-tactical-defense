@@ -10,6 +10,12 @@ interface FAQItem {
 
 const faqItems: FAQItem[] = [
   {
+    id: 0,
+    question: "Are there any real firearms at the training center?",
+    answer: "No, we are a dry facility. We do not use real firearms in any of our training programs. All equipment used for training is specifically designed for tactical simulation without the use of live ammunition.",
+    category: "General"
+  },
+  {
     id: 1,
     question: "Do I need any experience with firearms to take classes?",
     answer: "No, our training programs are designed for all experience levels. We offer classes specifically for beginners with no prior experience, where safety and fundamentals are thoroughly covered before advancing to practical skills.",

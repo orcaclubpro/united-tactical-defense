@@ -23,6 +23,7 @@ import {
   getLatestTrafficSources,
   getConversionRateTrend
 } from '../../services/api';
+import useAnalytics from '../../utils/useAnalytics';
 import './Dashboard.scss';
 
 type ReportType = 'realtime' | 'daily' | 'weekly' | 'monthly';
@@ -59,6 +60,9 @@ interface MetricsSnapshot {
 }
 
 const Dashboard: React.FC = () => {
+  // Use our custom analytics hook
+  const { getTrafficSource } = useAnalytics();
+  
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [dateRange, setDateRange] = useState<DateRange>({
     startDate: (() => {
@@ -211,13 +215,48 @@ const Dashboard: React.FC = () => {
   
   const fetchTrafficSources = useCallback(async () => {
     try {
-      // Get latest traffic sources with optional report type
+      // First try to get data from GA4 if in production
+      if (process.env.NODE_ENV === 'production' && reportType === 'realtime') {
+        // Get traffic source from localStorage (set by our GA4 tracking)
+        const gaTrafficSource = getTrafficSource();
+        console.info('Retrieved traffic source from GA4:', gaTrafficSource);
+        
+        // If we have GA4 data, try to incorporate it with our API data
+        if (gaTrafficSource && gaTrafficSource.source) {
+          // Still get the API data as a baseline
+          const sourcesData = await getLatestTrafficSources(reportType !== 'realtime' ? reportType : undefined);
+          
+          // Find if the GA4 source already exists in our API data
+          const existingSourceIndex = sourcesData.sources.findIndex(
+            source => source.source.toLowerCase() === gaTrafficSource.source.toLowerCase()
+          );
+          
+          if (existingSourceIndex >= 0) {
+            // Increment the existing source
+            sourcesData.sources[existingSourceIndex].visits += 1;
+          } else {
+            // Add the new source
+            sourcesData.sources.push({
+              source: gaTrafficSource.source,
+              visits: 1
+            });
+          }
+          
+          // Sort by visits (descending)
+          sourcesData.sources.sort((a, b) => b.visits - a.visits);
+          
+          setTrafficSources(sourcesData.sources);
+          return;
+        }
+      }
+      
+      // Fallback to API data if GA4 data is not available
       const sourcesData = await getLatestTrafficSources(reportType !== 'realtime' ? reportType : undefined);
       setTrafficSources(sourcesData.sources);
     } catch (error) {
       console.error('Error fetching traffic sources:', error);
     }
-  }, [dateRange.startDate, dateRange.endDate]);
+  }, [dateRange.startDate, dateRange.endDate, reportType]);
   
   const fetchConversionRateTrend = useCallback(async () => {
     try {

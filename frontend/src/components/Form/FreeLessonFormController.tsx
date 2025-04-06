@@ -3,11 +3,12 @@ import ModernModalUI from './ModernModalUI';
 import styled from 'styled-components';
 import UDTCalendar from '../Calendar/UDTCalendar';
 import { submitFreeClassForm } from '../../services/api';
+import useAnalytics from '../../utils/useAnalytics';
 
 interface FreeLessonFormControllerProps {
   isOpen?: boolean;
   onClose?: () => void;
-  initialData?: FormData;
+  initialData?: Partial<FormData>;
   formSource?: string;
 }
 
@@ -319,6 +320,9 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
   initialData = {},
   formSource = 'website'
 }) => {
+  // Use our custom analytics hook
+  const { trackForm } = useAnalytics();
+  
   const [isOpen, setIsOpen] = useState(propIsOpen);
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>({
@@ -486,7 +490,15 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
       };
       
       // Submit data to API
-      await submitFreeClassForm(formattedData);
+      const response = await submitFreeClassForm(formattedData);
+      
+      // Track conversion in Google Analytics 4 using our custom hook
+      trackForm('free_lesson', {
+        id: response.data?.appointmentId || `form_${Date.now()}`,
+        source: formData.source || 'website',
+        experience: formData.experience,
+        appointmentDate: formData.appointmentDate
+      });
       
       // Success state
       setSubmissionSuccess(true);
@@ -502,16 +514,7 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
   const renderContactInfoStep = () => (
     <FormWrapper className="calendar-styled-form">
       <StepHeading>Personal Information</StepHeading>
-      <StepDescription>Please provide your contact details so we can confirm your appointment.</StepDescription>
-      
-      <FreeClassInfo>
-        <h4>About Your Free Class</h4>
-        <ul>
-          <li>45-minute personalized tactical defense session</li>
-          <li>Experienced instructor will assess your current skills</li>
-          <li>No experience required - all skill levels welcome</li>
-        </ul>
-      </FreeClassInfo>
+      <StepDescription>Please provide your contact details for your 90-minute free session.</StepDescription>
       
       <FormGrid>
         <FormField>
@@ -541,31 +544,33 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
         </FormField>
       </FormGrid>
       
-      <FormField>
-        <label htmlFor="email">Email Address</label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          value={formData.email}
-          onChange={handleInputChange}
-          placeholder="Your email address"
-        />
-        {errors.email && <div className="error-message">{errors.email}</div>}
-      </FormField>
-      
-      <FormField>
-        <label htmlFor="phone">Phone Number</label>
-        <input
-          type="tel"
-          id="phone"
-          name="phone"
-          value={formData.phone}
-          onChange={handleInputChange}
-          placeholder="Your phone number"
-        />
-        {errors.phone && <div className="error-message">{errors.phone}</div>}
-      </FormField>
+      <FormGrid>
+        <FormField>
+          <label htmlFor="email">Email Address</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleInputChange}
+            placeholder="Your email address"
+          />
+          {errors.email && <div className="error-message">{errors.email}</div>}
+        </FormField>
+        
+        <FormField>
+          <label htmlFor="phone">Phone Number</label>
+          <input
+            type="tel"
+            id="phone"
+            name="phone"
+            value={formData.phone}
+            onChange={handleInputChange}
+            placeholder="Your phone number"
+          />
+          {errors.phone && <div className="error-message">{errors.phone}</div>}
+        </FormField>
+      </FormGrid>
       
       <FormField>
         <label htmlFor="experience">Prior Experience</label>
@@ -590,7 +595,7 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
     <>
       <StepHeading>Schedule Your Free Class</StepHeading>
       <StepDescription>
-        Select a date and time for your complimentary tactical defense class.
+        Select a date and time for your complimentary 90-minute tactical defense class.
       </StepDescription>
       
       <div className="udt-calendar">
@@ -605,71 +610,117 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
     </>
   );
 
-  const renderConfirmationStep = () => (
-    <FormWrapper className="calendar-styled-form">
-      <StepHeading>Confirm Your Appointment</StepHeading>
-      <StepDescription>
-        Please review and confirm your appointment details below.
-      </StepDescription>
+  const renderConfirmationStep = () => {
+    // Calculate end time (90 minutes after start time)
+    const calculateEndTime = (startTime: string) => {
+      if (!startTime) return '';
       
-      <ConfirmationDetails>
-        <div className="detail-row">
-          <div className="label">Name:</div>
-          <div className="value">{`${formData.firstName} ${formData.lastName}`}</div>
-        </div>
-        <div className="detail-row">
-          <div className="label">Email:</div>
-          <div className="value">{formData.email}</div>
-        </div>
-        <div className="detail-row">
-          <div className="label">Phone:</div>
-          <div className="value">{formData.phone}</div>
-        </div>
-        <div className="detail-row">
-          <div className="label">Date:</div>
-          <div className="value">
-            {formData.appointmentDate ? 
-              formData.appointmentDate.toLocaleDateString('en-US', { 
-                weekday: 'long',
-                month: 'long', 
-                day: 'numeric'
-              }) : 'Not selected'}
+      const [hours, minutes] = startTime.split(':').map(part => parseInt(part));
+      let endHours = hours;
+      let endMinutes = minutes + 90;
+      
+      if (endMinutes >= 60) {
+        endHours += Math.floor(endMinutes / 60);
+        endMinutes = endMinutes % 60;
+      }
+      
+      // Handle day wrap
+      if (endHours >= 24) {
+        endHours = endHours % 24;
+      }
+      
+      // Format with leading zeros
+      const formattedEndHours = endHours.toString().padStart(2, '0');
+      const formattedEndMinutes = endMinutes.toString().padStart(2, '0');
+      
+      return `${formattedEndHours}:${formattedEndMinutes}`;
+    };
+    
+    // Format time display
+    const getTimeDisplay = () => {
+      if (!formData.appointmentTime) return 'Not selected';
+      
+      // Extract hours and minutes from the time string (format: "HH:MM")
+      const startTime = formData.appointmentTime;
+      const endTime = calculateEndTime(startTime);
+      
+      // Convert to 12-hour format for display
+      const formatTimeDisplay = (timeStr: string) => {
+        const [hours, minutes] = timeStr.split(':').map(part => parseInt(part));
+        const period = hours >= 12 ? 'PM' : 'AM';
+        const displayHours = hours % 12 || 12; // Convert 0 to 12
+        return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+      };
+      
+      return `${formatTimeDisplay(startTime)} - ${formatTimeDisplay(endTime)} (90 minutes)`;
+    };
+
+    return (
+      <FormWrapper className="calendar-styled-form">
+        <StepHeading>Confirm Your Appointment</StepHeading>
+        <StepDescription>
+          Please review and confirm your appointment details below.
+        </StepDescription>
+        
+        <ConfirmationDetails>
+          <div className="detail-row">
+            <div className="label">Name:</div>
+            <div className="value">{`${formData.firstName} ${formData.lastName}`}</div>
           </div>
-        </div>
-        <div className="detail-row">
-          <div className="label">Time:</div>
-          <div className="value">{formData.appointmentTime}</div>
-        </div>
-        <div className="detail-row">
-          <div className="label">Experience:</div>
-          <div className="value">{formData.experience}</div>
-        </div>
-      </ConfirmationDetails>
-      
-      <FreeClassInfo>
-        <h4>What to Expect</h4>
-        <ul>
-          <li>Arrive 10 minutes before your scheduled time</li>
-          <li>Wear comfortable clothing you can move in</li>
-          <li>Bring a water bottle and a positive attitude</li>
-          <li>We'll send you an email confirmation with facility details</li>
-        </ul>
-      </FreeClassInfo>
-      
-      {submissionError && (
-        <ErrorMessage>
-          There was an error submitting your form. Please try again or contact us directly.
-        </ErrorMessage>
-      )}
-    </FormWrapper>
-  );
+          <div className="detail-row">
+            <div className="label">Email:</div>
+            <div className="value">{formData.email}</div>
+          </div>
+          <div className="detail-row">
+            <div className="label">Phone:</div>
+            <div className="value">{formData.phone}</div>
+          </div>
+          <div className="detail-row">
+            <div className="label">Date:</div>
+            <div className="value">
+              {formData.appointmentDate ? 
+                formData.appointmentDate.toLocaleDateString('en-US', { 
+                  weekday: 'long',
+                  month: 'long', 
+                  day: 'numeric'
+                }) : 'Not selected'}
+            </div>
+          </div>
+          <div className="detail-row">
+            <div className="label">Time:</div>
+            <div className="value">{getTimeDisplay()}</div>
+          </div>
+          <div className="detail-row">
+            <div className="label">Experience:</div>
+            <div className="value">{formData.experience}</div>
+          </div>
+        </ConfirmationDetails>
+        
+        <FreeClassInfo>
+          <h4>What to Expect</h4>
+          <ul>
+            <li>Your session will be 90 minutes of personalized training</li>
+            <li>Arrive 10 minutes before your scheduled time</li>
+            <li>Wear comfortable clothing you can move in</li>
+            <li>Bring a water bottle and a positive attitude</li>
+          </ul>
+        </FreeClassInfo>
+        
+        {submissionError && (
+          <ErrorMessage>
+            There was an error submitting your form. Please try again or contact us directly.
+          </ErrorMessage>
+        )}
+      </FormWrapper>
+    );
+  };
 
   const renderSuccessMessage = () => (
     <SuccessContainer className="calendar-styled-success">
       <div className="success-icon">✓</div>
       <h3>Appointment Confirmed!</h3>
       <p>
-        Your tactical defense class has been scheduled. We've sent a confirmation
+        Your 90-minute tactical defense class has been scheduled. We've sent a confirmation
         email to {formData.email} with all the details.
       </p>
       <p className="next-steps">

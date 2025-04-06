@@ -68,10 +68,20 @@ const Header: React.FC = () => {
     setIsMenuOpen(false);
   };
 
+  const scrollToSection = (sectionId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    closeMenu();
+    
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <header className={`site-header ${isScrolled ? 'scrolled' : ''} ${isVisible ? 'visible' : 'hidden'}`}>
       <div className="container">
-        <a href="#" className="logo" onClick={closeMenu}>UNITED DEFENSE TACTICAL</a>
+        <a href="#" className="logo" onClick={(e) => scrollToSection('hero', e)}>UNITED DEFENSE TACTICAL</a>
         <nav className="main-nav">
           <button 
             className={`mobile-menu-toggle ${isMenuOpen ? 'open' : ''}`} 
@@ -88,13 +98,12 @@ const Header: React.FC = () => {
             onClick={closeMenu}
           ></div>
           <ul className={`nav-links ${isMenuOpen ? 'active' : ''}`}>
-            <li><a href="#programs" onClick={closeMenu}>Programs</a></li>
-            <li><a href="#instructors" onClick={closeMenu}>Instructors</a></li>
-            <li><a href="#pricing" onClick={closeMenu}>Membership</a></li>
-            <li><a href="#faq" onClick={closeMenu}>FAQ</a></li>
-            <li><a href="#location" onClick={closeMenu}>Location</a></li>
-            <li><a href="#contact" onClick={closeMenu}>Contact</a></li>
-            <li><Link to="/dashboard" className="dashboard-link" onClick={closeMenu}>Dashboard</Link></li>
+            <li><a href="#programs" onClick={(e) => scrollToSection('programs', e)}>Programs</a></li>
+            <li><a href="#instructors" onClick={(e) => scrollToSection('instructors', e)}>Instructors</a></li>
+            <li><a href="#training-packages" onClick={(e) => scrollToSection('training-packages', e)}>Packages</a></li>
+            <li><a href="#faq" onClick={(e) => scrollToSection('faq', e)}>FAQ</a></li>
+            <li><a href="#location" onClick={(e) => scrollToSection('location', e)}>Location</a></li>
+            <li><a href="#location" onClick={(e) => scrollToSection('location', e)}>Contact</a></li>
           </ul>
         </nav>
         <div className="contact-info">

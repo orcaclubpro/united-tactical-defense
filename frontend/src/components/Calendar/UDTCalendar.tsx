@@ -384,7 +384,7 @@ const UDTCalendar: React.FC<UDTCalendarProps> = ({
         <TrainingInfo>
           <div>
             <CalendarIcon />
-            <span>45 minutes</span>
+            <span>90 minutes</span>
           </div>
           <div>
             <TargetIcon />

@@ -26,14 +26,14 @@ const AssessmentForm: React.FC = () => {
     goal: '',
     interests: [],
     frequency: '',
-    name: '',
+    name: 'Anonymous User',
     email: '',
     phone: ''
   });
   const [recommendation, setRecommendation] = useState<Recommendation | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [showResults, setShowResults] = useState<boolean>(false);
-  const totalSteps = 5;
+  const totalSteps = 4;
 
   // Update progress bar when step changes
   useEffect(() => {
@@ -121,8 +121,6 @@ const AssessmentForm: React.FC = () => {
         return formData.interests.length > 0;
       case 4:
         return !!formData.frequency;
-      case 5:
-        return !!formData.name && !!formData.email && !!formData.phone;
       default:
         return true;
     }
@@ -142,6 +140,9 @@ const AssessmentForm: React.FC = () => {
 
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
+    } else if (currentStep === totalSteps) {
+      // Submit directly after the last question
+      submitAssessment();
     }
   };
 
@@ -194,17 +195,18 @@ const AssessmentForm: React.FC = () => {
       const rec = generateRecommendation(formData);
       setRecommendation(rec);
 
-      // Submit to backend
+      // Set showResults to true to display the results
+      setShowResults(true);
+      
+      // Submit to backend with anonymized data if no contact info provided
       await submitAssessmentForm({
         ...formData,
         recommendedProgram: rec.programName
       });
-
-      // Show results
-      setShowResults(true);
+      
     } catch (error) {
       console.error('Error submitting assessment:', error);
-      alert('There was an error submitting your information. Please try again.');
+      alert('There was an error processing your assessment. Please try again later.');
     } finally {
       setIsSubmitting(false);
     }
@@ -244,7 +246,6 @@ const AssessmentForm: React.FC = () => {
               <span className="step" data-step="2">2</span>
               <span className="step" data-step="3">3</span>
               <span className="step" data-step="4">4</span>
-              <span className="step" data-step="5">5</span>
             </div>
           </div>
 
@@ -322,7 +323,7 @@ const AssessmentForm: React.FC = () => {
 
             {/* Step 3: Tactical Response Knowledge - New OODA Loop Question */}
             <div className={`question-step ${currentStep === 3 ? 'active' : ''}`} data-step="3">
-              <h3>How to throw off the threats OODA Loop?</h3>
+              <h3>What tactical skills are you most interested in developing?</h3>
               <div className="answer-options">
                 <label className={`answer-option ${formData.interests.includes('assess') ? 'selected' : ''}`} onClick={handleOptionClick}>
                   <input type="checkbox" name="interests" value="assess" />
@@ -404,50 +405,6 @@ const AssessmentForm: React.FC = () => {
               </div>
             </div>
 
-            {/* Step 5: Contact information */}
-            <div className={`question-step ${currentStep === 5 ? 'active' : ''}`} data-step="5">
-              <h3>Get your personalized training recommendation</h3>
-              <p className="contact-intro">Enter your information to receive your custom recommendation and a free class offer</p>
-              <div className="contact-form">
-                <div className="form-group">
-                  <label htmlFor="name">Your Name</label>
-                  <input 
-                    type="text" 
-                    id="name" 
-                    name="name" 
-                    placeholder="Enter your name" 
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required 
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="email">Email</label>
-                  <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    placeholder="Enter your email" 
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required 
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="phone">Phone Number</label>
-                  <input 
-                    type="tel" 
-                    id="phone" 
-                    name="phone" 
-                    placeholder="(123) 456-7890" 
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    required 
-                  />
-                </div>
-              </div>
-            </div>
-
             {/* Results step (shown after submission) */}
             <div className={`question-step results-step ${showResults ? 'active' : ''}`} data-step="results">
               {recommendation && (
@@ -457,16 +414,13 @@ const AssessmentForm: React.FC = () => {
                     <p>Based on your responses, we recommend:</p>
                   </div>
                   <div className="recommended-program">
-                    <h4>{recommendation.programName}</h4>
+                    <h4>{recommendation.programName === 'Advanced' ? 'Core+' : 'Core'} Training Package</h4>
                     <p>{recommendation.description}</p>
                     <ul className="program-features">
                       {recommendation.features.map((feature, index) => (
                         <li key={index}>{feature}</li>
                       ))}
                     </ul>
-                    <div className="program-price">
-                      <span>{recommendation.price}</span>
-                    </div>
                   </div>
                   <div className="results-cta">
                     <p>Ready to experience training that's tailored to your needs?</p>
@@ -493,24 +447,13 @@ const AssessmentForm: React.FC = () => {
               PREVIOUS
             </button>
             {!showResults && (
-              currentStep < totalSteps ? (
-                <button 
-                  className="btn btn-primary" 
-                  id="next-question" 
-                  onClick={goToNextStep}
-                >
-                  NEXT
-                </button>
-              ) : (
-                <button 
-                  className="btn btn-primary" 
-                  id="submit-assessment" 
-                  onClick={submitAssessment}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'SUBMITTING...' : 'GET MY RECOMMENDATION'}
-                </button>
-              )
+              <button 
+                className="btn btn-primary" 
+                id="next-question" 
+                onClick={goToNextStep}
+              >
+                {currentStep === totalSteps ? 'GET RECOMMENDATION' : 'NEXT'}
+              </button>
             )}
           </div>
         </div>

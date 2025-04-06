@@ -1,0 +1,38 @@
+#launch plan udt website
+
+OBJECTIVE: PREP WEBSITE TO LAUNCH TONIGHT
+
+PHASE 1: fix WEBSITE
+	- fix stuff kyle wanted
+	- fix free class in hero section opens modal
+	- view programs jumps to training programs section
+	- header buttons jump to right place on the page and change membership to packages THEY ARE NOT JUMPING PROPERLY
+	- learn more buttons pops up modal
+	- fix trust badges to make it look more like the website
+	- training showcase at the top of "tactical training in action" it's on the side
+	- programs learn more button should pop up modal
+	- change how to throw off the ooda loop question make it something more understandable
+	- assesment shouuld recommend training package (core, or core+) and have a button "Schedule your free class" which will bring up the modal DO NOT INCLUDE PRICE
+	- assesment should skip the name entering form and go straight to recommendation
+	- train with our experts button should pop up modal and remove view full profile 
+	- polish our training programs section
+	- view schedule button should bring to experience our training first hand section
+	- the view programs button doesn't jump to the programs section on the first click, it takes two clicks
+	- change start your assesment to "take the assesment" and jump back to the aassesement panel
+	- change memberships to training packages
+	- claim free class should pop up modal
+	-make sure packages jump to the right place in the header
+	- explore programs should jump back to training programs
+	- frsit question in faq should be if there are any real firearems at the trianing center - no we are a dry facility
+	-contact us should jump to conact section
+
+
+	-polish modal make it feel more premium and fix scaling so that we don't have to scroll this implementation should be clean
+	- make it so user can scroll through the instructor description after they flip the card
+	-view schedule jumps up to the top of the webpage but i want it to jump to experience our training firsthand
+	- contact us should send email to anaheimhills@uniteddefensetactical.com
+	- polish our footer section so it looks cleaner, we don't need the little circles under the logo
+	- adress possible scaling issues and have site be dynamic so it always looks good regarldless of the screen size
+
+Make this application deployable on vercel the i need the frontend and backend to start so the applicaiton works as needed
+

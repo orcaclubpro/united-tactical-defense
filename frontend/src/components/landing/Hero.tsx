@@ -45,6 +45,13 @@ const Hero: React.FC = () => {
     }
   }, []);
 
+  const openFreeClassModal = () => {
+    const openModalButton = document.getElementById('open-free-class-modal');
+    if (openModalButton) {
+      openModalButton.click();
+    }
+  };
+
   return (
     <section className="hero">
       <div className="hero-video-container" ref={videoContainerRef}></div>
@@ -58,8 +65,15 @@ const Hero: React.FC = () => {
             <li>Empower: We empower everyday people with the skills to protect themselves and others—strength through preparation.</li>
           </ul>
           <div className="cta-buttons">
-            <a href="#free-class" className="btn btn-red btn-lg">BOOK FREE CLASS</a>
-            <a href="#programs" className="btn btn-secondary">VIEW PROGRAMS</a>
+            <button onClick={openFreeClassModal} className="btn btn-red btn-lg">BOOK FREE CLASS</button>
+            <a 
+              href="#programs" 
+              className="btn btn-secondary"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('programs')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >VIEW PROGRAMS</a>
           </div>
         </div>
         <div className="hero-logo">

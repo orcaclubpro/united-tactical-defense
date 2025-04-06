@@ -26,7 +26,7 @@ const slideUp = keyframes`
 
 const pulse = keyframes`
   0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  50% { transform: scale(1.02); }
   100% { transform: scale(1); }
 `;
 
@@ -37,7 +37,7 @@ const ModalBackdrop = styled.div<{ isOpen: boolean }>`
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.85);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -45,28 +45,33 @@ const ModalBackdrop = styled.div<{ isOpen: boolean }>`
   opacity: ${props => props.isOpen ? 1 : 0};
   visibility: ${props => props.isOpen ? 'visible' : 'hidden'};
   transition: opacity 0.3s ease, visibility 0.3s ease;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(8px);
   animation: ${props => props.isOpen ? fadeIn : 'none'} 0.3s ease forwards;
 `;
 
 const ModalContainer = styled.div<{ isOpen: boolean; darkMode?: boolean }>`
   background-color: ${props => props.darkMode ? '#1e1f21' : 'white'};
-  border-radius: 12px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-  width: 95%;
-  max-width: 600px;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  width: 90%;
+  max-width: 650px;
   display: flex;
   flex-direction: column;
   max-height: 85vh;
   position: relative;
   animation: ${props => props.isOpen ? slideUp : 'none'} 0.4s ease forwards;
   overflow: hidden;
-  border: ${props => props.darkMode ? '1px solid #333' : 'none'};
+  border: ${props => props.darkMode ? '1px solid rgba(255, 255, 255, 0.08)' : 'none'};
+  
+  @media (max-width: 768px) {
+    width: 95%;
+    max-height: 80vh;
+  }
 `;
 
 const ModalHeader = styled.div<{ darkMode?: boolean }>`
-  padding: 20px 24px;
-  border-bottom: 1px solid ${props => props.darkMode ? '#333' : '#f0f0f0'};
+  padding: 22px 28px;
+  border-bottom: 1px solid ${props => props.darkMode ? 'rgba(255, 255, 255, 0.08)' : '#f0f0f0'};
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -85,9 +90,10 @@ const ModalHeader = styled.div<{ darkMode?: boolean }>`
   
   h2 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     font-weight: 600;
-    color: ${props => props.darkMode ? '#e0e0e0' : '#1a1a1a'};
+    color: ${props => props.darkMode ? '#ffffff' : '#1a1a1a'};
+    letter-spacing: -0.5px;
   }
 `;
 
@@ -95,8 +101,9 @@ const CloseButton = styled.button<{ darkMode?: boolean }>`
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 1.25rem;
-  padding: 8px;
+  font-size: 1.4rem;
+  width: 36px;
+  height: 36px;
   color: ${props => props.darkMode ? '#999' : '#666'};
   border-radius: 50%;
   display: flex;
@@ -105,17 +112,18 @@ const CloseButton = styled.button<{ darkMode?: boolean }>`
   transition: all 0.2s ease;
   
   &:hover {
-    background-color: ${props => props.darkMode ? '#333' : '#f5f5f5'};
+    background-color: ${props => props.darkMode ? 'rgba(255, 255, 255, 0.1)' : '#f5f5f5'};
     color: ${props => props.darkMode ? '#fff' : '#333'};
   }
 `;
 
 const ModalContentWrapper = styled.div`
   overflow-y: auto;
-  max-height: calc(85vh - 130px); /* Adjust based on header and potential footer */
+  max-height: calc(85vh - 145px); /* Adjust based on header and potential footer */
+  padding: 10px 5px;
   
   &::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
   }
   
   &::-webkit-scrollbar-track {
@@ -124,24 +132,36 @@ const ModalContentWrapper = styled.div`
   
   &::-webkit-scrollbar-thumb {
     background: rgba(128, 128, 128, 0.5);
-    border-radius: 4px;
+    border-radius: 3px;
   }
   
   &::-webkit-scrollbar-thumb:hover {
     background: rgba(128, 128, 128, 0.7);
   }
+  
+  @media (max-width: 768px) {
+    max-height: calc(80vh - 145px);
+  }
 `;
 
 const ModalBody = styled.div<{ darkMode?: boolean }>`
-  padding: 24px;
-  background-color: ${props => props.darkMode ? '#1e1f21' : 'white'};
-  color: ${props => props.darkMode ? '#e0e0e0' : 'inherit'};
+  padding: 10px 25px 25px;
+  color: ${props => props.darkMode ? '#e1e1e1' : '#333'};
+  
+  h2, h3 {
+    color: ${props => props.darkMode ? '#ffffff' : '#222'};
+    margin-top: 0;
+  }
 `;
 
 const ModalFooter = styled.div<{ darkMode?: boolean }>`
-  padding: 16px 24px;
-  border-top: 1px solid ${props => props.darkMode ? '#333' : '#f0f0f0'};
-  background-color: ${props => props.darkMode ? '#2c2d30' : '#f8f8f8'};
+  padding: 18px 28px;
+  border-top: 1px solid ${props => props.darkMode ? 'rgba(255, 255, 255, 0.08)' : '#f0f0f0'};
+  background-color: ${props => props.darkMode ? '#252628' : '#f8f8f8'};
+  
+  @media (max-width: 768px) {
+    padding: 16px 20px;
+  }
 `;
 
 const HookBanner = styled.div<{ darkMode?: boolean }>`
@@ -149,12 +169,15 @@ const HookBanner = styled.div<{ darkMode?: boolean }>`
     ? 'linear-gradient(135deg, #b71c1c, #880e0e)' 
     : 'linear-gradient(135deg, #007bff, #0056b3)'};
   color: white;
-  padding: 12px 24px;
+  padding: 14px 28px;
   text-align: center;
   font-weight: 500;
-  animation: ${pulse} 2s infinite ease-in-out;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
+  animation: ${pulse} 3s infinite ease-in-out;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  letter-spacing: 0.3px;
+  font-size: 1.05rem;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
 `;
 
 /**

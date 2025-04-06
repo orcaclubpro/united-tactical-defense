@@ -52,22 +52,27 @@
   
   .social-icons {
     display: flex;
-    gap: 1rem;
+    gap: 15px;
+    margin-top: 15px;
     
     a {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 40px;
-      height: 40px;
-      background-color: rgba(255, 255, 255, 0.1);
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      color: var(--white);
+      background-color: rgba(255, 255, 255, 0.1);
       transition: all 0.3s ease;
       
       &:hover {
-        background-color: var(--primary-color);
-        transform: translateY(-3px);
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+      }
+      
+      .social-icon {
+        width: 24px;
+        height: 24px;
       }
     }
   }

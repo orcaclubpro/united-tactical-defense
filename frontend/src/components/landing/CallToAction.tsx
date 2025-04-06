@@ -4,6 +4,11 @@ import heroImage from '../../assets/images/hero.jpg';
 import './CallToAction.scss';
 
 const CallToAction: React.FC = () => {
+  const scrollToPrograms = (e: React.MouseEvent) => {
+    e.preventDefault();
+    document.getElementById('programs')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <section id="cta" className="cta-section" style={{ backgroundImage: `url(${heroImage})` }}>
       <div className="cta-overlay"></div>
@@ -15,12 +20,12 @@ const CallToAction: React.FC = () => {
             and enthusiasts committed to the highest standards of training and preparedness.
           </p>
           <div className="cta-buttons">
-            <Link to="/assessment" className="btn btn-primary btn-lg">
-              Start Your Assessment
-            </Link>
-            <Link to="/programs" className="btn btn-outline btn-lg">
+            <a href="#assessment" className="btn btn-primary btn-lg">
+              Take the Assessment
+            </a>
+            <a href="#programs" className="btn btn-outline btn-lg" onClick={scrollToPrograms}>
               Explore Programs
-            </Link>
+            </a>
           </div>
           <div className="cta-features">
             <div className="feature">

@@ -55,7 +55,7 @@ const LandingPage: React.FC = () => {
       <Programs />
       
       {/* Tactical Readiness Assessment */}
-      <div className="tactical-readiness-section">
+      <div id="assessment" className="tactical-readiness-section">
         <AssessmentForm />
       </div>
       

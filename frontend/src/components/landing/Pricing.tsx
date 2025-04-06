@@ -62,11 +62,18 @@ const trainingPackages: TrainingPackage[] = [
 ];
 
 const Pricing: React.FC = () => {
+  const openFreeClassModal = () => {
+    const openModalButton = document.getElementById('open-free-class-modal');
+    if (openModalButton) {
+      openModalButton.click();
+    }
+  };
+  
   return (
     <section id="training-packages" className="training-packages-section">
       <div className="container">
         <header className="section-header">
-          <h2>Membership Plans</h2>
+          <h2>Training Packages</h2>
           <p>Elevate your tactical defense skills with our premium training programs</p>
         </header>
         
@@ -102,7 +109,7 @@ const Pricing: React.FC = () => {
               </div>
               
               <div className="card-footer">
-                <a href="#assessment" className="btn btn-primary">Claim free class</a>
+                <button onClick={openFreeClassModal} className="btn btn-primary">Claim free class</button>
               </div>
             </div>
           ))}

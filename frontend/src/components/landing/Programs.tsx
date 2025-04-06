@@ -132,6 +132,13 @@ const Programs: React.FC = () => {
     // Resume auto-scroll after 15 seconds
     setTimeout(() => setAutoScroll(true), 15000);
   };
+
+  const openFreeClassModal = () => {
+    const openModalButton = document.getElementById('open-free-class-modal');
+    if (openModalButton) {
+      openModalButton.click();
+    }
+  };
   
   return (
     <section id="programs" className="programs-section">
@@ -171,7 +178,7 @@ const Programs: React.FC = () => {
                         ))}
                       </ul>
                     </div>
-                    <a href="#training-assessment" className="btn btn-primary">Learn More</a>
+                    <button className="btn btn-primary" onClick={openFreeClassModal}>Learn More</button>
                   </div>
                 </div>
               ))}

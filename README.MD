@@ -103,3 +103,35 @@ If you encounter issues with form submission:
 2. Verify backend server is running
 3. Check network requests in browser dev tools
 4. Verify the external API endpoint is correct and accessible
+
+## Quick Deployment with Docker
+
+We've added Docker support for easy deployment of the United Tactical Defense application. Just follow these simple steps:
+
+### Prerequisites
+
+- Docker installed on your system
+- Docker Compose installed on your system
+
+### Running the Application
+
+1. Clone the repository
+2. Navigate to the project root directory
+3. Run the following command:
+
+```bash
+docker-compose up
+```
+
+This will build and start both the frontend and backend services.
+
+- Frontend will be available at: http://localhost:3000
+- Backend API will be available at: http://localhost:5000
+
+### Stopping the Application
+
+To stop the application, press `Ctrl+C` in the terminal, or run:
+
+```bash
+docker-compose down
+```

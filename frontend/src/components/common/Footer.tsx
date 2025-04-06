@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './Footer.scss';
+import facebookIcon from '../../assets/images/social/facebook.svg';
+import instagramIcon from '../../assets/images/social/instagram.svg';
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -19,16 +21,10 @@ const Footer: React.FC = () => {
               </p>
               <div className="social-icons">
                 <a href="https://www.facebook.com/unitedtacticaldefense" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-                  <i className="fab fa-facebook-f"></i>
+                  <img src={facebookIcon} alt="Facebook" className="social-icon" />
                 </a>
                 <a href="https://www.instagram.com/unitedtacticaldefense" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-                  <i className="fab fa-instagram"></i>
-                </a>
-                <a href="https://www.youtube.com/unitedtacticaldefense" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
-                  <i className="fab fa-youtube"></i>
-                </a>
-                <a href="https://www.linkedin.com/company/unitedtacticaldefense" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-                  <i className="fab fa-linkedin-in"></i>
+                  <img src={instagramIcon} alt="Instagram" className="social-icon" />
                 </a>
               </div>
             </div>
@@ -79,9 +75,6 @@ const Footer: React.FC = () => {
               <li><Link to="/terms-of-service">Terms of Service</Link></li>
               <li><Link to="/sitemap">Sitemap</Link></li>
             </ul>
-          </div>
-          <div className="footer-motto">
-            Real World Tactical Training for Civilians, Law Enforcement & Military
           </div>
         </div>
       </div>

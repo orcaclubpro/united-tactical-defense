@@ -61,6 +61,13 @@ const instructorsData: Instructor[] = [
 ];
 
 const Instructors: React.FC = () => {
+  const openFreeClassModal = () => {
+    const openModalButton = document.getElementById('open-free-class-modal');
+    if (openModalButton) {
+      openModalButton.click();
+    }
+  };
+
   return (
     <section id="instructors" className="instructors-section">
       <div className="container">
@@ -92,15 +99,14 @@ const Instructors: React.FC = () => {
               <div className="card-back">
                 <h3>{instructor.name}</h3>
                 <p className="experience">{instructor.experience}</p>
-                <p className="bio-excerpt">{instructor.bio.substring(0, 120)}...</p>
-                <div className="view-profile">View Full Profile</div>
+                <p className="bio-excerpt">{instructor.bio}</p>
               </div>
             </div>
           ))}
         </div>
         
         <div className="instructors-cta">
-          <a href="#free-class" className="btn btn-primary">Train With Our Experts</a>
+          <button onClick={openFreeClassModal} className="btn btn-primary">Train With Our Experts</button>
         </div>
       </div>
     </section>

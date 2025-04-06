@@ -60,38 +60,11 @@ const Location: React.FC = () => {
           </div>
         </div>
         
-        <div id="contact" className="contact-form-container">
-          <div className="form-header">
-            <h3>Send Us a Message</h3>
-            <p>Questions about our training or facility? Drop us a line and we'll get back to you shortly.</p>
+        <div id="contact" className="contact-info-container">
+          <div className="info-header">
+            <h3>Get In Touch</h3>
+            <p>For any inquiries about our training programs or scheduling, please contact us directly.</p>
           </div>
-          
-          <form className="contact-form">
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="contact-name">Your Name *</label>
-                <input type="text" id="contact-name" name="name" required />
-              </div>
-              <div className="form-group">
-                <label htmlFor="contact-email">Email *</label>
-                <input type="email" id="contact-email" name="email" required />
-              </div>
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="contact-phone">Phone</label>
-              <input type="tel" id="contact-phone" name="phone" />
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="contact-message">Message *</label>
-              <textarea id="contact-message" name="message" rows={5} required></textarea>
-            </div>
-            
-            <div className="form-actions">
-              <button type="submit" className="btn btn-primary">Send Message</button>
-            </div>
-          </form>
         </div>
       </div>
     </section>

@@ -1,6 +1,8 @@
 import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import './App.scss';
+import { initializeGA4 } from './utils/analytics';
+import useAnalytics from './utils/useAnalytics';
 
 // Loading fallback with better user experience
 const LoadingFallback = () => (
@@ -36,26 +38,36 @@ const prefetchRoutes = () => {
 const RouteChangeHandler = () => {
   const location = useLocation();
   
+  // Use our custom analytics hook with the current path
+  useAnalytics(location.pathname);
+  
   useEffect(() => {
     // Scroll to top on route change
     window.scrollTo(0, 0);
-    
-    // Send page view to analytics
-    if (process.env.NODE_ENV === 'production') {
-      // Example analytics call
-      // analytics.pageView(location.pathname);
-      console.log('Page view:', location.pathname);
-    }
   }, [location]);
   
   return null;
 };
 
 function App() {
-  // Prefetch other routes after component mounts
+  // Initialize analytics and prefetch routes after component mounts
   useEffect(() => {
+    // Initialize Google Analytics 4
+    const measurementId = process.env.REACT_APP_GA4_MEASUREMENT_ID;
+    if (measurementId && process.env.NODE_ENV === 'production') {
+      // Set the conversion ID for tracking
+      window.GA4_CONVERSION_ID = process.env.REACT_APP_GA4_CONVERSION_ID || '';
+      
+      // Initialize GA4
+      initializeGA4(measurementId);
+    }
+    
+    // Prefetch routes
     prefetchRoutes();
   }, []);
+  
+  // Use analytics hook at the App level (will track traffic sources on mount)
+  useAnalytics();
   
   return (
     <BrowserRouter>

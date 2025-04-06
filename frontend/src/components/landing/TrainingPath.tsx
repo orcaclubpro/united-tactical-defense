@@ -4,6 +4,14 @@ import badgesImage from '../../assets/images/badges.png';
 import scheduleImage from '../../assets/images/schedule.jpeg';
 
 const TrainingPath: React.FC = () => {
+  const scrollToFreeClass = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const freeClassSection = document.getElementById('free-class');
+    if (freeClassSection) {
+      freeClassSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section id="training-path" className="training-path-section">
       <div className="container">
@@ -19,7 +27,7 @@ const TrainingPath: React.FC = () => {
             </p>
             <div className="experience-cta">
               <p>Experience our training first hand</p>
-              <a href="#schedule" className="schedule-link">View Schedule</a>
+              <a href="#free-class" className="schedule-link" onClick={scrollToFreeClass}>View Schedule</a>
             </div>
           </div>
         </div>
