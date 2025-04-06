@@ -29,9 +29,18 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "GENERATE_SOURCEMAP=true react-scripts build",
+    "build:prod": "GENERATE_SOURCEMAP=false react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "analyze": "source-map-explorer 'build/static/js/*.js'",
+    "optimize-images": "node optimize-images.js",
+    "build:optimized": "npm run optimize-images && npm run build:prod && npm run compress-assets",
+    "compress-assets": "gzip-all build/static",
+    "serve:prod": "npx serve -s build",
+    "analyze:bundle": "GENERATE_SOURCEMAP=true react-scripts build && webpack-bundle-analyzer build/bundle-stats.json",
+    "build:analyze": "BUNDLE_ANALYZER=true npm run build",
+    "preload-critical-assets": "node scripts/critical-assets.js"
   },
   "eslintConfig": {
     "extends": [
@@ -50,5 +59,15 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "compression-webpack-plugin": "^10.0.0",
+    "gzip-all": "^1.0.0",
+    "sharp": "^0.32.6",
+    "glob": "^10.3.10",
+    "source-map-explorer": "^2.5.3",
+    "webpack-bundle-analyzer": "^4.9.0",
+    "critters": "^0.0.20",
+    "critical": "^5.1.0"
   }
 }

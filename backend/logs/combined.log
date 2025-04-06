@@ -1,0 +1,3 @@
+{"dbPath":"/Users/chance/dev/code/united-tactical-defense/backend/udt-db.db","level":"info","message":"Initializing database connection","service":"united-tactical-defense","timestamp":"2025-04-05 16:52:09"}
+{"level":"info","message":"Backend service running on port 3000","service":"united-tactical-defense","timestamp":"2025-04-05 16:52:09"}
+{"dbPath":"/Users/chance/dev/code/united-tactical-defense/backend/udt-db.db","level":"info","message":"Connected to SQLite database","service":"united-tactical-defense","timestamp":"2025-04-05 16:52:09"}

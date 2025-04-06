@@ -5,11 +5,39 @@ import './Header.scss';
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [prevScrollPos, setPrevScrollPos] = useState(0);
+  const [upScrollAmount, setUpScrollAmount] = useState(0);
+  
+  // Threshold for how much upward scroll is needed before showing header (in pixels)
+  const upScrollThreshold = 550;
 
-  // Handle scroll event to add sticky header
+  // Handle scroll event to add sticky header and show/hide based on scroll direction
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      const currentScrollPos = window.scrollY;
+      
+      // Determine if we've scrolled past threshold
+      setIsScrolled(currentScrollPos > 50);
+      
+      // Determine scroll direction
+      const isScrollingUp = prevScrollPos > currentScrollPos;
+      
+      if (isScrollingUp) {
+        // When scrolling up, accumulate the scroll amount
+        const amount = prevScrollPos - currentScrollPos;
+        setUpScrollAmount(prev => prev + amount);
+        
+        // Only show header if upward scroll amount exceeds threshold or we're at the top
+        setIsVisible(upScrollAmount > upScrollThreshold || currentScrollPos < 50);
+      } else {
+        // When scrolling down, reset the upward scroll counter and hide header
+        setUpScrollAmount(0);
+        setIsVisible(currentScrollPos < 50);
+      }
+      
+      // Save current position for next comparison
+      setPrevScrollPos(currentScrollPos);
     };
     
     window.addEventListener('scroll', handleScroll);
@@ -17,7 +45,7 @@ const Header: React.FC = () => {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [prevScrollPos, upScrollAmount]);
 
   // Prevent body scroll when menu is open
   useEffect(() => {
@@ -41,7 +69,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className={`site-header ${isScrolled ? 'scrolled' : ''}`}>
+    <header className={`site-header ${isScrolled ? 'scrolled' : ''} ${isVisible ? 'visible' : 'hidden'}`}>
       <div className="container">
         <a href="#" className="logo" onClick={closeMenu}>UNITED DEFENSE TACTICAL</a>
         <nav className="main-nav">

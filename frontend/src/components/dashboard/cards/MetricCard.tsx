@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import './MetricCard.scss';
 
 interface MetricCardProps {
@@ -11,6 +11,33 @@ interface MetricCardProps {
   };
   isLoading?: boolean;
 }
+
+// Create a comparison function to prevent unnecessary re-renders
+const areEqual = (prevProps: MetricCardProps, nextProps: MetricCardProps) => {
+  // If loading state changes, re-render
+  if (prevProps.isLoading !== nextProps.isLoading) {
+    return false;
+  }
+  
+  // If value changes, re-render
+  if (prevProps.value !== nextProps.value) {
+    return false;
+  }
+  
+  // If title changes, re-render
+  if (prevProps.title !== nextProps.title) {
+    return false;
+  }
+  
+  // If change object changes, re-render
+  if (prevProps.change?.value !== nextProps.change?.value || 
+      prevProps.change?.isPositive !== nextProps.change?.isPositive) {
+    return false;
+  }
+  
+  // Otherwise, don't re-render
+  return true;
+};
 
 const MetricCard: React.FC<MetricCardProps> = ({
   title,
@@ -46,4 +73,5 @@ const MetricCard: React.FC<MetricCardProps> = ({
   );
 };
 
-export default MetricCard; 
+// Export memoized component for better performance
+export default memo(MetricCard, areEqual); 

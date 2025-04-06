@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { DashboardLayout } from './layout';
 import { DateRangePicker, DateRange } from './filters';
 import { 
@@ -10,6 +10,7 @@ import {
   VisitorMetricsChart
 } from './charts';
 import { MetricCard } from './cards';
+import { AppointmentsTable } from './tables';
 import { 
   getAnalyticsReport, 
   getLandingPageMetrics, 
@@ -95,7 +96,8 @@ const Dashboard: React.FC = () => {
     conversions: number;
   }[]>([]);
   
-  const loadDashboardData = async () => {
+  // Use useCallback for functions to prevent recreating them on each render
+  const loadDashboardData = useCallback(async () => {
     setIsLoading(true);
     try {
       if (reportType === 'realtime') {
@@ -199,15 +201,15 @@ const Dashboard: React.FC = () => {
       await fetchConversionRateTrend();
       
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
+      console.error('Failed to load dashboard data:', error);
       // Set mock data for demo purposes
       setMockData();
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [dateRange.startDate, dateRange.endDate, reportType]); // dependencies
   
-  const fetchTrafficSources = async () => {
+  const fetchTrafficSources = useCallback(async () => {
     try {
       // Get latest traffic sources with optional report type
       const sourcesData = await getLatestTrafficSources(reportType !== 'realtime' ? reportType : undefined);
@@ -215,9 +217,9 @@ const Dashboard: React.FC = () => {
     } catch (error) {
       console.error('Error fetching traffic sources:', error);
     }
-  };
+  }, [dateRange.startDate, dateRange.endDate]);
   
-  const fetchConversionRateTrend = async () => {
+  const fetchConversionRateTrend = useCallback(async () => {
     try {
       // Get conversion rate trend based on report type
       const period = reportType === 'weekly' ? 'weekly' : 
@@ -231,7 +233,7 @@ const Dashboard: React.FC = () => {
     } catch (error) {
       console.error('Error fetching conversion rate trend:', error);
     }
-  };
+  }, [dateRange.startDate, dateRange.endDate]);
   
   // Set mock data for development and demo purposes
   const setMockData = () => {
@@ -309,29 +311,29 @@ const Dashboard: React.FC = () => {
     setConversionData(mockConversionData);
   };
   
-  const handleDateRangeChange = (newRange: DateRange) => {
+  const handleDateRangeChange = useCallback((newRange: DateRange) => {
     setDateRange(newRange);
-  };
+  }, []);
   
-  const formatTimeInMinutes = (minutes: number): string => {
+  const formatTimeInMinutes = useCallback((minutes: number): string => {
     if (minutes < 60) {
       return `${minutes} minutes`;
     }
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
     return `${hours}h ${remainingMinutes}m`;
-  };
+  }, []);
   
-  const getPercentageChange = (current: number, previous: number): { value: number; isPositive: boolean } => {
+  const getPercentageChange = useCallback((current: number, previous: number): { value: number; isPositive: boolean } => {
     if (previous === 0) return { value: 0, isPositive: true };
     const change = ((current - previous) / previous) * 100;
     return {
       value: Math.abs(Math.round(change)),
       isPositive: change >= 0
     };
-  };
+  }, []);
   
-  const handleReportTypeChange = (type: ReportType) => {
+  const handleReportTypeChange = useCallback((type: ReportType) => {
     setReportType(type);
     
     // Adjust refresh interval based on report type
@@ -340,11 +342,38 @@ const Dashboard: React.FC = () => {
     } else {
       setRefreshInterval(null); // No auto-refresh for historical reports
     }
-  };
+  }, []);
   
-  const handleBackToSite = () => {
+  const handleBackToSite = useCallback(() => {
     window.location.href = '/';
-  };
+  }, []);
+  
+  // Use useMemo for derived values to avoid recalculating on each render
+  const totalVisitsChange = useMemo(() => {
+    // Calculate the percentage change in total visits
+    if (pageMetrics.length >= 2) {
+      const currentPeriodTotal = pageMetrics.slice(-1)[0]?.visits || 0;
+      const previousPeriodTotal = pageMetrics.slice(-2)[0]?.visits || 0;
+      return getPercentageChange(currentPeriodTotal, previousPeriodTotal);
+    }
+    return { value: 0, isPositive: true };
+  }, [pageMetrics, getPercentageChange]);
+  
+  const conversionRateChange = useMemo(() => {
+    // Calculate the percentage change in conversion rate
+    if (conversionData.length >= 2) {
+      const currentConversion = conversionData.slice(-1)[0];
+      const previousConversion = conversionData.slice(-2)[0];
+      
+      const currentRate = currentConversion.visits > 0 ? 
+        (currentConversion.conversions / currentConversion.visits) * 100 : 0;
+      const previousRate = previousConversion.visits > 0 ? 
+        (previousConversion.conversions / previousConversion.visits) * 100 : 0;
+      
+      return getPercentageChange(currentRate, previousRate);
+    }
+    return { value: 0, isPositive: true };
+  }, [conversionData, getPercentageChange]);
   
   // Load data on mount and when parameters change
   useEffect(() => {
@@ -364,7 +393,7 @@ const Dashboard: React.FC = () => {
         clearInterval(trafficSourcesInterval);
       }
     };
-  }, [dateRange, reportType, refreshInterval]);
+  }, [dateRange.startDate, dateRange.endDate, reportType, refreshInterval, loadDashboardData, fetchTrafficSources]);
   
   return (
     <DashboardLayout>
@@ -423,7 +452,7 @@ const Dashboard: React.FC = () => {
         <MetricCard
           title="Total Visits"
           value={summaryMetrics.totalVisits.toLocaleString()}
-          change={getPercentageChange(summaryMetrics.totalVisits, summaryMetrics.totalVisits * 0.9)}
+          change={totalVisitsChange}
           icon="chart-line"
         />
         <MetricCard
@@ -435,7 +464,7 @@ const Dashboard: React.FC = () => {
         <MetricCard
           title="Conversion Rate"
           value={`${summaryMetrics.conversionRate.toFixed(2)}%`}
-          change={getPercentageChange(summaryMetrics.conversionRate, summaryMetrics.conversionRate * 0.95)}
+          change={conversionRateChange}
           icon="percentage"
         />
         <MetricCard
@@ -444,6 +473,11 @@ const Dashboard: React.FC = () => {
           change={getPercentageChange(summaryMetrics.averageEngagementTime, summaryMetrics.averageEngagementTime * 1.05)}
           icon="clock"
         />
+      </div>
+      
+      <div className="dashboard-card latest-appointments">
+        <h3>Latest Appointments</h3>
+        <AppointmentsTable />
       </div>
       
       <div className="dashboard-row">

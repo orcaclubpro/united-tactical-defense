@@ -37,7 +37,7 @@ const ModalBackdrop = styled.div<{ isOpen: boolean }>`
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.75);
+  background-color: rgba(0, 0, 0, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -45,38 +45,23 @@ const ModalBackdrop = styled.div<{ isOpen: boolean }>`
   opacity: ${props => props.isOpen ? 1 : 0};
   visibility: ${props => props.isOpen ? 'visible' : 'hidden'};
   transition: opacity 0.3s ease, visibility 0.3s ease;
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(5px);
   animation: ${props => props.isOpen ? fadeIn : 'none'} 0.3s ease forwards;
 `;
 
 const ModalContainer = styled.div<{ isOpen: boolean; darkMode?: boolean }>`
   background-color: ${props => props.darkMode ? '#1e1f21' : 'white'};
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
   width: 95%;
   max-width: 600px;
-  max-height: 90vh;
-  overflow-y: auto;
-  padding: 0;
-  animation: ${props => props.isOpen ? slideUp : 'none'} 0.4s ease forwards;
+  display: flex;
+  flex-direction: column;
+  max-height: 85vh;
   position: relative;
-  
-  &::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: ${props => props.darkMode ? '#2c2d30' : '#f1f1f1'};
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: ${props => props.darkMode ? '#444' : '#c1c1c1'};
-    border-radius: 4px;
-  }
-  
-  &::-webkit-scrollbar-thumb:hover {
-    background: ${props => props.darkMode ? '#555' : '#a1a1a1'};
-  }
+  animation: ${props => props.isOpen ? slideUp : 'none'} 0.4s ease forwards;
+  overflow: hidden;
+  border: ${props => props.darkMode ? '1px solid #333' : 'none'};
 `;
 
 const ModalHeader = styled.div<{ darkMode?: boolean }>`
@@ -117,11 +102,33 @@ const CloseButton = styled.button<{ darkMode?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
   
   &:hover {
     background-color: ${props => props.darkMode ? '#333' : '#f5f5f5'};
     color: ${props => props.darkMode ? '#fff' : '#333'};
+  }
+`;
+
+const ModalContentWrapper = styled.div`
+  overflow-y: auto;
+  max-height: calc(85vh - 130px); /* Adjust based on header and potential footer */
+  
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(128, 128, 128, 0.5);
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(128, 128, 128, 0.7);
   }
 `;
 
@@ -146,8 +153,8 @@ const HookBanner = styled.div<{ darkMode?: boolean }>`
   text-align: center;
   font-weight: 500;
   animation: ${pulse} 2s infinite ease-in-out;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
 `;
 
 /**
@@ -170,18 +177,37 @@ const ModernModalUI: React.FC<ModernModalUIProps> = ({
   useEffect(() => {
     if (isOpen) {
       setIsVisible(true);
-      // Add the modal-open class to body when modal is open
-      document.body.classList.add('modal-open');
+      // Prevent body scrolling when modal is open
+      document.body.style.overflow = 'hidden';
     } else {
       // Delay hiding to allow for animation
       const timer = setTimeout(() => {
         setIsVisible(false);
-        // Remove the modal-open class from body when modal is closed
-        document.body.classList.remove('modal-open');
+        // Restore body scrolling when modal is closed
+        document.body.style.overflow = '';
       }, 300);
       return () => clearTimeout(timer);
     }
+    
+    // Cleanup function to ensure body scrolling is restored
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [isOpen]);
+  
+  // Handle escape key press
+  useEffect(() => {
+    const handleEscapeKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    
+    document.addEventListener('keydown', handleEscapeKey);
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [isOpen, onClose]);
   
   if (!isVisible && !isOpen) {
     return null;
@@ -202,14 +228,16 @@ const ModernModalUI: React.FC<ModernModalUIProps> = ({
         
         <ModalHeader darkMode={darkMode}>
           <h2>{title}</h2>
-          <CloseButton darkMode={darkMode} onClick={onClose}>
+          <CloseButton darkMode={darkMode} onClick={onClose} aria-label="Close">
             <span aria-hidden="true">×</span>
           </CloseButton>
         </ModalHeader>
         
-        <ModalBody darkMode={darkMode}>
-          {children}
-        </ModalBody>
+        <ModalContentWrapper>
+          <ModalBody darkMode={darkMode}>
+            {children}
+          </ModalBody>
+        </ModalContentWrapper>
         
         {footerContent && (
           <ModalFooter darkMode={darkMode}>

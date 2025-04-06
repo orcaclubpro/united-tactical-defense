@@ -131,7 +131,7 @@ const VideoSection: React.FC = () => {
             <div className="tech-corner bottom-left"></div>
             <div className="tech-corner bottom-right"></div>
             
-            <div className="video-container">
+            <div className="video-container" onClick={toggleVideo}>
               {/* Video Element */}
               <video
                 ref={videoRef}
@@ -148,7 +148,7 @@ const VideoSection: React.FC = () => {
               {/* Play/Pause Button */}
               <button 
                 className={`video-play-button ${isPlaying ? 'playing' : ''} ${isChanging ? 'changing' : ''}`}
-                onClick={toggleVideo}
+                onClick={(e) => { e.stopPropagation(); toggleVideo(); }}
                 aria-label={isPlaying ? 'Pause video' : 'Play video'}
               >
                 <svg className="play-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -169,6 +169,14 @@ const VideoSection: React.FC = () => {
                   <div ref={timeProgressRef} className="time-progress"></div>
                 </div>
                 <div className="time-label">TRAINING FOOTAGE</div>
+              </div>
+              
+              {/* Video Info Overlay */}
+              <div className="video-info-overlay">
+                <div className="overlay-content">
+                  <div className="overlay-title">ELITE TACTICAL TRAINING</div>
+                  <div className="overlay-description">Specialized instruction for high-stress environments</div>
+                </div>
               </div>
             </div>
             

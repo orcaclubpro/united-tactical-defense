@@ -2,44 +2,106 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/assets/images/logo.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-    <meta name="theme-color" content="#2b2d42" />
-    <meta
-      name="description"
-      content="United Defense Tactical - Reality-based tactical training for real-world defense"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/assets/images/logo.png" />
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    
+    <!-- Performance optimizations -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Preload critical fonts -->
+    <link rel="preload" href="%PUBLIC_URL%/fonts/main-font.woff2" as="font" type="font/woff2" crossorigin>
+    
+    <!-- Preload critical images -->
+    <link rel="preload" href="%PUBLIC_URL%/assets/logo.webp" as="image" type="image/webp">
+    
+    <!-- Main icon -->
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    
+    <!-- PWA manifest -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>United Defense Tactical</title>
+    
+    <!-- Meta tags for SEO and social sharing -->
+    <meta name="description" content="United Tactical Defense - Professional tactical training for personal and team defense" />
+    <meta property="og:title" content="United Tactical Defense" />
+    <meta property="og:description" content="Professional tactical training for personal and team defense" />
+    <meta property="og:image" content="%PUBLIC_URL%/social-share.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    
+    <!-- Inline critical CSS for faster first paint -->
+    <style>
+      /* Critical styles for initial render */
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+      .loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        width: 100vw;
+      }
+      .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top-color: #3498db;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
+    <title>United Tactical Defense</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
+    <div id="root">
+      <!-- Fallback loading indicator while JavaScript loads -->
+      <div class="loading">
+        <div class="loading-spinner"></div>
+      </div>
+    </div>
+    
+    <!-- Preconnect to API endpoint for faster data loading -->
+    <script>
+      // Preconnect to API
+      (function() {
+        var hint = document.createElement('link');
+        hint.rel = 'preconnect';
+        hint.href = '%REACT_APP_API_URL%' || window.location.origin;
+        document.head.appendChild(hint);
+      })();
+    </script>
+    
+    <!-- Enable faster image loading once the page is loaded -->
+    <script>
+      // Setup image optimization
+      window.addEventListener('load', function() {
+        if ('IntersectionObserver' in window) {
+          // Lazy load images below the fold
+          var lazyImages = [].slice.call(document.querySelectorAll("img[data-src]"));
+          
+          var imageObserver = new IntersectionObserver(function(entries, observer) {
+            entries.forEach(function(entry) {
+              if (entry.isIntersecting) {
+                var image = entry.target;
+                image.src = image.dataset.src;
+                image.removeAttribute("data-src");
+                imageObserver.unobserve(image);
+              }
+            });
+          });
+          
+          lazyImages.forEach(function(image) {
+            imageObserver.observe(image);
+          });
+        }
+      });
+    </script>
   </body>
 </html>

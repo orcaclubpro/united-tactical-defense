@@ -245,8 +245,21 @@ export const deleteLead = async (id: string) => {
 
 // Appointment APIs - Mock implementations
 export const getAppointments = async () => {
-  // PLACEHOLDER: Returns mock appointment data
-  return Promise.resolve({ data: mockAppointments });
+  try {
+    // Make a real API call to get appointments from the backend
+    const baseURL = process.env.REACT_APP_API_BASE_URL || '/api';
+    const response = await fetch(`${baseURL}/submit-appointment`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch appointments: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching appointments:', error);
+    // Fall back to mock data in case of failure
+    return Promise.resolve({ data: mockAppointments });
+  }
 };
 
 export const getAppointmentById = async (id: string) => {
@@ -541,20 +554,92 @@ export const submitAssessmentForm = async (formData: any) => {
   });
 };
 
+// Function to format date with timezone offset for Pacific Time (-07:00 during DST)
+const formatDateWithTimezone = (date: Date, timeString: string): string => {
+  // Parse hours and minutes from timeString (format: HH:MM)
+  const [hours, minutes] = timeString.split(':').map(Number);
+  
+  // Create a new date with the specific time
+  const dateTime = new Date(date);
+  dateTime.setHours(hours, minutes, 0, 0);
+  
+  // Format to ISO string and replace the Z with -07:00 for Pacific Time
+  return dateTime.toISOString().replace(/\.\d+Z$/, '-07:00');
+};
+
 export const submitFreeClassForm = async (formData: any) => {
-  // PLACEHOLDER: Simulates free class form submission
-  return Promise.resolve({ 
-    data: { 
-      success: true, 
-      message: 'Free class form submitted successfully', 
-      appointmentId: `appointment-${generateId()}`,
-      appointmentDetails: {
-        date: formData.preferredDate || new Date().toISOString().split('T')[0],
-        time: formData.preferredTime || '10:00 AM',
-        instructor: 'Alex Johnson'
+  try {
+    // Create a standardized userData object matching the required format
+    const userData = {
+      first_name: formData.firstName,
+      last_name: formData.lastName,
+      email: formData.email,
+      phone: typeof formData.phone === 'string' ? formData.phone.replace(/\D/g, '') : formData.phone,
+      selected_slot: formData.appointmentDate && formData.appointmentTime
+        ? new Date(
+            formData.appointmentDate.setHours(
+              parseInt(formData.appointmentTime.split(':')[0]),
+              parseInt(formData.appointmentTime.split(':')[1].split(' ')[0]),
+              0
+            )
+          ).toISOString()
+        : new Date().toISOString()
+    };
+
+    console.log('🔄 Submitting appointment data to backend:', {
+      endpoint: '/api/submit-appointment',
+      method: 'POST',
+      userData
+    });
+
+    // Submit to the backend endpoint
+    const response = await fetch('/api/submit-appointment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData),
+    });
+
+    console.log('📥 Response status:', response.status, response.statusText);
+
+    if (!response.ok) {
+      let errorMessage = 'An error occurred while submitting the form';
+      try {
+        const errorData = await response.json();
+        console.error('❌ Error response data:', errorData);
+        errorMessage = errorData.error || errorMessage;
+      } catch (e) {
+        console.error('❌ Failed to parse error response:', e);
+        errorMessage = response.statusText || errorMessage;
       }
-    } 
-  });
+      throw new Error(errorMessage);
+    }
+
+    const responseData = await response.json();
+    console.log('✅ Appointment submission successful:', responseData);
+    
+    return { 
+      data: { 
+        success: true, 
+        message: responseData.message || 'Free class form submitted successfully', 
+        appointmentId: responseData.appointmentId,
+        appointmentDetails: responseData.appointmentDetails || {
+          date: formData.appointmentDate?.toISOString().split('T')[0],
+          time: formData.appointmentTime,
+        }
+      } 
+    };
+  } catch (error) {
+    console.error('❌ Error submitting free class form:', error);
+    
+    return {
+      data: {
+        success: false,
+        message: error instanceof Error ? error.message : 'An error occurred while submitting the form'
+      }
+    };
+  }
 };
 
 export const submitContactForm = async (formData: any) => {

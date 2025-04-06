@@ -15,6 +15,14 @@
     padding: 0.75rem 0;
   }
   
+  &.hidden {
+    transform: translateY(-100%);
+  }
+  
+  &.visible {
+    transform: translateY(0);
+  }
+  
   .container {
     display: flex;
     justify-content: space-between;
