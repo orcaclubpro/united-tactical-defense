@@ -1,6 +1,6 @@
 hidden=[".config"]
 modules = ["nodejs-18", "web"]
-run = "cd frontend && npm start"
+run = "cd frontend && npm run serve:prod"
 
 [nix]
 channel = "stable-24_05"
@@ -8,7 +8,11 @@ channel = "stable-24_05"
 [deployment]
 publicDir = "frontend/build"
 deploymentTarget = "static"
-build = ["sh", "-c", "npm run build:prod"]
+build = ["sh", "-c", "cd frontend && npm run build:prod"]
+
+[[deployment.rewrites]]
+from = "/*"
+to = "/index.html"
 
 [[ports]]
 localPort = 3000
@@ -18,6 +22,6 @@ externalPort = 80
 localPort = 3001
 externalPort = 3001
 
-[[deployment.rewrites]]
-from = "/*"
-to = "/index.html"
+[[ports]]
+localPort = 45479
+externalPort = 3000
