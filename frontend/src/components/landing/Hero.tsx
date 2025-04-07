@@ -16,10 +16,16 @@ const Hero: React.FC = () => {
 
       // Add source
       const source = document.createElement('source');
-      source.src = `${process.env.PUBLIC_URL}/assets/images/ty.MOV`;
-      source.type = 'video/quicktime';
+      source.src = `${process.env.PUBLIC_URL}/assets/videos/ty.mp4`;
+      source.type = 'video/mp4';
+      
+      // Add WebM source for better compatibility
+      const webmSource = document.createElement('source');
+      webmSource.src = `${process.env.PUBLIC_URL}/assets/videos/ty.webm`;
+      webmSource.type = 'video/webm';
       
       video.appendChild(source);
+      video.appendChild(webmSource);
       
       // Add fallback for browsers that don't support video
       video.innerHTML += `

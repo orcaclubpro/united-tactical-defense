@@ -139,7 +139,8 @@ const VideoSection: React.FC = () => {
                 playsInline
                 poster={`${process.env.PUBLIC_URL}/assets/images/video-poster.jpg`}
               >
-                <source src={`${process.env.PUBLIC_URL}/assets/images/ty.MOV`} type="video/quicktime" />
+                <source src={`${process.env.PUBLIC_URL}/assets/videos/ty.mp4`} type="video/mp4" />
+                <source src={`${process.env.PUBLIC_URL}/assets/videos/ty.webm`} type="video/webm" />
                 Your browser does not support the video tag.
               </video>
               

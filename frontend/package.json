@@ -34,9 +34,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "optimize-images": "node optimize-images.js",
-    "build:optimized": "npm run optimize-images && npm run build:prod && npm run compress-assets",
-    "compress-assets": "gzip-all build/static",
+    "optimize-assets": "node scripts/optimize-assets.js",
+    "build:optimized": "npm run optimize-assets && npm run build:prod",
     "serve:prod": "npx serve -s build",
     "analyze:bundle": "GENERATE_SOURCEMAP=true react-scripts build && webpack-bundle-analyzer build/bundle-stats.json",
     "build:analyze": "BUNDLE_ANALYZER=true npm run build",
@@ -62,12 +61,14 @@
   },
   "devDependencies": {
     "compression-webpack-plugin": "^10.0.0",
+    "critical": "^5.1.0",
+    "critters": "^0.0.20",
+    "ffmpeg-static": "^5.2.0",
+    "fluent-ffmpeg": "^2.1.2",
+    "glob": "^10.3.10",
     "gzip-all": "^1.0.0",
     "sharp": "^0.32.6",
-    "glob": "^10.3.10",
     "source-map-explorer": "^2.5.3",
-    "webpack-bundle-analyzer": "^4.9.0",
-    "critters": "^0.0.20",
-    "critical": "^5.1.0"
+    "webpack-bundle-analyzer": "^4.9.0"
   }
 }
