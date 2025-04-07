@@ -1,5 +1,5 @@
 hidden=[".config"]
-modules = ["nodejs-14", "web"]
+modules = ["nodejs-20:v10-20231208-2c07dda"]
 
 [nix]
 channel = "stable-24_05"
@@ -7,14 +7,26 @@ channel = "stable-24_05"
 [deployment]
 publicDir = "frontend/build"
 deploymentTarget = "static"
-build = ["sh", "-c", "cd frontend && npm install && npm run build && ls -la build"]
+build = ["sh", "-c", "npm run install-all && cd frontend && npm run build"]
 
 [[ports]]
-localPort = 5000
+localPort = 3001
+externalPort = 80
 
+[[ports]]
+localPort = 3000
+externalPort = 443
+
+[env]
+PORT = "3001"
+
+[startCommand]
+value = "npm start"
+
+[[deployment.rewrites]]
+from = "/api/*"
+to = "/api/$1"
 
 [[deployment.rewrites]]
 from = "/*"
 to = "/index.html"
-
-externalPort = 80
