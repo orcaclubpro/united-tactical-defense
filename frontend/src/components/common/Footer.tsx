@@ -20,10 +20,10 @@ const Footer: React.FC = () => {
                 Real World Tactical Training for Civilians, Law Enforcement & Military
               </p>
               <div className="social-icons">
-                <a href="https://www.facebook.com/unitedtacticaldefense" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                <a href="https://www.facebook.com/udtanaheimhills" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
                   <img src={facebookIcon} alt="Facebook" className="social-icon" />
                 </a>
-                <a href="https://www.instagram.com/unitedtacticaldefense" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                <a href="https://www.instagram.com/udt_anaheimhills" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                   <img src={instagramIcon} alt="Instagram" className="social-icon" />
                 </a>
               </div>

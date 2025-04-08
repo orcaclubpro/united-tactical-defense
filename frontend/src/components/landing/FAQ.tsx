@@ -27,7 +27,11 @@ const faqItems: FAQItem[] = [
     id: 4,
     question: "How often should I train to maintain proficiency?",
     answer:
-      "For maintaining basic proficiency, we recommend training at least 2 times a month. For those seeking to build and advance their skills, weekly training sessions provide the consistency needed for developing muscle memory and tactical proficiency.",
+      "For optimal skill development and maintenance, we recommend the following training frequency:\n\n" +
+      "• Basic Proficiency: 2-3 sessions per month\n" +
+      "• Intermediate Level: 3-4 sessions per month\n" +
+      "• Advanced Training: 4+ sessions per month\n\n" +
+      "Consistency is key to developing muscle memory and tactical proficiency. Our flexible scheduling allows you to choose the frequency that best fits your goals and availability. Many of our students combine regular group classes with private sessions for accelerated progress.",
     category: "Training",
   },
   {

@@ -52,29 +52,81 @@ const programsData: Program[] = [
   },
   {
     id: 4,
-    title: "Workshops",
-    description: "Specialized training workshops focused on specific skills and scenarios, from beginners to advanced practitioners.",
+    title: "Tactical Medicine",
+    description: "Learn essential medical skills for emergency situations, from basic first aid to advanced trauma care.",
     features: [
-      "Weekend intensives",
-      "Guest instructor series",
-      "Specialized equipment training",
-      "Certification preparation"
+      "Emergency response protocols",
+      "Trauma care techniques",
+      "Medical kit preparation",
+      "Scenario-based training"
     ],
-    image: "/assets/images/udt1.jpg",
-    level: "Varies"
+    image: "/assets/images/tactical-medicine.jpg",
+    level: "All Levels"
   },
   {
     id: 5,
-    title: "CCW Program",
-    description: "Complete training for Concealed Carry Weapon permit applicants, covering legal requirements, safety, and practical skills.",
+    title: "USCCA Legal Seminars",
+    description: "Comprehensive legal education for responsible gun ownership and self-defense situations.",
     features: [
-      "Legal requirements and responsibilities",
-      "Concealed carry techniques and holster selection",
-      "Defensive shooting scenarios",
-      "CCW application assistance"
+      "Legal rights and responsibilities",
+      "Self-defense law",
+      "Case study analysis",
+      "Legal protection strategies"
     ],
-    image: "/assets/images/ccw.jpg",
-    level: "Beginner to Intermediate"
+    image: "/assets/images/legal-seminar.jpg",
+    level: "All Levels"
+  },
+  {
+    id: 6,
+    title: "Vehicle CQB",
+    description: "Master close-quarters combat techniques specifically designed for vehicle-based scenarios.",
+    features: [
+      "Vehicle entry and exit tactics",
+      "Limited space combat",
+      "Vehicle-based defensive strategies",
+      "Emergency response protocols"
+    ],
+    image: "/assets/images/vehicle-cqb.jpg",
+    level: "Intermediate to Advanced"
+  },
+  {
+    id: 7,
+    title: "Women's Urban Threats",
+    description: "Specialized training program designed to address common urban threats faced by women.",
+    features: [
+      "Situational awareness",
+      "Personal safety strategies",
+      "Defensive techniques",
+      "Emergency response planning"
+    ],
+    image: "/assets/images/womens-defense.jpg",
+    level: "All Levels"
+  },
+  {
+    id: 8,
+    title: "Home Defense",
+    description: "Learn comprehensive strategies for protecting your home and family in emergency situations.",
+    features: [
+      "Home security assessment",
+      "Defensive positioning",
+      "Family safety protocols",
+      "Emergency response planning"
+    ],
+    image: "/assets/images/home-defense.jpg",
+    level: "All Levels"
+  },
+  {
+    id: 9,
+    title: "Firearm Familiarization",
+    description: "Perfect for beginners, learn the fundamentals of firearm safety and operation.",
+    features: [
+      "Firearm safety rules",
+      "Basic marksmanship",
+      "Equipment familiarization",
+      "Range etiquette"
+    ],
+    image: "/assets/images/firearm-basics.jpg",
+    level: "Beginner"
   }
 ];
 
@@ -115,7 +167,6 @@ const Programs: React.FC = () => {
   };
 
   const handleTouchEnd = () => {
-    // Minimum swipe distance (in px) to register as a swipe
     const minSwipeDistance = 50;
     const swipeDistance = touchEndX.current - touchStartX.current;
     
@@ -147,6 +198,9 @@ const Programs: React.FC = () => {
           <div className="badge">SKILL DEVELOPMENT</div>
           <h2>Training <span className="highlight">Programs</span></h2>
           <p>Comprehensive training tailored to your experience level and goals</p>
+          <div className="slide-counter">
+            {activeProgram + 1} / {programsData.length}
+          </div>
         </header>
         
         <div className="programs-carousel">
@@ -171,42 +225,46 @@ const Programs: React.FC = () => {
                     <h3>{program.title}</h3>
                     <p>{program.description}</p>
                     <div className="program-features">
-                      <h4>What You'll Learn:</h4>
+                      <h4>Key Features</h4>
                       <ul>
-                        {program.features.map((feature, i) => (
-                          <li key={i}>{feature}</li>
+                        {program.features.map((feature, index) => (
+                          <li key={index}>{feature}</li>
                         ))}
                       </ul>
                     </div>
-                    <button className="btn btn-primary" onClick={openFreeClassModal}>Learn More</button>
+                    <button onClick={openFreeClassModal} className="btn btn-primary">
+                      Book Free Class
+                    </button>
                   </div>
                 </div>
               ))}
             </div>
-            
+          </div>
+          
+          <div className="carousel-controls">
             <button 
-              className="carousel-control prev" 
+              className="carousel-control prev"
               onClick={() => handleProgramClick((activeProgram - 1 + programsData.length) % programsData.length)}
               aria-label="Previous program"
             >
-              &#10094;
+              ‹
             </button>
             <button 
-              className="carousel-control next" 
+              className="carousel-control next"
               onClick={() => handleProgramClick((activeProgram + 1) % programsData.length)}
               aria-label="Next program"
             >
-              &#10095;
+              ›
             </button>
           </div>
           
           <div className="carousel-pagination">
             {programsData.map((_, index) => (
-              <button 
-                key={index} 
+              <button
+                key={index}
                 className={`pagination-dot ${index === activeProgram ? 'active' : ''}`}
                 onClick={() => handleProgramClick(index)}
-                aria-label={`View program ${index + 1}`}
+                aria-label={`Go to program ${index + 1}`}
               />
             ))}
           </div>

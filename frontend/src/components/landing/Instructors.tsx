@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { placeholderImages } from '../../utils/placeholderImages';
 import './Instructors.scss';
 
@@ -61,6 +61,59 @@ const instructorsData: Instructor[] = [
 ];
 
 const Instructors: React.FC = () => {
+  const [activeInstructor, setActiveInstructor] = useState<number>(0);
+  const [autoScroll, setAutoScroll] = useState<boolean>(true);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef<number>(0);
+  const touchEndX = useRef<number>(0);
+  
+  // Auto-rotate through instructors every 5 seconds if autoScroll is true
+  useEffect(() => {
+    if (!autoScroll) return;
+    
+    const interval = setInterval(() => {
+      setActiveInstructor((prev) => (prev + 1) % instructorsData.length);
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, [autoScroll]);
+
+  // Pause auto-scroll when user interacts with instructors
+  const handleInstructorClick = (index: number) => {
+    setActiveInstructor(index);
+    setAutoScroll(false);
+    // Resume auto-scroll after 15 seconds of inactivity
+    setTimeout(() => setAutoScroll(true), 15000);
+  };
+
+  // Touch handlers for mobile swipe
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    setAutoScroll(false);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    const minSwipeDistance = 50;
+    const swipeDistance = touchEndX.current - touchStartX.current;
+    
+    if (Math.abs(swipeDistance) > minSwipeDistance) {
+      if (swipeDistance > 0) {
+        // Swiped right - go to previous
+        handleInstructorClick((activeInstructor - 1 + instructorsData.length) % instructorsData.length);
+      } else {
+        // Swiped left - go to next
+        handleInstructorClick((activeInstructor + 1) % instructorsData.length);
+      }
+    }
+    
+    // Resume auto-scroll after 15 seconds
+    setTimeout(() => setAutoScroll(true), 15000);
+  };
+
   const openFreeClassModal = () => {
     const openModalButton = document.getElementById('open-free-class-modal');
     if (openModalButton) {
@@ -72,41 +125,80 @@ const Instructors: React.FC = () => {
     <section id="instructors" className="instructors-section">
       <div className="container">
         <header className="section-header">
-          <h2>Our Expert Instructors</h2>
+          <div className="badge">EXPERT INSTRUCTION</div>
+          <h2>Our <span className="highlight">Instructors</span></h2>
           <p>Learn from experienced professionals with military and law enforcement backgrounds</p>
+          <div className="slide-counter">
+            {activeInstructor + 1} / {instructorsData.length}
+          </div>
         </header>
         
-        <div className="instructors-grid">
-          {instructorsData.map(instructor => (
-            <div key={instructor.id} className="instructor-card">
-              <div className="card-front">
-                <div className="instructor-image">
-                  <img src={instructor.image} alt={instructor.name} />
-                </div>
-                <div className="instructor-info">
-                  <h3>{instructor.name}</h3>
-                  <p className="title">{instructor.title}</p>
-                  <div className="specialties">
-                    {instructor.specialties.slice(0, 3).map((specialty, index) => (
-                      <span key={index} className="specialty-tag">{specialty}</span>
-                    ))}
-                    {instructor.specialties.length > 3 && (
-                      <span className="specialty-tag more">+{instructor.specialties.length - 3}</span>
-                    )}
+        <div className="instructors-carousel">
+          <div 
+            className="carousel-container"
+            ref={carouselRef}
+          >
+            <div 
+              className="carousel-track" 
+              style={{ transform: `translateX(-${activeInstructor * 100}%)` }}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              {instructorsData.map((instructor) => (
+                <div key={instructor.id} className="carousel-card">
+                  <div className="carousel-card-image">
+                    <img src={instructor.image} alt={instructor.name} loading="lazy" />
+                    <div className="instructor-title">{instructor.title}</div>
+                  </div>
+                  <div className="carousel-card-content">
+                    <h3>{instructor.name}</h3>
+                    <p className="experience">{instructor.experience}</p>
+                    <div className="specialties">
+                      <h4>Specialties</h4>
+                      <div className="specialty-tags">
+                        {instructor.specialties.map((specialty, index) => (
+                          <span key={index} className="specialty-tag">{specialty}</span>
+                        ))}
+                      </div>
+                    </div>
+                    <p className="bio">{instructor.bio}</p>
+                    <button onClick={openFreeClassModal} className="btn btn-primary">
+                      Train With {instructor.name.split(' ')[0]}
+                    </button>
                   </div>
                 </div>
-              </div>
-              <div className="card-back">
-                <h3>{instructor.name}</h3>
-                <p className="experience">{instructor.experience}</p>
-                <p className="bio-excerpt">{instructor.bio}</p>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
-        
-        <div className="instructors-cta">
-          <button onClick={openFreeClassModal} className="btn btn-primary">Train With Our Experts</button>
+          </div>
+          
+          <div className="carousel-controls">
+            <button 
+              className="carousel-control prev"
+              onClick={() => handleInstructorClick((activeInstructor - 1 + instructorsData.length) % instructorsData.length)}
+              aria-label="Previous instructor"
+            >
+              ‹
+            </button>
+            <button 
+              className="carousel-control next"
+              onClick={() => handleInstructorClick((activeInstructor + 1) % instructorsData.length)}
+              aria-label="Next instructor"
+            >
+              ›
+            </button>
+          </div>
+          
+          <div className="carousel-pagination">
+            {instructorsData.map((_, index) => (
+              <button
+                key={index}
+                className={`pagination-dot ${index === activeInstructor ? 'active' : ''}`}
+                onClick={() => handleInstructorClick(index)}
+                aria-label={`Go to instructor ${index + 1}`}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>

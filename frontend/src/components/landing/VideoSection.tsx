@@ -3,10 +3,8 @@ import './VideoSection.scss';
 
 const VideoSection: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const timeProgressRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isChanging, setIsChanging] = useState(true);
-  const countersInitialized = useRef(false);
+  const [progress, setProgress] = useState(0);
 
   const toggleVideo = () => {
     const video = videoRef.current;
@@ -23,136 +21,73 @@ const VideoSection: React.FC = () => {
 
   useEffect(() => {
     const videoElement = videoRef.current;
-    const progressElement = timeProgressRef.current;
     
-    // Update time progress bar during video playback
-    const updateTimeProgress = () => {
-      if (videoElement && progressElement) {
+    const updateProgress = () => {
+      if (videoElement) {
         const percentage = (videoElement.currentTime / videoElement.duration) * 100;
-        progressElement.style.width = `${percentage}%`;
+        setProgress(percentage);
       }
     };
-    
-    // Handle video loading events
-    const handleLoadStart = () => setIsChanging(true);
-    const handleCanPlay = () => setIsChanging(false);
     
     if (videoElement) {
-      videoElement.addEventListener('timeupdate', updateTimeProgress);
-      videoElement.addEventListener('loadstart', handleLoadStart);
-      videoElement.addEventListener('canplay', handleCanPlay);
-      videoElement.addEventListener('waiting', handleLoadStart);
-      videoElement.addEventListener('playing', handleCanPlay);
+      videoElement.addEventListener('timeupdate', updateProgress);
+      videoElement.addEventListener('ended', () => setIsPlaying(false));
       
-      // Reset progress bar when video ends
-      videoElement.addEventListener('ended', () => {
-        setIsPlaying(false);
-        if (progressElement) {
-          progressElement.style.width = '0%';
-        }
-      });
-    }
-    
-    // Clean up event listeners
-    return () => {
-      if (videoElement) {
-        videoElement.removeEventListener('timeupdate', updateTimeProgress);
-        videoElement.removeEventListener('loadstart', handleLoadStart);
-        videoElement.removeEventListener('canplay', handleCanPlay);
-        videoElement.removeEventListener('waiting', handleLoadStart);
-        videoElement.removeEventListener('playing', handleCanPlay);
+      return () => {
+        videoElement.removeEventListener('timeupdate', updateProgress);
         videoElement.removeEventListener('ended', () => setIsPlaying(false));
-      }
-    };
+      };
+    }
   }, []);
 
-  useEffect(() => {
-    // Initialize counter animations when they come into view
-    if (!countersInitialized.current) {
-      const counterElements = document.querySelectorAll('.counter-value');
-      
-      counterElements.forEach(counter => {
-        const element = counter as HTMLElement;
-        const target = parseInt(element.dataset.target || '0', 10);
-        const duration = 2000;
-        const frameDuration = 1000 / 60;
-        const totalFrames = Math.round(duration / frameDuration);
-        const increment = target / totalFrames;
-        
-        let currentCount = 0;
-        
-        const animateCounter = () => {
-          currentCount += increment;
-          
-          if (currentCount >= target) {
-            element.textContent = target.toString();
-            countersInitialized.current = true;
-          } else {
-            element.textContent = Math.floor(currentCount).toString();
-            requestAnimationFrame(animateCounter);
-          }
-        };
-        
-        // Start animation when element comes into viewport
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach(entry => {
-              if (entry.isIntersecting) {
-                animateCounter();
-                observer.unobserve(entry.target);
-              }
-            });
-          },
-          { threshold: 0.5 }
-        );
-        
-        observer.observe(element);
-      });
+  const stats = [
+    {
+      county: 'Orange',
+      population: '3,170,435',
+      crimes: '10,729',
+      daily: '~29.4 per day'
+    },
+    {
+      county: 'Riverside',
+      population: '2,529,933',
+      crimes: '9,729',
+      daily: '~26.7 per day'
+    },
+    {
+      county: 'Los Angeles',
+      population: '9,721,138',
+      crimes: '32,729',
+      daily: '~89.7 per day'
     }
-  }, []);
+  ];
 
   return (
     <section className="video-section">
-      <div className="industrial-grid-overlay"></div>
       <div className="container">
-        {/* Video Section Heading */}
-        <div className="video-section-heading">
-          <div className="section-label">TRAINING SHOWCASE</div>
-          <h2>TACTICAL TRAINING <span className="text-highlight">IN ACTION</span></h2>
-          <div className="heading-accent"></div>
-          <p>Experience our elite training methodology in real-world scenarios</p>
+        <div className="section-header">
+          <h2>HOW WOULD YOU REACT?</h2>
+          <p>Understanding the threat landscape in Southern California</p>
         </div>
-        
-        {/* Main Video Display */}
-        <div className="video-showcase">
-          <div className="video-frame">
-            <div className="tech-corner top-left"></div>
-            <div className="tech-corner top-right"></div>
-            <div className="tech-corner bottom-left"></div>
-            <div className="tech-corner bottom-right"></div>
+
+        <div className="video-container">
+          <div className="video-wrapper">
+            <video
+              ref={videoRef}
+              className="training-video"
+              playsInline
+              poster={`${process.env.PUBLIC_URL}/assets/images/video-poster.jpg`}
+            >
+              <source src={`${process.env.PUBLIC_URL}/assets/videos/ty.mp4`} type="video/mp4" />
+              <source src={`${process.env.PUBLIC_URL}/assets/videos/ty.webm`} type="video/webm" />
+              Your browser does not support the video tag.
+            </video>
             
-            <div className="video-container" onClick={toggleVideo}>
-              {/* Video Element */}
-              <video
-                ref={videoRef}
-                className="training-video"
-                playsInline
-                poster={`${process.env.PUBLIC_URL}/assets/images/video-poster.jpg`}
-              >
-                <source src={`${process.env.PUBLIC_URL}/assets/videos/ty.mp4`} type="video/mp4" />
-                <source src={`${process.env.PUBLIC_URL}/assets/videos/ty.webm`} type="video/webm" />
-                Your browser does not support the video tag.
-              </video>
-              
-              <div className="video-overlay"></div>
-              
-              {/* Play/Pause Button */}
+            <div className="video-overlay" onClick={toggleVideo}>
               <button 
-                className={`video-play-button ${isPlaying ? 'playing' : ''} ${isChanging ? 'changing' : ''}`}
-                onClick={(e) => { e.stopPropagation(); toggleVideo(); }}
+                className={`play-button ${isPlaying ? 'playing' : ''}`}
                 aria-label={isPlaying ? 'Pause video' : 'Play video'}
               >
-                <svg className="play-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   {isPlaying ? (
                     <>
                       <rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor" />
@@ -162,104 +97,35 @@ const VideoSection: React.FC = () => {
                     <path d="M6 4.75C6 4.04777 6.74921 3.55719 7.4 3.8L20.4 9.05C21.0593 9.29698 21.0593 10.203 20.4 10.45L7.4 15.7C6.74921 15.9428 6 15.4522 6 14.75V4.75Z" fill="currentColor" />
                   )}
                 </svg>
-                <span className="pulse"></span>
               </button>
-              
-              <div className="video-time-indicator">
-                <div className="time-bar">
-                  <div ref={timeProgressRef} className="time-progress"></div>
-                </div>
-                <div className="time-label">TRAINING FOOTAGE</div>
-              </div>
-              
-              {/* Video Info Overlay */}
-              <div className="video-info-overlay">
-                <div className="overlay-content">
-                  <div className="overlay-title">ELITE TACTICAL TRAINING</div>
-                  <div className="overlay-description">Specialized instruction for high-stress environments</div>
-                </div>
-              </div>
             </div>
             
-            {/* Video Caption */}
-            <div className="video-caption">
-              <div className="caption-badge">EXCLUSIVE TRAINING</div>
-              <h3>Master tactical defense in high-stress environments</h3>
+            <div className="progress-bar">
+              <div className="progress" style={{ width: `${progress}%` }}></div>
             </div>
           </div>
         </div>
-        
-        {/* Key Features Section */}
-        <div className="features-section">
-          <div className="features-header">
-            <div className="section-label">PERFORMANCE METRICS</div>
-            <h2>PREPARED FOR <span className="text-highlight">REALITY</span></h2>
-            <div className="heading-accent"></div>
-            <p>KEY TRAINING BENEFITS</p>
-          </div>
-          
-          <div className="feature-cards">
-            {/* Feature Card 1 */}
-            <div className="feature-card" data-aos="fade-up" data-aos-duration="300" data-aos-delay="100">
-              <div className="card-indicator"></div>
-              <div className="feature-icon">
-                <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-                </svg>
-              </div>
-              <div className="feature-content">
-                <h3>Rapid Response Training</h3>
-                <p>Develop split-second decision making skills for high-pressure situations.</p>
-                <div className="feature-stat">
-                  <span className="counter-value" data-target="24">24</span>
-                  <span className="unit">seconds</span>
-                  <span className="context">average response time after training</span>
+
+        <div className="stats-grid">
+          {stats.map((stat, index) => (
+            <div key={index} className="stat-card">
+              <h3>{stat.county} County</h3>
+              <div className="stat-details">
+                <div className="stat-item">
+                  <span className="label">Population</span>
+                  <span className="value">{stat.population}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="label">Violent Crimes (2024)</span>
+                  <span className="value">{stat.crimes}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="label">Daily Average</span>
+                  <span className="value">{stat.daily}</span>
                 </div>
               </div>
             </div>
-            
-            {/* Feature Card 2 */}
-            <div className="feature-card" data-aos="fade-up" data-aos-duration="300" data-aos-delay="200">
-              <div className="card-indicator"></div>
-              <div className="feature-icon">
-                <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <path d="M12 8v8"></path>
-                  <path d="M8 12h8"></path>
-                </svg>
-              </div>
-              <div className="feature-content">
-                <h3>Precision Under Pressure</h3>
-                <p>Master techniques that dramatically improve accuracy in stressful scenarios.</p>
-                <div className="feature-stat">
-                  <span className="counter-value" data-target="77">77</span>
-                  <span className="unit">%</span>
-                  <span className="context">accuracy improvement with our training</span>
-                </div>
-              </div>
-            </div>
-            
-            {/* Feature Card 3 */}
-            <div className="feature-card" data-aos="fade-up" data-aos-duration="300" data-aos-delay="300">
-              <div className="card-indicator"></div>
-              <div className="feature-icon">
-                <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M17 18a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2"></path>
-                  <rect x="3" y="4" width="18" height="18" rx="2"></rect>
-                  <circle cx="12" cy="10" r="4"></circle>
-                </svg>
-              </div>
-              <div className="feature-content">
-                <h3>Tactical Readiness</h3>
-                <p>Comprehensive training to protect yourself and others in threatening situations.</p>
-                <div className="feature-stat">
-                  <span className="counter-value" data-target="55">55</span>
-                  <span className="unit">%</span>
-                  <span className="context">more confident in crisis situations</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>

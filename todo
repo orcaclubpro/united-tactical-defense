@@ -1,3 +1,23 @@
+#DEPLOYMENT PLAN FOR WENDESDAY
+
+I want to change some of the layout in my landing page in the frontend folder
+1. After the "From novice to Navy Seal" section add in a section below that is the ooda section . This sectino should show people "How to throw off the threats OODA Loop" using that diagram to show 7 steps. I want a horizantal diagram with pressable buttons regarding: Assessment, Draw, move, communicate, de-escalate, if they reach shoot
+2. In training program workshops add these classes: Tactical Medicine, USCCA Legal Seminars, Vehicle CQB, Womans Urban threats, Home Defense, Firearm Familiarization.
+3. Link the social media correctly at the bottom. UDT_anaheimhills
+4. Change the question and answers for question 3 of the assesmnet
+5. Add arrows for the Training Program to show that they can swipe to see programs. Also show at the top how many slides there are. Just like the Testimonial section. 
+6. rework the design and layout of the instructor section so it's a clean and unique carousel design 
+7. I want you to remove the shadows from the text as it makes it hard to read
+8. Rework the 3rd question in our assesment form
+
+
+I want to optimize the mobile layout of the landing page
+1.eliminate that white gap in training program below "what you'll learn"
+2. style the video section so that it catches the eye more
+3. the top bar shouldn't disappear when we scroll down on IOS
+
+
+
 #launch plan udt website
 
 OBJECTIVE: PREP WEBSITE TO LAUNCH TONIGHT

@@ -4,6 +4,7 @@ import Hero from './Hero';
 import TrustBadges from './TrustBadges';
 import AssessmentForm from './AssessmentForm';
 import VideoSection from './VideoSection';
+import OODASection from './OODASection';
 import Testimonials from './Testimonials';
 import Programs from './Programs';
 import Instructors from './Instructors';
@@ -62,6 +63,7 @@ const LandingPage: React.FC = () => {
       <Instructors />
       <Testimonials />
       <TrainingPath />
+      <OODASection />
       <Pricing />
       <FreeClass />
       <CallToAction />
