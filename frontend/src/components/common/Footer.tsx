@@ -25,7 +25,6 @@ const Footer: React.FC = () => {
             <div className="social-links">
               <a href="https://instagram.com/UDT_anaheimhills" target="_blank" rel="noopener noreferrer">Instagram</a>
               <a href="https://facebook.com/UDT_anaheimhills" target="_blank" rel="noopener noreferrer">Facebook</a>
-              <a href="https://twitter.com/UDT_anaheimhills" target="_blank" rel="noopener noreferrer">Twitter</a>
             </div>
           </div>
         </div>

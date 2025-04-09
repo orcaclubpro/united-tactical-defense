@@ -90,8 +90,12 @@ const Pricing: React.FC = () => {
   };
 
   const getPackagePosition = (index: number) => {
-    if (!isMobile) return 'center';
+    if (!isMobile) {
+      // On desktop, all cards are visible in a grid
+      return 'center';
+    }
     
+    // Mobile carousel logic
     const diff = index - currentIndex;
     if (diff === 0) return 'center';
     if (diff === 1 || diff === -2) return 'right';
