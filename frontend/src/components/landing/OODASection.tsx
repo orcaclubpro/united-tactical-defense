@@ -12,6 +12,29 @@ const OODASection: React.FC = () => {
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
+  // Initialize first step as active and scroll into view
+  useEffect(() => {
+    const initializeFirstStep = () => {
+      if (stepRefs.current[0] && stepsContainerRef.current) {
+        const container = stepsContainerRef.current;
+        const stepEl = stepRefs.current[0];
+        
+        const stepRect = stepEl.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        
+        const scrollLeft = container.scrollLeft + (stepRect.left - containerRect.left) - (container.offsetWidth / 2) + (stepRect.width / 2);
+        
+        container.scrollTo({
+          left: scrollLeft,
+          behavior: 'smooth'
+        });
+      }
+    };
+
+    // Run initialization immediately
+    initializeFirstStep();
+  }, []);
+
   const oodaSteps: OODAStep[] = [
     {
       title: 'Assessment',
@@ -106,7 +129,9 @@ const OODASection: React.FC = () => {
 
   // Initial scroll to active step
   useEffect(() => {
-    scrollToStep(activeStep);
+    if (activeStep > 0) {  // Only scroll for non-initial steps
+      scrollToStep(activeStep);
+    }
   }, [scrollToStep, activeStep]);
 
   return (

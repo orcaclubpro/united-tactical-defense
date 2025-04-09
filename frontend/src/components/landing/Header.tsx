@@ -106,7 +106,11 @@ const Header: React.FC = () => {
       >
         <div className="container">
           <a href="#" className="logo" onClick={scrollToTop}>
-            <img src="/assets/images/logo.png" alt="United Defense Tactical Logo" />
+            <img src="/assets/images/logo.png" alt="United Defense Tactical Logo" className="desktop-logo" />
+            <div className="mobile-logo">
+              <img src="/favicon.ico" alt="UDT Favicon" className="mobile-favicon" />
+              <span>United Defense Tactical</span>
+            </div>
           </a>
           
           <button 

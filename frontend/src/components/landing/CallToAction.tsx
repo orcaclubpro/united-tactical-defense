@@ -3,9 +3,12 @@ import heroImage from '../../assets/images/hero.jpg';
 import './CallToAction.scss';
 
 const CallToAction: React.FC = () => {
-  const scrollToTop = (e: React.MouseEvent) => {
+  const scrollToAssessment = (e: React.MouseEvent) => {
     e.preventDefault();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const assessmentSection = document.getElementById('assessment');
+    if (assessmentSection) {
+      assessmentSection.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -19,7 +22,7 @@ const CallToAction: React.FC = () => {
             and enthusiasts committed to the highest standards of training and preparedness.
           </p>
           <div className="cta-buttons">
-            <a href="#" className="btn btn-primary btn-lg" onClick={scrollToTop}>
+            <a href="#" className="btn btn-primary btn-lg" onClick={scrollToAssessment}>
               Take the Assessment
             </a>
           </div>
