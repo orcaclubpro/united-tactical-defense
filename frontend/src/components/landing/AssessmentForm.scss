@@ -215,6 +215,7 @@
     
     @media (max-width: 768px) {
       grid-template-columns: 1fr;
+      gap: 0.75rem;
     }
     
     &.checkbox-options {
@@ -232,10 +233,14 @@
       background-color: #ffffff;
       height: 100%;
       
+      @media (max-width: 768px) {
+        padding: 1rem;
+      }
+      
       &:hover {
         border-color: var(--primary-color);
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        transform: translateY(-3px);
+        transform: translateY(-2px);
       }
       
       &.selected {
@@ -254,20 +259,7 @@
       
       .option-content {
         flex: 1;
-        padding-left: 35px;
         position: relative;
-        
-        &:before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 3px;
-          width: 22px;
-          height: 22px;
-          border: 2px solid var(--mid-gray);
-          border-radius: 50%;
-          transition: all 0.3s ease;
-        }
         
         .option-title {
           display: block;
@@ -275,30 +267,29 @@
           margin-bottom: 0.5rem;
           color: var(--secondary-color);
           font-size: 1.1rem;
+          
+          @media (max-width: 768px) {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+          }
         }
         
         .option-desc {
           color: var(--dark-gray);
           font-size: 0.95rem;
           line-height: 1.5;
+          
+          @media (max-width: 768px) {
+            font-size: 0.9rem;
+            line-height: 1.4;
+          }
         }
       }
       
-      &.selected .option-content:before {
-        border-color: var(--primary-color);
-        background-color: var(--primary-color);
-      }
-      
-      &.selected .option-content:after {
-        content: '';
-        position: absolute;
-        left: 8px;
-        top: 8px;
-        width: 6px;
-        height: 12px;
-        border: solid white;
-        border-width: 0 2px 2px 0;
-        transform: rotate(45deg);
+      &.selected .option-content {
+        .option-title {
+          color: var(--primary-color);
+        }
       }
     }
   }
@@ -507,10 +498,6 @@
       padding: 1.75rem;
     }
     
-    .answer-options {
-      gap: 1rem;
-    }
-    
     .section-header h2 {
       font-size: 2rem;
     }
@@ -541,8 +528,14 @@
       }
     }
     
-    .question-step h3 {
-      font-size: 1.25rem;
+    .assessment-questions {
+      .question-step h3 {
+        font-size: 1.25rem;
+      }
+
+      .answer-option {
+        padding: 1rem;
+      }
     }
     
     .assessment-nav {
@@ -551,6 +544,54 @@
       
       .btn {
         width: 100%;
+      }
+    }
+
+    .assessment-results {
+      padding: 1.5rem;
+
+      .results-header {
+        h3 {
+          font-size: 1.5rem;
+        }
+        p {
+          font-size: 1rem;
+        }
+      }
+
+      .recommended-program {
+        padding: 1.5rem;
+
+        h4 {
+          font-size: 1.3rem;
+        }
+        p {
+          font-size: 1rem;
+        }
+        .program-features {
+          li {
+            font-size: 0.95rem;
+            padding-left: 1.75rem;
+            &:before {
+              width: 20px;
+              height: 20px;
+              font-size: 0.75rem;
+            }
+          }
+        }
+        .program-price {
+          font-size: 1.5rem;
+        }
+      }
+
+      .results-cta {
+        p {
+          font-size: 1rem;
+        }
+        .schedule-btn {
+          font-size: 1rem;
+          padding: 0.875rem 2rem;
+        }
       }
     }
   }

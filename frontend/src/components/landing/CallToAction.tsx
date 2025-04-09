@@ -1,12 +1,11 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import heroImage from '../../assets/images/hero.jpg';
 import './CallToAction.scss';
 
 const CallToAction: React.FC = () => {
-  const scrollToPrograms = (e: React.MouseEvent) => {
+  const scrollToTop = (e: React.MouseEvent) => {
     e.preventDefault();
-    document.getElementById('programs')?.scrollIntoView({ behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -20,26 +19,9 @@ const CallToAction: React.FC = () => {
             and enthusiasts committed to the highest standards of training and preparedness.
           </p>
           <div className="cta-buttons">
-            <a href="#assessment" className="btn btn-primary btn-lg">
+            <a href="#" className="btn btn-primary btn-lg" onClick={scrollToTop}>
               Take the Assessment
             </a>
-            <a href="#programs" className="btn btn-outline btn-lg" onClick={scrollToPrograms}>
-              Explore Programs
-            </a>
-          </div>
-          <div className="cta-features">
-            <div className="feature">
-              <i className="fas fa-medal"></i>
-              <span>Expert Instructors</span>
-            </div>
-            <div className="feature">
-              <i className="fas fa-shield-alt"></i>
-              <span>Industry-Leading Techniques</span>
-            </div>
-            <div className="feature">
-              <i className="fas fa-users"></i>
-              <span>Supportive Community</span>
-            </div>
           </div>
         </div>
       </div>

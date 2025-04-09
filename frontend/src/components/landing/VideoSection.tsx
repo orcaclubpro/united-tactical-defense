@@ -43,23 +43,29 @@ const VideoSection: React.FC = () => {
   const stats = [
     {
       county: 'Orange',
-      population: '3,170,435',
-      crimes: '10,729',
-      daily: '~29.4 per day'
+      population: 3170435,
+      crimes: 10729,
+      daily: 29.4
     },
     {
       county: 'Riverside',
-      population: '2,529,933',
-      crimes: '9,729',
-      daily: '~26.7 per day'
+      population: 2529933,
+      crimes: 9729,
+      daily: 26.7
     },
     {
       county: 'Los Angeles',
-      population: '9,721,138',
-      crimes: '32,729',
-      daily: '~89.7 per day'
+      population: 9721138,
+      crimes: 32729,
+      daily: 89.7
     }
   ];
+
+  const totalPopulation = stats.reduce((sum, stat) => sum + stat.population, 0);
+  const totalCrimes = stats.reduce((sum, stat) => sum + stat.crimes, 0);
+  const averageDailyCrimes = (stats.reduce((sum, stat) => sum + stat.daily, 0) / stats.length);
+
+  const formatNumber = (num: number) => num.toLocaleString('en-US');
 
   return (
     <section className="video-section">
@@ -106,26 +112,38 @@ const VideoSection: React.FC = () => {
           </div>
         </div>
 
-        <div className="stats-grid">
-          {stats.map((stat, index) => (
-            <div key={index} className="stat-card">
-              <h3>{stat.county} County</h3>
-              <div className="stat-details">
-                <div className="stat-item">
-                  <span className="label">Population</span>
-                  <span className="value">{stat.population}</span>
-                </div>
-                <div className="stat-item">
-                  <span className="label">Violent Crimes (2024)</span>
-                  <span className="value">{stat.crimes}</span>
-                </div>
-                <div className="stat-item">
-                  <span className="label">Daily Average</span>
-                  <span className="value">{stat.daily}</span>
-                </div>
-              </div>
+        <div className="stats-panel">
+          <div className="panel-header">
+            <h3>Southern California Violent Crime Snapshot (2024)</h3>
+            <p>Aggregated data from Orange, Riverside, and Los Angeles counties.</p>
+          </div>
+          <div className="panel-summary">
+            <div className="summary-item">
+              <span className="summary-label">Total Population Served</span>
+              <span className="summary-value">{formatNumber(totalPopulation)}</span>
             </div>
-          ))}
+            <div className="summary-item">
+              <span className="summary-label">Total Violent Crimes</span>
+              <span className="summary-value">{formatNumber(totalCrimes)}</span>
+            </div>
+            <div className="summary-item">
+              <span className="summary-label">Average Daily Crimes</span>
+              <span className="summary-value">~{averageDailyCrimes.toFixed(1)} per day</span>
+            </div>
+          </div>
+          <div className="panel-breakdown">
+            <h4>County Breakdown:</h4>
+            <div className="breakdown-grid">
+              {stats.map((stat, index) => (
+                <div key={index} className="county-stat">
+                  <h5>{stat.county} County</h5>
+                  <p>Pop: {formatNumber(stat.population)}</p>
+                  <p>Crimes: {formatNumber(stat.crimes)}</p>
+                  <p>Daily: ~{stat.daily.toFixed(1)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>

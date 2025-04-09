@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './OODASection.scss';
 
 interface OODAStep {
@@ -7,7 +7,9 @@ interface OODAStep {
 }
 
 const OODASection: React.FC = () => {
-  const [activeStep, setActiveStep] = useState<number | null>(null);
+  const [activeStep, setActiveStep] = useState<number>(0);
+  const stepsContainerRef = useRef<HTMLDivElement>(null);
+  const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const oodaSteps: OODAStep[] = [
     {
@@ -40,6 +42,63 @@ const OODASection: React.FC = () => {
     }
   ];
 
+  useEffect(() => {
+    stepRefs.current = stepRefs.current.slice(0, oodaSteps.length);
+  }, [oodaSteps.length]);
+
+  const handleScroll = useCallback(() => {
+    if (!stepsContainerRef.current) return;
+
+    const container = stepsContainerRef.current;
+    const containerCenter = container.offsetWidth / 2;
+    let closestStepIndex = -1;
+    let minDistance = Infinity;
+
+    stepRefs.current.forEach((stepEl, index) => {
+      if (!stepEl) return;
+      
+      const stepRect = stepEl.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+
+      const stepCenterRelativeToContainer = (stepRect.left - containerRect.left) + (stepRect.width / 2);
+      
+      const distance = Math.abs(stepCenterRelativeToContainer - containerCenter);
+
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestStepIndex = index;
+      }
+    });
+
+    if (closestStepIndex !== -1 && activeStep !== closestStepIndex) {
+      setActiveStep(closestStepIndex);
+    }
+  }, [activeStep]);
+
+  useEffect(() => {
+    const container = stepsContainerRef.current;
+    if (!container) return;
+
+    let scrollTimeout: NodeJS.Timeout | null = null;
+    const debouncedScrollHandler = () => {
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+      scrollTimeout = setTimeout(handleScroll, 50);
+    };
+
+    container.addEventListener('scroll', debouncedScrollHandler, { passive: true });
+    
+    handleScroll();
+
+    return () => {
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+      container.removeEventListener('scroll', debouncedScrollHandler);
+    };
+  }, [handleScroll]);
+
   return (
     <section className="ooda-section">
       <div className="container">
@@ -49,25 +108,35 @@ const OODASection: React.FC = () => {
         </div>
         
         <div className="ooda-diagram">
-          <div className="steps-container">
-            {oodaSteps.map((step, index) => (
-              <div 
-                key={index}
-                className={`step ${activeStep === index ? 'active' : ''}`}
-                onClick={() => setActiveStep(activeStep === index ? null : index)}
-              >
-                <div className="step-number">{index + 1}</div>
-                <div className="step-title">{step.title}</div>
-                {index < oodaSteps.length - 1 && <div className="connector" />}
-              </div>
-            ))}
+          <div className="steps-outer-container">
+            <div 
+              className="steps-container" 
+              ref={stepsContainerRef}
+            >
+              {oodaSteps.map((step, index) => (
+                <div 
+                  key={index}
+                  ref={(el: HTMLDivElement | null) => { 
+                    stepRefs.current[index] = el; 
+                  }}
+                  className={`step ${activeStep === index ? 'active' : ''}`}
+                >
+                  <div className="step-number">{index + 1}</div>
+                  <div className="step-title">{step.title}</div>
+                </div>
+              ))}
+            </div>
           </div>
           
           <div className="step-details">
-            {activeStep !== null && (
+            {activeStep !== null ? (
               <div className="details-content">
                 <h3>{oodaSteps[activeStep].title}</h3>
                 <p>{oodaSteps[activeStep].description}</p>
+              </div>
+            ) : (
+              <div className="details-content placeholder">
+                <p>Scroll to view step details.</p>
               </div>
             )}
           </div>

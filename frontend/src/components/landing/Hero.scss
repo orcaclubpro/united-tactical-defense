@@ -115,7 +115,7 @@
 
     img {
       max-width: 100%;
-      max-height: 350px;
+      max-height: 700px;
       filter: drop-shadow(2px 2px 5px rgba(0, 0, 0, 0.5));
     }
   }
@@ -161,7 +161,7 @@
       order: 1;
 
       img {
-        max-height: 220px;
+        max-height: 440px;
       }
     }
   }
@@ -180,6 +180,7 @@
     
     .hero-content {
       padding: 1.5rem 1rem;
+      padding-top: 70px;
       
       h1 {
         font-size: 2.2rem;
@@ -222,14 +223,7 @@
     }
     
     .hero-logo {
-      max-width: 75%;
-      margin: 0 auto 1.5rem;
-      display: flex;
-      justify-content: center;
-      
-      img {
-        max-height: 180px;
-      }
+      display: none;
     }
   }
   
@@ -261,7 +255,7 @@
       margin-bottom: 1rem;
       
       img {
-        max-height: 140px;
+        max-height: 280px;
       }
     }
   }

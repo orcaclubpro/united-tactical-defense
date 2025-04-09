@@ -78,7 +78,11 @@
     .carousel-track {
       display: flex;
       transition: transform 0.5s ease-in-out;
-      height: 500px;
+      height: auto;
+      
+      @media (min-width: 768px) {
+        height: 550px;
+      }
     }
     
     .carousel-card {
@@ -243,22 +247,24 @@
       margin-top: 2rem;
       
       .pagination-dot {
-        width: 12px;
-        height: 12px;
+        width: 16px;
+        height: 16px;
         border-radius: 50%;
-        background-color: rgba(var(--primary-rgb), 0.2);
-        border: none;
+        background-color: #cccccc;
+        border: 1px solid #bbbbbb;
         cursor: pointer;
         transition: all 0.3s ease;
         padding: 0;
         
         &.active {
           background-color: var(--primary-color);
+          border-color: var(--primary-color);
           transform: scale(1.2);
         }
         
         &:hover:not(.active) {
-          background-color: rgba(var(--primary-rgb), 0.4);
+          background-color: #aaaaaa;
+          border-color: #999999;
         }
       }
     }
@@ -349,7 +355,7 @@
             }
             
             ul {
-              grid-template-columns: 1fr;
+              // grid-template-columns: 1fr; // No longer needed here, it's the default
             }
           }
         }

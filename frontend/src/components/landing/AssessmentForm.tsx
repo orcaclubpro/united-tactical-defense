@@ -321,50 +321,36 @@ const AssessmentForm: React.FC = () => {
               </div>
             </div>
 
-            {/* Step 3: Tactical Response Knowledge - New OODA Loop Question */}
+            {/* Step 3: Training Preferences */}
             <div className={`question-step ${currentStep === 3 ? 'active' : ''}`} data-step="3">
-              <h3>What tactical skills are you most interested in developing?</h3>
+              <h3>What type of training environment do you prefer?</h3>
               <div className="answer-options">
-                <label className={`answer-option ${formData.interests.includes('assess') ? 'selected' : ''}`} onClick={handleOptionClick}>
-                  <input type="checkbox" name="interests" value="assess" />
+                <label className={`answer-option ${formData.interests.includes('group') ? 'selected' : ''}`} onClick={handleOptionClick}>
+                  <input type="checkbox" name="interests" value="group" />
                   <div className="option-content">
-                    <span className="option-title">Assessment</span>
-                    <span className="option-desc">Quick situation evaluation and threat identification</span>
+                    <span className="option-title">Group Training</span>
+                    <span className="option-desc">Learn alongside others in a collaborative environment</span>
                   </div>
                 </label>
-                <label className={`answer-option ${formData.interests.includes('draw') ? 'selected' : ''}`} onClick={handleOptionClick}>
-                  <input type="checkbox" name="interests" value="draw" />
+                <label className={`answer-option ${formData.interests.includes('private') ? 'selected' : ''}`} onClick={handleOptionClick}>
+                  <input type="checkbox" name="interests" value="private" />
                   <div className="option-content">
-                    <span className="option-title">Draw</span>
-                    <span className="option-desc">Effective weapon retrieval techniques</span>
+                    <span className="option-title">Private Sessions</span>
+                    <span className="option-desc">One-on-one instruction for focused learning</span>
                   </div>
                 </label>
-                <label className={`answer-option ${formData.interests.includes('move') ? 'selected' : ''}`} onClick={handleOptionClick}>
-                  <input type="checkbox" name="interests" value="move" />
+                <label className={`answer-option ${formData.interests.includes('scenario') ? 'selected' : ''}`} onClick={handleOptionClick}>
+                  <input type="checkbox" name="interests" value="scenario" />
                   <div className="option-content">
-                    <span className="option-title">Move</span>
-                    <span className="option-desc">Tactical positioning and creating distance</span>
+                    <span className="option-title">Scenario-Based</span>
+                    <span className="option-desc">Real-world situation simulations</span>
                   </div>
                 </label>
-                <label className={`answer-option ${formData.interests.includes('communicate') ? 'selected' : ''}`} onClick={handleOptionClick}>
-                  <input type="checkbox" name="interests" value="communicate" />
+                <label className={`answer-option ${formData.interests.includes('drills') ? 'selected' : ''}`} onClick={handleOptionClick}>
+                  <input type="checkbox" name="interests" value="drills" />
                   <div className="option-content">
-                    <span className="option-title">Communicate</span>
-                    <span className="option-desc">Verbal commands and de-escalation techniques</span>
-                  </div>
-                </label>
-                <label className={`answer-option ${formData.interests.includes('deescalate') ? 'selected' : ''}`} onClick={handleOptionClick}>
-                  <input type="checkbox" name="interests" value="deescalate" />
-                  <div className="option-content">
-                    <span className="option-title">De-escalate</span>
-                    <span className="option-desc">Conflict resolution without force</span>
-                  </div>
-                </label>
-                <label className={`answer-option ${formData.interests.includes('shoot') ? 'selected' : ''}`} onClick={handleOptionClick}>
-                  <input type="checkbox" name="interests" value="shoot" />
-                  <div className="option-content">
-                    <span className="option-title">If they reach, shoot</span>
-                    <span className="option-desc">Last resort defensive measures</span>
+                    <span className="option-title">Technical Drills</span>
+                    <span className="option-desc">Focus on specific skills and techniques</span>
                   </div>
                 </label>
               </div>

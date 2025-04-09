@@ -27,6 +27,7 @@
     "migrate:down": "node src/data/migrations/run-migrations.js down"
   },
   "dependencies": {
+    "@types/react-slick": "^0.23.13",
     "axios": "^1.8.4",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
@@ -41,7 +42,9 @@
     "node-schedule": "^2.1.1",
     "puppeteer": "^24.5.0",
     "react-chartjs-2": "^5.3.0",
+    "react-slick": "^0.30.3",
     "redis": "^4.6.13",
+    "slick-carousel": "^1.8.1",
     "sqlite3": "^5.1.7",
     "ua-parser-js": "^1.0.40"
   },

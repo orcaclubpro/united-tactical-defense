@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './Programs.scss';
+import udt2 from '../../assets/images/udt2.jpg';
 
 interface Program {
   id: number;
@@ -21,7 +22,7 @@ const programsData: Program[] = [
       "Stress response training",
       "Decision-making under pressure"
     ],
-    image: "/assets/images/firearmsim.JPG",
+    image: udt2,
     level: "All Levels"
   },
   {
@@ -52,81 +53,18 @@ const programsData: Program[] = [
   },
   {
     id: 4,
-    title: "Tactical Medicine",
-    description: "Learn essential medical skills for emergency situations, from basic first aid to advanced trauma care.",
+    title: "Workshops",
+    description: "Specialized training sessions covering various aspects of tactical defense and personal safety.",
     features: [
-      "Emergency response protocols",
-      "Trauma care techniques",
-      "Medical kit preparation",
-      "Scenario-based training"
+      "Tactical Medicine",
+      "USCCA Legal Seminars",
+      "Vehicle CQB",
+      "Women's Urban Threats",
+      "Home Defense",
+      "Firearm Familiarization"
     ],
-    image: "/assets/images/tactical-medicine.jpg",
+    image: "/assets/images/udt1.jpg",
     level: "All Levels"
-  },
-  {
-    id: 5,
-    title: "USCCA Legal Seminars",
-    description: "Comprehensive legal education for responsible gun ownership and self-defense situations.",
-    features: [
-      "Legal rights and responsibilities",
-      "Self-defense law",
-      "Case study analysis",
-      "Legal protection strategies"
-    ],
-    image: "/assets/images/legal-seminar.jpg",
-    level: "All Levels"
-  },
-  {
-    id: 6,
-    title: "Vehicle CQB",
-    description: "Master close-quarters combat techniques specifically designed for vehicle-based scenarios.",
-    features: [
-      "Vehicle entry and exit tactics",
-      "Limited space combat",
-      "Vehicle-based defensive strategies",
-      "Emergency response protocols"
-    ],
-    image: "/assets/images/vehicle-cqb.jpg",
-    level: "Intermediate to Advanced"
-  },
-  {
-    id: 7,
-    title: "Women's Urban Threats",
-    description: "Specialized training program designed to address common urban threats faced by women.",
-    features: [
-      "Situational awareness",
-      "Personal safety strategies",
-      "Defensive techniques",
-      "Emergency response planning"
-    ],
-    image: "/assets/images/womens-defense.jpg",
-    level: "All Levels"
-  },
-  {
-    id: 8,
-    title: "Home Defense",
-    description: "Learn comprehensive strategies for protecting your home and family in emergency situations.",
-    features: [
-      "Home security assessment",
-      "Defensive positioning",
-      "Family safety protocols",
-      "Emergency response planning"
-    ],
-    image: "/assets/images/home-defense.jpg",
-    level: "All Levels"
-  },
-  {
-    id: 9,
-    title: "Firearm Familiarization",
-    description: "Perfect for beginners, learn the fundamentals of firearm safety and operation.",
-    features: [
-      "Firearm safety rules",
-      "Basic marksmanship",
-      "Equipment familiarization",
-      "Range etiquette"
-    ],
-    image: "/assets/images/firearm-basics.jpg",
-    level: "Beginner"
   }
 ];
 
@@ -198,9 +136,6 @@ const Programs: React.FC = () => {
           <div className="badge">SKILL DEVELOPMENT</div>
           <h2>Training <span className="highlight">Programs</span></h2>
           <p>Comprehensive training tailored to your experience level and goals</p>
-          <div className="slide-counter">
-            {activeProgram + 1} / {programsData.length}
-          </div>
         </header>
         
         <div className="programs-carousel">

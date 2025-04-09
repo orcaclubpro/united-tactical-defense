@@ -126,13 +126,6 @@ const FAQ: React.FC = () => {
             </div>
           ))}
         </div>
-
-        <div className="faq-cta">
-          <p>Don't see your question here?</p>
-          <a href="#contact" className="btn btn-primary">
-            Contact Us
-          </a>
-        </div>
       </div>
     </section>
   );

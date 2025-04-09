@@ -7,45 +7,51 @@ const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [prevScrollPos, setPrevScrollPos] = useState(0);
-  const [upScrollAmount, setUpScrollAmount] = useState(0);
   
-  // Threshold for how much upward scroll is needed before showing header (in pixels)
-  const upScrollThreshold = 550;
+  // Threshold for hiding header (pixels from top)
+  const scrollThreshold = 50; 
 
-  // Handle scroll event to add sticky header and show/hide based on scroll direction
+  // Handle scroll event
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollPos = window.scrollY;
-      
-      // Determine if we've scrolled past threshold
-      setIsScrolled(currentScrollPos > 50);
-      
-      // Determine scroll direction
-      const isScrollingUp = prevScrollPos > currentScrollPos;
-      
-      if (isScrollingUp) {
-        // When scrolling up, accumulate the scroll amount
-        const amount = prevScrollPos - currentScrollPos;
-        setUpScrollAmount(prev => prev + amount);
-        
-        // Only show header if upward scroll amount exceeds threshold or we're at the top
-        setIsVisible(upScrollAmount > upScrollThreshold || currentScrollPos < 50);
+      const isMobile = window.innerWidth <= 768; 
+
+      setIsScrolled(currentScrollPos > scrollThreshold);
+
+      if (!isMobile) {
+        // Show header if scrolling up or near the top, hide if scrolling down past threshold
+        if (currentScrollPos < scrollThreshold) {
+          setIsVisible(true);
+        } else if (prevScrollPos > currentScrollPos) {
+          setIsVisible(true); // Scrolling Up
+        } else {
+          setIsVisible(false); // Scrolling Down
+        }
       } else {
-        // When scrolling down, reset the upward scroll counter and hide header
-        setUpScrollAmount(0);
-        setIsVisible(currentScrollPos < 50);
+        // Always visible on mobile
+        setIsVisible(true); 
       }
       
-      // Save current position for next comparison
-      setPrevScrollPos(currentScrollPos);
+      // Store scroll position for next event, but only if difference is significant
+      // to avoid rapid state changes on minor scrolls
+      if (Math.abs(currentScrollPos - prevScrollPos) > 5 || currentScrollPos < scrollThreshold) {
+        setPrevScrollPos(currentScrollPos);
+      }
     };
     
-    window.addEventListener('scroll', handleScroll);
+    // Add scroll and resize listeners
+    window.addEventListener('scroll', handleScroll, { passive: true }); // Use passive listener
+    window.addEventListener('resize', handleScroll); 
     
+    handleScroll(); // Initial check
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
     };
-  }, [prevScrollPos, upScrollAmount]);
+  // Dependency array simplified: only need prevScrollPos
+  }, [prevScrollPos]); 
 
   // Prevent body scroll when menu is open
   useEffect(() => {
@@ -78,10 +84,18 @@ const Header: React.FC = () => {
     }
   };
 
+  const scrollToTop = (e: React.MouseEvent) => {
+    e.preventDefault();
+    closeMenu();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <header className={`site-header ${isScrolled ? 'scrolled' : ''} ${isVisible ? 'visible' : 'hidden'}`}>
       <div className="container">
-        <a href="#" className="logo" onClick={(e) => scrollToSection('hero', e)}>UNITED DEFENSE TACTICAL</a>
+        <a href="#" className="logo" onClick={scrollToTop}>
+          <img src="/assets/images/logo.png" alt="United Defense Tactical Logo" />
+        </a>
         <nav className="main-nav">
           <button 
             className={`mobile-menu-toggle ${isMenuOpen ? 'open' : ''}`} 

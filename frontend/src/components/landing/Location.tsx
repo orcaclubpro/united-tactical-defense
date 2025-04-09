@@ -2,6 +2,8 @@ import React from 'react';
 import './Location.scss';
 
 const Location: React.FC = () => {
+  const appleMapsUrl = "https://maps.apple.com/?address=160+S+Old+Springs+Rd+%23155,+Anaheim+Hills,+CA+92808,+USA&ll=33.823385,-117.797964&q=United+Tactical+Defense";
+
   return (
     <section id="location" className="location-section">
       <div className="container">
@@ -26,44 +28,26 @@ const Location: React.FC = () => {
           
           <div className="location-details">
             <div className="detail-card address">
-              <div className="card-content">
-                <h3>Address</h3>
-                <p>160 S. Old Springs Rd, Suite 155<br />Anaheim Hills, CA 92808</p>
-                <a 
-                  href="https://maps.app.goo.gl/zQbT5YsbsXaFYsgM9" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="directions-link"
-                >
-                  Get Directions <i className="fas fa-arrow-right"></i>
-                </a>
-              </div>
+              <h3>Address</h3>
+              <p>160 S. Old Springs Rd, Suite 155</p>
+              <p>Anaheim Hills, CA 92808</p>
+              <a href={appleMapsUrl} target="_blank" rel="noopener noreferrer" className="directions-link">
+                Get Directions
+              </a>
             </div>
             
             <div className="detail-card hours">
-              <div className="card-content">
-                <h3>Training Hours</h3>
-                <ul className="hours-list">
-                  <li><span>Monday - Friday:</span> 9:00 AM - 8:00 PM</li>
-                  <li><span>Sat/Sun:</span> 8:00 AM - 5:00 PM</li>
-                </ul>
-              </div>
+              <h3>Training Hours</h3>
+              <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
+              <p>Saturday: 10:00 AM - 4:00 PM</p>
+              <p>Sunday: Closed</p>
             </div>
             
             <div className="detail-card contact">
-              <div className="card-content">
-                <h3>Contact</h3>
-                <p><strong>Phone:</strong> <a href="tel:6572760457">(657) 276-0457</a></p>
-                <p><strong>Email:</strong> <a href="mailto:anaheimhills@uniteddefensetactical.com">anaheimhills@uniteddefensetactical.com</a></p>
-              </div>
+              <h3>Contact</h3>
+              <p>Phone: (714) 555-0123</p>
+              <p>Email: info@unitedtacticaldefense.com</p>
             </div>
-          </div>
-        </div>
-        
-        <div id="contact" className="contact-info-container">
-          <div className="info-header">
-            <h3>Get In Touch</h3>
-            <p>For any inquiries about our training programs or scheduling, please contact us directly.</p>
           </div>
         </div>
       </div>

@@ -83,6 +83,7 @@ const testimonials: Testimonial[] = [
 
 const Testimonials: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [expandedQuotes, setExpandedQuotes] = useState<Record<number, boolean>>({});
   const testimonialTrackRef = useRef<HTMLDivElement>(null);
   const autoplayRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -110,11 +111,18 @@ const Testimonials: React.FC = () => {
     setActiveIndex(index);
   };
 
-  // Update slide position when active index changes
+  const toggleQuoteExpansion = (id: number) => {
+    setExpandedQuotes(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+    if (autoplayRef.current) clearInterval(autoplayRef.current);
+    autoplayRef.current = setInterval(() => nextSlide(), 8000);
+  };
+
   useEffect(() => {
     updateSlidePosition(activeIndex);
     
-    // Reset autoplay timer
     if (autoplayRef.current) {
       clearInterval(autoplayRef.current);
     }
@@ -130,7 +138,6 @@ const Testimonials: React.FC = () => {
     };
   }, [activeIndex]);
 
-  // Generate rating stars
   const renderStars = (rating: number) => {
     const stars = [];
     for (let i = 0; i < 5; i++) {
@@ -140,6 +147,8 @@ const Testimonials: React.FC = () => {
     }
     return stars;
   };
+
+  const quoteTruncateLength = 200;
 
   return (
     <section className="testimonials-section">
@@ -156,27 +165,42 @@ const Testimonials: React.FC = () => {
           
           <div className="testimonials-wrapper">
             <div className="testimonials-track" ref={testimonialTrackRef}>
-              {testimonials.map((testimonial) => (
-                <div key={testimonial.id} className="testimonial-item">
-                  <div className="testimonial-content">
-                    <div className="testimonial-quote">"{testimonial.quote}"</div>
-                    <div className="testimonial-rating">
-                      {renderStars(testimonial.rating)}
+              {testimonials.map((testimonial) => {
+                const isExpanded = expandedQuotes[testimonial.id] || false;
+                const showToggleButton = testimonial.quote.length > quoteTruncateLength;
+
+                return (
+                  <div key={testimonial.id} className="testimonial-item">
+                    <div className="testimonial-content">
+                      <div className={`testimonial-quote ${!isExpanded && showToggleButton ? 'truncated' : ''}`}>
+                        "{testimonial.quote}"
+                      </div>
+                      {showToggleButton && (
+                        <button 
+                          onClick={() => toggleQuoteExpansion(testimonial.id)}
+                          className="quote-toggle-btn"
+                        >
+                          {isExpanded ? 'Read Less' : 'Read More'}
+                        </button>
+                      )}
+                      <div className="testimonial-rating">
+                        {renderStars(testimonial.rating)}
+                      </div>
+                    </div>
+                    <div className="testimonial-author">
+                      <div className="author-image">
+                        <img src={testimonial.image} alt={testimonial.name} />
+                      </div>
+                      <div className="author-info">
+                        <div className="author-name">{testimonial.name}</div>
+                        <div className="author-location">{testimonial.location}</div>
+                        <div className="author-date">{testimonial.date}</div>
+                        {testimonial.photoInfo && <div className="author-photos">{testimonial.photoInfo}</div>}
+                      </div>
                     </div>
                   </div>
-                  <div className="testimonial-author">
-                    <div className="author-image">
-                      <img src={testimonial.image} alt={testimonial.name} />
-                    </div>
-                    <div className="author-info">
-                      <div className="author-name">{testimonial.name}</div>
-                      <div className="author-location">{testimonial.location}</div>
-                      <div className="author-date">{testimonial.date}</div>
-                      {testimonial.photoInfo && <div className="author-photos">{testimonial.photoInfo}</div>}
-                    </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
           
