@@ -1,10 +1,50 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './VideoSection.scss';
 
+interface CountyStats {
+  name: string;
+  population: number;
+  totalCrimes: number;
+  dailyAverage: number;
+}
+
 const VideoSection: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [overviewSlide, setOverviewSlide] = useState(0);
+  const [countySlide, setCountySlide] = useState(0);
+  const overviewRef = useRef<HTMLDivElement>(null);
+  const countyRef = useRef<HTMLDivElement>(null);
+
+  const countyStats: CountyStats[] = [
+    {
+      name: 'Orange County',
+      population: 3161829,
+      totalCrimes: 12453,
+      dailyAverage: 34
+    },
+    {
+      name: 'Riverside County',
+      population: 2400000,
+      totalCrimes: 9876,
+      dailyAverage: 27
+    },
+    {
+      name: 'Los Angeles County',
+      population: 10000000,
+      totalCrimes: 45678,
+      dailyAverage: 125
+    }
+  ];
+
+  const totalPopulation = countyStats.reduce((sum, county) => sum + county.population, 0);
+  const totalCrimes = countyStats.reduce((sum, county) => sum + county.totalCrimes, 0);
+  const averageDailyCrimes = Math.round(totalCrimes / 365);
+
+  const formatNumber = (num: number): string => {
+    return new Intl.NumberFormat('en-US').format(num);
+  };
 
   const toggleVideo = () => {
     const video = videoRef.current;
@@ -40,39 +80,95 @@ const VideoSection: React.FC = () => {
     }
   }, []);
 
-  const stats = [
-    {
-      county: 'Orange',
-      population: 3170435,
-      crimes: 10729,
-      daily: 29.4
-    },
-    {
-      county: 'Riverside',
-      population: 2529933,
-      crimes: 9729,
-      daily: 26.7
-    },
-    {
-      county: 'Los Angeles',
-      population: 9721138,
-      crimes: 32729,
-      daily: 89.7
-    }
-  ];
+  const nextOverviewSlide = () => {
+    setOverviewSlide((prev) => (prev + 1) % 3);
+  };
 
-  const totalPopulation = stats.reduce((sum, stat) => sum + stat.population, 0);
-  const totalCrimes = stats.reduce((sum, stat) => sum + stat.crimes, 0);
-  const averageDailyCrimes = (stats.reduce((sum, stat) => sum + stat.daily, 0) / stats.length);
+  const prevOverviewSlide = () => {
+    setOverviewSlide((prev) => (prev - 1 + 3) % 3);
+  };
 
-  const formatNumber = (num: number) => num.toLocaleString('en-US');
+  const nextCountySlide = () => {
+    setCountySlide((prev) => (prev + 1) % 3);
+  };
+
+  const prevCountySlide = () => {
+    setCountySlide((prev) => (prev - 1 + 3) % 3);
+  };
+
+  const handleOverviewTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    const startX = touch.clientX;
+    
+    const handleTouchMove = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      const diff = startX - touch.clientX;
+      
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) {
+          nextOverviewSlide();
+        } else {
+          prevOverviewSlide();
+        }
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
+      }
+    };
+    
+    const handleTouchEnd = () => {
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+    
+    document.addEventListener('touchmove', handleTouchMove);
+    document.addEventListener('touchend', handleTouchEnd);
+  };
+
+  const handleCountyTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    const startX = touch.clientX;
+    
+    const handleTouchMove = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      const diff = startX - touch.clientX;
+      
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) {
+          nextCountySlide();
+        } else {
+          prevCountySlide();
+        }
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
+      }
+    };
+    
+    const handleTouchEnd = () => {
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+    
+    document.addEventListener('touchmove', handleTouchMove);
+    document.addEventListener('touchend', handleTouchEnd);
+  };
+
+  // Auto-advance carousels
+  useEffect(() => {
+    const overviewTimer = setInterval(nextOverviewSlide, 5000);
+    const countyTimer = setInterval(nextCountySlide, 5000);
+    
+    return () => {
+      clearInterval(overviewTimer);
+      clearInterval(countyTimer);
+    };
+  }, []);
 
   return (
     <section className="video-section">
       <div className="container">
         <div className="section-header">
-          <h2>HOW WOULD YOU REACT?</h2>
-          <p>Understanding the threat landscape in Southern California</p>
+          <h2>Training Overview</h2>
+          <p>Watch our comprehensive training video and explore the statistics that drive our mission</p>
         </div>
 
         <div className="video-container">
@@ -89,20 +185,8 @@ const VideoSection: React.FC = () => {
             </video>
             
             <div className="video-overlay" onClick={toggleVideo}>
-              <button 
-                className={`play-button ${isPlaying ? 'playing' : ''}`}
-                aria-label={isPlaying ? 'Pause video' : 'Play video'}
-              >
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  {isPlaying ? (
-                    <>
-                      <rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor" />
-                      <rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor" />
-                    </>
-                  ) : (
-                    <path d="M6 4.75C6 4.04777 6.74921 3.55719 7.4 3.8L20.4 9.05C21.0593 9.29698 21.0593 10.203 20.4 10.45L7.4 15.7C6.74921 15.9428 6 15.4522 6 14.75V4.75Z" fill="currentColor" />
-                  )}
-                </svg>
+              <button className={`play-button ${isPlaying ? 'playing' : ''}`}>
+                {isPlaying ? <span>⏸</span> : <span>▶</span>}
               </button>
             </div>
             
@@ -114,34 +198,109 @@ const VideoSection: React.FC = () => {
 
         <div className="stats-panel">
           <div className="panel-header">
-            <h3>Southern California Violent Crime Snapshot (2024)</h3>
-            <p>Aggregated data from Orange, Riverside, and Los Angeles counties.</p>
-          </div>
-          <div className="panel-summary">
-            <div className="summary-item">
-              <span className="summary-label">Total Population Served</span>
-              <span className="summary-value">{formatNumber(totalPopulation)}</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-label">Total Violent Crimes</span>
-              <span className="summary-value">{formatNumber(totalCrimes)}</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-label">Average Daily Crimes</span>
-              <span className="summary-value">~{averageDailyCrimes.toFixed(1)} per day</span>
+            <h3>Crime Statistics Overview</h3>
+            <p>Recent data from major counties in Southern California</p>
+            <div className="slide-counter">
+              {overviewSlide + 1} / 3
             </div>
           </div>
-          <div className="panel-breakdown">
-            <h4>County Breakdown:</h4>
-            <div className="breakdown-grid">
-              {stats.map((stat, index) => (
-                <div key={index} className="county-stat">
-                  <h5>{stat.county} County</h5>
-                  <p>Pop: {formatNumber(stat.population)}</p>
-                  <p>Crimes: {formatNumber(stat.crimes)}</p>
-                  <p>Daily: ~{stat.daily.toFixed(1)}</p>
+          
+          <div className="stats-overview-container">
+            <div className="carousel-controls">
+              <button className="carousel-control prev" onClick={prevOverviewSlide}>
+                <span>◀</span>
+              </button>
+              <button className="carousel-control next" onClick={nextOverviewSlide}>
+                <span>▶</span>
+              </button>
+            </div>
+            
+            <div 
+              className="stats-overview" 
+              ref={overviewRef}
+              onTouchStart={handleOverviewTouchStart}
+            >
+              <div 
+                className="overview-track" 
+                style={{ transform: `translateX(-${overviewSlide * 33.333}%)` }}
+              >
+                <div className="overview-card">
+                  <div className="card-icon">
+                    <span>👥</span>
+                  </div>
+                  <div className="card-content">
+                    <span className="card-label">Total Population</span>
+                    <span className="card-value">{formatNumber(totalPopulation)}</span>
+                  </div>
                 </div>
-              ))}
+                <div className="overview-card">
+                  <div className="card-icon">
+                    <span>⚠️</span>
+                  </div>
+                  <div className="card-content">
+                    <span className="card-label">Total Violent Crimes</span>
+                    <span className="card-value">{formatNumber(totalCrimes)}</span>
+                  </div>
+                </div>
+                <div className="overview-card">
+                  <div className="card-icon">
+                    <span>📈</span>
+                  </div>
+                  <div className="card-content">
+                    <span className="card-label">Daily Average</span>
+                    <span className="card-value">{formatNumber(averageDailyCrimes)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="county-stats-container">
+            <h4>County Breakdown</h4>
+            <div className="slide-counter">
+              {countySlide + 1} / 3
+            </div>
+            
+            <div className="carousel-controls">
+              <button className="carousel-control prev" onClick={prevCountySlide}>
+                <span>◀</span>
+              </button>
+              <button className="carousel-control next" onClick={nextCountySlide}>
+                <span>▶</span>
+              </button>
+            </div>
+            
+            <div 
+              className="county-cards" 
+              ref={countyRef}
+              onTouchStart={handleCountyTouchStart}
+            >
+              <div 
+                className="county-track" 
+                style={{ transform: `translateX(-${countySlide * 33.333}%)` }}
+              >
+                {countyStats.map((county, index) => (
+                  <div key={index} className="county-card">
+                    <div className="county-header">
+                      <h5>{county.name}</h5>
+                      <div className="crime-rate">
+                        <span className="rate-value">{county.dailyAverage}</span>
+                        <span className="rate-label">crimes per day</span>
+                      </div>
+                    </div>
+                    <div className="county-details">
+                      <div className="detail-item">
+                        <span className="detail-label">Population</span>
+                        <span className="detail-value">{formatNumber(county.population)}</span>
+                      </div>
+                      <div className="detail-item">
+                        <span className="detail-label">Total Crimes</span>
+                        <span className="detail-value">{formatNumber(county.totalCrimes)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

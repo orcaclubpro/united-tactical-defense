@@ -136,6 +136,9 @@ const Programs: React.FC = () => {
           <div className="badge">SKILL DEVELOPMENT</div>
           <h2>Training <span className="highlight">Programs</span></h2>
           <p>Comprehensive training tailored to your experience level and goals</p>
+          <div className="slide-counter">
+            {activeProgram + 1} / {programsData.length}
+          </div>
         </header>
         
         <div className="programs-carousel">
@@ -191,17 +194,6 @@ const Programs: React.FC = () => {
             >
               ›
             </button>
-          </div>
-          
-          <div className="carousel-pagination">
-            {programsData.map((_, index) => (
-              <button
-                key={index}
-                className={`pagination-dot ${index === activeProgram ? 'active' : ''}`}
-                onClick={() => handleProgramClick(index)}
-                aria-label={`Go to program ${index + 1}`}
-              />
-            ))}
           </div>
         </div>
       </div>

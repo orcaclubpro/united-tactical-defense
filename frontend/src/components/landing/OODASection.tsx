@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, TouchEvent } from 'react';
 import './OODASection.scss';
 
 interface OODAStep {
@@ -10,6 +10,7 @@ const OODASection: React.FC = () => {
   const [activeStep, setActiveStep] = useState<number>(0);
   const stepsContainerRef = useRef<HTMLDivElement>(null);
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
   const oodaSteps: OODAStep[] = [
     {
@@ -46,58 +47,67 @@ const OODASection: React.FC = () => {
     stepRefs.current = stepRefs.current.slice(0, oodaSteps.length);
   }, [oodaSteps.length]);
 
-  const handleScroll = useCallback(() => {
-    if (!stepsContainerRef.current) return;
-
+  const scrollToStep = useCallback((stepIndex: number) => {
+    if (stepIndex < 0 || stepIndex >= oodaSteps.length || !stepsContainerRef.current || !stepRefs.current[stepIndex]) return;
+    
     const container = stepsContainerRef.current;
-    const containerCenter = container.offsetWidth / 2;
-    let closestStepIndex = -1;
-    let minDistance = Infinity;
-
-    stepRefs.current.forEach((stepEl, index) => {
-      if (!stepEl) return;
-      
+    const stepEl = stepRefs.current[stepIndex];
+    
+    if (stepEl) {
       const stepRect = stepEl.getBoundingClientRect();
       const containerRect = container.getBoundingClientRect();
-
-      const stepCenterRelativeToContainer = (stepRect.left - containerRect.left) + (stepRect.width / 2);
       
-      const distance = Math.abs(stepCenterRelativeToContainer - containerCenter);
-
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestStepIndex = index;
-      }
-    });
-
-    if (closestStepIndex !== -1 && activeStep !== closestStepIndex) {
-      setActiveStep(closestStepIndex);
+      const scrollLeft = container.scrollLeft + (stepRect.left - containerRect.left) - (container.offsetWidth / 2) + (stepRect.width / 2);
+      
+      container.scrollTo({
+        left: scrollLeft,
+        behavior: 'smooth'
+      });
+      
+      setActiveStep(stepIndex);
     }
-  }, [activeStep]);
+  }, [oodaSteps.length]);
 
-  useEffect(() => {
-    const container = stepsContainerRef.current;
-    if (!container) return;
+  const goToNextStep = useCallback(() => {
+    if (activeStep < oodaSteps.length - 1) {
+      scrollToStep(activeStep + 1);
+    }
+  }, [activeStep, oodaSteps.length, scrollToStep]);
 
-    let scrollTimeout: NodeJS.Timeout | null = null;
-    const debouncedScrollHandler = () => {
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout);
-      }
-      scrollTimeout = setTimeout(handleScroll, 50);
-    };
+  const goToPrevStep = useCallback(() => {
+    if (activeStep > 0) {
+      scrollToStep(activeStep - 1);
+    }
+  }, [activeStep, scrollToStep]);
 
-    container.addEventListener('scroll', debouncedScrollHandler, { passive: true });
+  const handleTouchStart = (e: TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: TouchEvent) => {
+    if (touchStartX === null) return;
     
-    handleScroll();
-
-    return () => {
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout);
+    const touchEndX = e.changedTouches[0].clientX;
+    const diffX = touchEndX - touchStartX;
+    
+    // If horizontal swipe is significant (more than 50px)
+    if (Math.abs(diffX) > 50) {
+      if (diffX > 0) {
+        // Swipe right - go to previous step
+        goToPrevStep();
+      } else {
+        // Swipe left - go to next step
+        goToNextStep();
       }
-      container.removeEventListener('scroll', debouncedScrollHandler);
-    };
-  }, [handleScroll]);
+    }
+    
+    setTouchStartX(null);
+  };
+
+  // Initial scroll to active step
+  useEffect(() => {
+    scrollToStep(activeStep);
+  }, [scrollToStep, activeStep]);
 
   return (
     <section className="ooda-section">
@@ -108,24 +118,51 @@ const OODASection: React.FC = () => {
         </div>
         
         <div className="ooda-diagram">
-          <div className="steps-outer-container">
-            <div 
-              className="steps-container" 
-              ref={stepsContainerRef}
+          <div className="steps-navigation">
+            <button 
+              className={`nav-button prev ${activeStep === 0 ? 'disabled' : ''}`}
+              onClick={goToPrevStep}
+              disabled={activeStep === 0}
+              aria-label="Previous step"
             >
-              {oodaSteps.map((step, index) => (
-                <div 
-                  key={index}
-                  ref={(el: HTMLDivElement | null) => { 
-                    stepRefs.current[index] = el; 
-                  }}
-                  className={`step ${activeStep === index ? 'active' : ''}`}
-                >
-                  <div className="step-number">{index + 1}</div>
-                  <div className="step-title">{step.title}</div>
-                </div>
-              ))}
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+              </svg>
+            </button>
+            
+            <div className="steps-outer-container">
+              <div 
+                className="steps-container" 
+                ref={stepsContainerRef}
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+              >
+                {oodaSteps.map((step, index) => (
+                  <div 
+                    key={index}
+                    ref={(el: HTMLDivElement | null) => { 
+                      stepRefs.current[index] = el; 
+                    }}
+                    className={`step ${activeStep === index ? 'active' : ''}`}
+                    onClick={() => scrollToStep(index)}
+                  >
+                    <div className="step-number">{index + 1}</div>
+                    <div className="step-title">{step.title}</div>
+                  </div>
+                ))}
+              </div>
             </div>
+            
+            <button 
+              className={`nav-button next ${activeStep === oodaSteps.length - 1 ? 'disabled' : ''}`}
+              onClick={goToNextStep}
+              disabled={activeStep === oodaSteps.length - 1}
+              aria-label="Next step"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+              </svg>
+            </button>
           </div>
           
           <div className="step-details">

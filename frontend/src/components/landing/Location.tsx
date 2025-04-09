@@ -38,15 +38,14 @@ const Location: React.FC = () => {
             
             <div className="detail-card hours">
               <h3>Training Hours</h3>
-              <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
-              <p>Saturday: 10:00 AM - 4:00 PM</p>
-              <p>Sunday: Closed</p>
+              <p>Monday - Friday: 9:00 AM - 8:00 PM</p>
+              <p>Saturday - Sunday: 8:00 AM - 5:00 PM</p>
             </div>
             
             <div className="detail-card contact">
               <h3>Contact</h3>
               <p>Phone: (714) 555-0123</p>
-              <p>Email: info@unitedtacticaldefense.com</p>
+              <p>Email: anaheimhills@uniteddefensetactical.com</p>
             </div>
           </div>
         </div>

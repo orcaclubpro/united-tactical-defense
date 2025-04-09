@@ -50,14 +50,10 @@
     }
     
     .slide-counter {
-      display: inline-block;
-      background-color: var(--white);
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
-      font-size: 0.9rem;
+      margin-top: 0.75rem;
+      font-size: 0.8rem;
       color: var(--dark-gray);
-      margin-top: 1rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      font-weight: 500;
     }
   }
   
@@ -249,6 +245,9 @@
       .pagination-dot {
         width: 16px;
         height: 16px;
+        min-width: 16px;
+        min-height: 16px;
+        aspect-ratio: 1;
         border-radius: 50%;
         background-color: #cccccc;
         border: 1px solid #bbbbbb;

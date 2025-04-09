@@ -5,15 +5,16 @@
   width: 100%;
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.75) 100%);
   color: var(--white);
-  padding: 1.25rem 0;
+  padding: 2rem 0;
   z-index: 1000;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(10px);
+  cursor: pointer;
   
   &.scrolled {
     background: rgba(0, 0, 0, 0.95);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    padding: 0.75rem 0;
+    padding: 1.5rem 0;
   }
   
   &.hidden {
@@ -28,9 +29,13 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    max-width: 1400px;
+    max-width: var(--desktop);
     margin: 0 auto;
     padding: 0 2rem;
+    
+    @media (max-width: 768px) {
+      padding: 0 1.25rem;
+    }
   }
   
   .logo {
@@ -41,12 +46,16 @@
     transition: transform 0.3s ease;
 
     img {
-      height: 40px;
+      height: 50px;
       width: auto;
       display: block;
       transition: filter 0.3s ease, transform 0.3s ease;
       transform: scale(2);
       transform-origin: left center;
+      
+      @media (max-width: 768px) {
+        transform: scale(1.5);
+      }
     }
     
     &:hover {
@@ -68,8 +77,28 @@
     margin: 0;
     padding: 0;
     
+    @media (max-width: 768px) {
+      display: none;
+      
+      &.mobile-menu-open {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.95);
+        padding: 1rem;
+        backdrop-filter: blur(10px);
+      }
+    }
+    
     li {
       margin-left: 2rem;
+      
+      @media (max-width: 768px) {
+        margin: 0.5rem 0;
+      }
       
       a {
         color: var(--white);
@@ -81,6 +110,11 @@
         position: relative;
         padding: 0.5rem 0;
         transition: all 0.3s ease;
+        
+        @media (max-width: 768px) {
+          display: block;
+          padding: 0.75rem 0;
+        }
         
         &:after {
           content: '';
@@ -165,31 +199,64 @@
     display: none;
     background: none;
     border: none;
+    color: var(--white);
+    font-size: 1.5rem;
     cursor: pointer;
-    padding: 10px;
-    z-index: 1010;
+    padding: 0.5rem;
     
-    span {
+    @media (max-width: 768px) {
       display: block;
-      width: 28px;
-      height: 2px;
-      background-color: var(--white);
-      margin: 6px 0;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      border-radius: 2px;
     }
     
-    &.open {
-      span:nth-child(1) {
-        transform: rotate(45deg) translate(6px, 6px);
+    &:hover {
+      color: var(--primary-color);
+    }
+    
+    .hamburger {
+      display: block;
+      width: 24px;
+      height: 24px;
+      position: relative;
+      
+      span {
+        display: block;
+        width: 100%;
+        height: 2px;
+        background-color: var(--white);
+        position: absolute;
+        left: 0;
+        transition: all 0.3s ease;
+        
+        &:nth-child(1) {
+          top: 0;
+        }
+        
+        &:nth-child(2) {
+          top: 50%;
+          transform: translateY(-50%);
+        }
+        
+        &:nth-child(3) {
+          bottom: 0;
+        }
       }
       
-      span:nth-child(2) {
-        opacity: 0;
-      }
-      
-      span:nth-child(3) {
-        transform: rotate(-45deg) translate(6px, -6px);
+      &.open {
+        span {
+          &:nth-child(1) {
+            transform: rotate(45deg);
+            top: 50%;
+          }
+          
+          &:nth-child(2) {
+            opacity: 0;
+          }
+          
+          &:nth-child(3) {
+            transform: rotate(-45deg);
+            top: 50%;
+          }
+        }
       }
     }
   }
@@ -202,7 +269,7 @@
 
     .logo {
       img {
-        height: 70px;
+        height: 50px;
       }
     }
     
@@ -212,19 +279,32 @@
   }
   
   @media (max-width: 768px) {
-    padding: 1rem 0;
+    padding: 1.7rem 0;
     
     .container {
-      padding: 0 1.5rem;
+      padding: 0 1.25rem;
+      justify-content: center;
+      position: relative;
+    }
+    
+    .logo {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      
+      img {
+        height: 45px;
+        transform: scale(1.5);
+      }
     }
     
     .mobile-menu-toggle {
       display: block;
-      width: 44px;
-      height: 44px;
-      position: relative;
+      width: 48px;
+      height: 48px;
+      position: absolute;
+      right: 1.25rem;
       z-index: 1200;
-      margin-left: auto;
     }
     
     .nav-links {
@@ -298,7 +378,7 @@
   }
 
   @media (max-width: 480px) {
-    padding: 0.75rem 0;
+    padding: 1.5rem 0;
     
     .container {
       padding: 0 1rem;
@@ -306,7 +386,7 @@
     
     .logo {
       img {
-        height: 60px;
+        height: 42px;
       }
     }
     
@@ -319,5 +399,90 @@
         padding: 15px 5px;
       }
     }
+  }
+}
+
+/* Mobile Menu Overlay */
+.nav-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  z-index: 1050;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .mobile-menu {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 85%;
+    max-width: 320px;
+    height: 100vh;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.98) 0%, rgba(0, 0, 0, 0.95) 100%);
+    padding: 120px 30px 30px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -5px 0 25px rgba(0, 0, 0, 0.3);
+    z-index: 1100;
+    overflow-y: auto;
+    
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      
+      &.active {
+        right: 0;
+        display: flex;
+      }
+      
+      li {
+        margin: 0;
+        width: 100%;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        
+        &:last-child {
+          border-bottom: none;
+          margin-top: 20px;
+        }
+        
+        a {
+          display: block;
+          padding: 18px 5px;
+          font-size: 1.2rem;
+          text-align: left;
+          width: 100%;
+          color: var(--white);
+          text-decoration: none;
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          transition: all 0.3s ease;
+          
+          &:hover {
+            color: var(--primary-color);
+          }
+          
+          &:after {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+  
+  &.active .mobile-menu {
+    right: 0;
   }
 } 

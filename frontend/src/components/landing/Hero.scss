@@ -43,6 +43,11 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      text-align: center;
+    }
   }
   
   .hero-content {
@@ -50,16 +55,20 @@
     padding: 2rem;
     color: #fff;
     
+    @media (max-width: 768px) {
+      max-width: 100%;
+      padding: 1rem;
+    }
+    
     h1 {
-      font-size: 3.5rem;
+      font-size: clamp(2.5rem, 6vw, 3.5rem);
       line-height: 1.1;
       margin-bottom: 1rem;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
       color: #fff;
     }
     
     .hero-tagline {
-      font-size: 1.5rem;
+      font-size: clamp(1rem, 2.5vw, 1.5rem);
       font-weight: 300;
       margin-bottom: 1.5rem;
       font-style: italic;
@@ -75,6 +84,7 @@
         padding-left: 1.5rem;
         position: relative;
         color: #fff;
+        font-size: clamp(0.875rem, 2vw, 1rem);
         
         &:before {
           content: '✓';
@@ -91,17 +101,19 @@
       display: flex;
       gap: 1rem;
       
+      @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: center;
+      }
+      
       .btn {
         text-transform: uppercase;
         letter-spacing: 1px;
-      }
-
-      .btn-red {
-        background-color: #ff0000;
-        color: white;
-        border: none;
-        &:hover {
-          background-color: #cc0000;
+        min-width: 200px;
+        
+        @media (max-width: 768px) {
+          width: 100%;
+          max-width: 300px;
         }
       }
     }
@@ -183,14 +195,15 @@
       padding-top: 70px;
       
       h1 {
-        font-size: 2.2rem;
+        font-size: 2.0rem;
         font-weight: 700;
         margin-bottom: 0.75rem;
         text-align: center;
+        letter-spacing: -0.015em;
       }
       
       .hero-tagline {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         margin-bottom: 1rem;
         text-align: center;
       }
@@ -200,7 +213,7 @@
         
         li {
           line-height: 1.4;
-          font-size: 1rem;
+          font-size: 0.95rem;
           margin-bottom: 0.75rem;
           padding-left: 1.75rem;
         }
@@ -232,20 +245,21 @@
     
     .hero-content {
       h1 {
-        font-size: 1.8rem;
+        font-size: 1.7rem;
         line-height: 1.2;
+        letter-spacing: -0.02em; /* Tighter tracking for small screens */
       }
       
       .hero-tagline {
-        font-size: 1.1rem;
+        font-size: 1rem;
       }
       
       .hero-benefits li {
-        font-size: 0.95rem;
+        font-size: 0.9rem;
       }
 
       .cta-buttons .btn {
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         padding: 0.75rem 1rem;
       }
     }
@@ -256,6 +270,25 @@
       
       img {
         max-height: 280px;
+      }
+    }
+  }
+  
+  /* iPhone SE and other small iOS devices */
+  @media (max-width: 375px) {
+    .hero-content {
+      h1 {
+        font-size: 1.5rem;
+      }
+      
+      .hero-benefits li {
+        font-size: 0.85rem;
+        padding-left: 1.5rem;
+      }
+      
+      .cta-buttons .btn {
+        font-size: 0.85rem;
+        padding: 0.7rem 0.9rem;
       }
     }
   }

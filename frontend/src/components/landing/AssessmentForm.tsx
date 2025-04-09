@@ -414,7 +414,7 @@ const AssessmentForm: React.FC = () => {
                       className="btn btn-primary schedule-btn"
                       onClick={scheduleClass}
                     >
-                      SCHEDULE YOUR FREE CLASS
+			BOOK NOW
                     </button>
                   </div>
                 </div>

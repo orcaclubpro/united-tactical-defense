@@ -11,14 +11,13 @@ const Footer: React.FC = () => {
             <p>160 S. Old Springs Rd, Suite 155</p>
             <p>Anaheim Hills, CA 92808</p>
             <p>Phone: (714) 555-0123</p>
-            <p>Email: info@unitedtacticaldefense.com</p>
+            <p>Email: anaheimhills@uniteddefensetactical.com</p>
           </div>
           
           <div className="footer-section">
             <h3>Training Hours</h3>
-            <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
-            <p>Saturday: 10:00 AM - 4:00 PM</p>
-            <p>Sunday: Closed</p>
+            <p>Monday - Friday: 9:00 AM - 8:00 PM</p>
+            <p>Saturday - Sunday: 8:00 AM - 5:00 PM</p>
           </div>
           
           <div className="footer-section">
@@ -32,7 +31,7 @@ const Footer: React.FC = () => {
         </div>
         
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} United Tactical Defense. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} United Defense Tactical. All rights reserved.</p>
         </div>
       </div>
     </footer>

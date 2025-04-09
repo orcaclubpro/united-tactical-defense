@@ -11,10 +11,13 @@ I want to change some of the layout in my landing page in the frontend folder
 8. Rework the 3rd question in our assesment form
 
 
-I want to optimize the mobile layout of the landing page
-1.eliminate that white gap in training program below "what you'll learn"
-2. style the video section so that it catches the eye more
-3. the top bar shouldn't disappear when we scroll down on IOS
+First implement the logo at the left of the header and have it replace the text
+I want the statistics box in the video section to cycle through orange, los angeles, riverside
+remove the page counter in the training programs at the counter at the top and make the circles below the section more visible
+rewokr the ooda loop so that people can scroll horizontally through the stages and have it pop up when they're in the center.
+
+
+
 
 
 

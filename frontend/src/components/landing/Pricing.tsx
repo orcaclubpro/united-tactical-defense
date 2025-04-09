@@ -102,11 +102,12 @@ const Pricing: React.FC = () => {
   const renderPackageCard = (pkg: TrainingPackage, index: number) => {
     const position = getPackagePosition(index);
     const isActive = index === currentIndex;
+    const isMiddleCard = index === 1; // CORE is at index 1
 
     return (
       <div 
         key={pkg.id} 
-        className={`package-card ${pkg.popular ? 'popular' : ''} ${isActive ? 'active' : ''} position-${position}`}
+        className={`package-card ${pkg.popular ? 'popular' : ''} ${isActive ? 'active' : ''} position-${position} ${isMiddleCard ? 'middle-card' : ''}`}
         onClick={() => isMobile && setCurrentIndex(index)}
       >
         {pkg.popular && <div className="popular-badge">Most Popular</div>}

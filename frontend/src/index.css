@@ -16,7 +16,21 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-size-adjust: 100%;
-  text-rendering: optimizeSpeed;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%; /* Prevent iOS font size adjustment */
+}
+
+/* iOS specific optimizations */
+@supports (-webkit-touch-callout: none) {
+  body {
+    /* iOS-specific font optimization */
+    letter-spacing: -0.01em;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    /* Prevent auto-resizing on orientation change */
+    -webkit-text-size-adjust: 100%;
+  }
 }
 
 /* Loading state - critical for user experience */

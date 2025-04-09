@@ -50,10 +50,61 @@
     margin: 0 auto;
     position: relative;
     
-    .steps-outer-container {
+    .steps-navigation {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       position: relative;
       margin-bottom: 1.5rem;
+      
+      .nav-button {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: white;
+        border: none;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        z-index: 5;
+        
+        svg {
+          fill: var(--primary-color);
+          transition: all 0.2s ease;
+        }
+        
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+          
+          svg {
+            fill: var(--secondary-color);
+          }
+        }
+        
+        &:active {
+          transform: translateY(0);
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        &.disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+          pointer-events: none;
+        }
+      }
+    }
+    
+    .steps-outer-container {
+      position: relative;
       padding: 1rem 0;
+      flex: 1;
+      overflow: hidden;
+      width: calc(100% - 120px);
+      margin: 0 auto;
     }
     
     .steps-container {
@@ -67,8 +118,8 @@
       &::-webkit-scrollbar {
         display: none;
       }
-      padding-left: calc(50vw - 75px);
-      padding-right: calc(50vw - 75px);
+      padding-left: calc(50% - 75px);
+      padding-right: calc(50% - 75px);
       
       .step {
         flex: 0 0 150px;
@@ -189,9 +240,18 @@
     }
     
     .ooda-diagram {
+      .steps-navigation {
+        margin-bottom: 1rem;
+        
+        .nav-button {
+          width: 36px;
+          height: 36px;
+        }
+      }
+      
       .steps-container {
-        padding-left: calc(50vw - 65px);
-        padding-right: calc(50vw - 65px);
+        padding-left: calc(50% - 65px);
+        padding-right: calc(50% - 65px);
         
         .step {
           flex: 0 0 130px;
@@ -224,9 +284,20 @@
     }
     
     .ooda-diagram {
+      .steps-navigation {
+        .nav-button {
+          width: 32px;
+          height: 32px;
+        }
+        
+        .steps-outer-container {
+          width: calc(100% - 80px);
+        }
+      }
+      
       .steps-container {
-        padding-left: calc(50vw - 60px);
-        padding-right: calc(50vw - 60px);
+        padding-left: calc(50% - 60px);
+        padding-right: calc(50% - 60px);
         
         .step {
           flex: 0 0 120px;

@@ -50,7 +50,6 @@ const Header: React.FC = () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
     };
-  // Dependency array simplified: only need prevScrollPos
   }, [prevScrollPos]); 
 
   // Prevent body scroll when menu is open
@@ -66,7 +65,8 @@ const Header: React.FC = () => {
     };
   }, [isMenuOpen]);
 
-  const toggleMenu = () => {
+  const toggleMenu = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent header click event
     setIsMenuOpen(!isMenuOpen);
   };
   
@@ -76,6 +76,7 @@ const Header: React.FC = () => {
 
   const scrollToSection = (sectionId: string, e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation(); // Prevent header click event
     closeMenu();
     
     const section = document.getElementById(sectionId);
@@ -90,42 +91,103 @@ const Header: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleHeaderClick = (e: React.MouseEvent) => {
+    // Only scroll to top if we're not clicking on a navigation link or menu button
+    if (!(e.target as HTMLElement).closest('a') && !(e.target as HTMLElement).closest('.mobile-menu-toggle')) {
+      scrollToTop(e);
+    }
+  };
+
   return (
-    <header className={`site-header ${isScrolled ? 'scrolled' : ''} ${isVisible ? 'visible' : 'hidden'}`}>
-      <div className="container">
-        <a href="#" className="logo" onClick={scrollToTop}>
-          <img src="/assets/images/logo.png" alt="United Defense Tactical Logo" />
-        </a>
-        <nav className="main-nav">
+    <>
+      <header 
+        className={`site-header ${isScrolled ? 'scrolled' : ''} ${isVisible ? 'visible' : 'hidden'}`}
+        onClick={handleHeaderClick}
+      >
+        <div className="container">
+          <a href="#" className="logo" onClick={scrollToTop}>
+            <img src="/assets/images/logo.png" alt="United Defense Tactical Logo" />
+          </a>
+          
           <button 
-            className={`mobile-menu-toggle ${isMenuOpen ? 'open' : ''}`} 
-            aria-label="Toggle menu" 
-            aria-expanded={isMenuOpen}
+            className="mobile-menu-toggle"
             onClick={toggleMenu}
+            aria-label="Toggle menu"
           >
-            <span></span>
-            <span></span>
-            <span></span>
+            <span className={`hamburger ${isMenuOpen ? 'open' : ''}`}>
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
           </button>
-          <div 
-            className={`nav-overlay ${isMenuOpen ? 'active' : ''}`} 
-            onClick={closeMenu}
-          ></div>
-          <ul className={`nav-links ${isMenuOpen ? 'active' : ''}`}>
-            <li><a href="#programs" onClick={(e) => scrollToSection('programs', e)}>Programs</a></li>
-            <li><a href="#instructors" onClick={(e) => scrollToSection('instructors', e)}>Instructors</a></li>
-            <li><a href="#training-packages" onClick={(e) => scrollToSection('training-packages', e)}>Packages</a></li>
-            <li><a href="#faq" onClick={(e) => scrollToSection('faq', e)}>FAQ</a></li>
-            <li><a href="#location" onClick={(e) => scrollToSection('location', e)}>Location</a></li>
-            <li><a href="#location" onClick={(e) => scrollToSection('location', e)}>Contact</a></li>
-          </ul>
-        </nav>
-        <div className="contact-info">
-          <a href="tel:6572760457" className="phone">(657) 276-0457</a>
-          <span>Anaheim Hills, CA</span>
+
+          <nav className={`main-nav ${isMenuOpen ? 'mobile-menu-open' : ''}`}>
+            <ul className="nav-links">
+              <li>
+                <a href="#programs" onClick={(e) => scrollToSection('programs', e)}>
+                  Programs
+                </a>
+              </li>
+              <li>
+                <a href="#instructors" onClick={(e) => scrollToSection('instructors', e)}>
+                  Instructors
+                </a>
+              </li>
+              <li>
+                <a href="#location" onClick={(e) => scrollToSection('location', e)}>
+                  Location
+                </a>
+              </li>
+              <li>
+                <a href="#pricing" onClick={(e) => scrollToSection('pricing', e)}>
+                  Pricing
+                </a>
+              </li>
+              <li>
+                <a href="#contact" onClick={(e) => scrollToSection('contact', e)}>
+                  Contact
+                </a>
+              </li>
+            </ul>
+          </nav>
         </div>
-      </div>
-    </header>
+      </header>
+      
+      {/* Mobile Menu Overlay */}
+      {isMenuOpen && (
+        <div className="nav-overlay active" onClick={closeMenu}>
+          <div className="mobile-menu">
+            <ul className="nav-links active">
+              <li>
+                <a href="#programs" onClick={(e) => scrollToSection('programs', e)}>
+                  Programs
+                </a>
+              </li>
+              <li>
+                <a href="#instructors" onClick={(e) => scrollToSection('instructors', e)}>
+                  Instructors
+                </a>
+              </li>
+              <li>
+                <a href="#location" onClick={(e) => scrollToSection('location', e)}>
+                  Location
+                </a>
+              </li>
+              <li>
+                <a href="#pricing" onClick={(e) => scrollToSection('pricing', e)}>
+                  Pricing
+                </a>
+              </li>
+              <li>
+                <a href="#contact" onClick={(e) => scrollToSection('contact', e)}>
+                  Contact
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

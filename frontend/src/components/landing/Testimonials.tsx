@@ -154,8 +154,11 @@ const Testimonials: React.FC = () => {
     <section className="testimonials-section">
       <div className="container">
         <header className="section-header">
-          <h2>What Our Members Say</h2>
-          <p>Real experiences from the UDT community</p>
+          <h2>What Our Students Say</h2>
+          <p>Hear from our students about their experience with our training programs</p>
+          <div className="slide-counter">
+            {activeIndex + 1} / {testimonials.length}
+          </div>
         </header>
         
         <div className="testimonials-container">
@@ -207,17 +210,6 @@ const Testimonials: React.FC = () => {
           <button className="testimonial-nav next" onClick={nextSlide} aria-label="Next testimonial">
             <span>›</span>
           </button>
-        </div>
-        
-        <div className="testimonial-indicators">
-          {testimonials.map((_, index) => (
-            <button
-              key={index}
-              className={`indicator ${index === activeIndex ? 'active' : ''}`}
-              onClick={() => goToSlide(index)}
-              aria-label={`Go to testimonial ${index + 1}`}
-            ></button>
-          ))}
         </div>
       </div>
     </section>
