@@ -64,8 +64,9 @@ const trainingPackages: TrainingPackage[] = [
 const TrainingPackages: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(1); // Start with CORE (index 1) as default
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
+  const [touchStart, setTouchStart] = useState<{ x: number, y: number } | null>(null);
+  const [touchEnd, setTouchEnd] = useState<{ x: number, y: number } | null>(null);
+  const [isHorizontalSwipe, setIsHorizontalSwipe] = useState(false);
   const cardsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -81,32 +82,59 @@ const TrainingPackages: React.FC = () => {
   const minSwipeDistance = 50;
 
   const handleTouchStart = (e: TouchEvent<HTMLDivElement>) => {
-    setTouchStart(e.targetTouches[0].clientX);
+    // Store both X and Y coordinates
+    setTouchStart({ 
+      x: e.targetTouches[0].clientX,
+      y: e.targetTouches[0].clientY
+    });
+    setIsHorizontalSwipe(false);
   };
 
   const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+    if (!touchStart) return;
+    
+    const currentX = e.targetTouches[0].clientX;
+    const currentY = e.targetTouches[0].clientY;
+    
+    // Calculate movement in both directions
+    const xDiff = touchStart.x - currentX;
+    const yDiff = touchStart.y - currentY;
+
+    // Update current touch position
+    setTouchEnd({ x: currentX, y: currentY });
+    
+    // If horizontal movement is more significant than vertical, 
+    // it's likely a horizontal swipe
+    if (Math.abs(xDiff) > Math.abs(yDiff) && Math.abs(xDiff) > 20) {
+      setIsHorizontalSwipe(true);
+      // Prevent default to avoid scrolling when clearly swiping horizontally
+      e.preventDefault();
+    }
   };
 
   const handleTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
     
-    const distance = touchStart - touchEnd;
-    const isSwipe = Math.abs(distance) > minSwipeDistance;
-    
-    if (isSwipe) {
-      if (distance > 0) {
-        // Swipe left - go to next card
-        handleNext();
-      } else {
-        // Swipe right - go to previous card
-        handlePrevious();
+    // Only process as a card swipe if it was identified as a horizontal swipe
+    if (isHorizontalSwipe) {
+      const distance = touchStart.x - touchEnd.x;
+      const isSwipe = Math.abs(distance) > minSwipeDistance;
+      
+      if (isSwipe) {
+        if (distance > 0) {
+          // Swipe left - go to next card
+          handleNext();
+        } else {
+          // Swipe right - go to previous card
+          handlePrevious();
+        }
       }
     }
     
     // Reset values
-    setTouchStart(0);
-    setTouchEnd(0);
+    setTouchStart(null);
+    setTouchEnd(null);
+    setIsHorizontalSwipe(false);
   };
 
   const openFreeClassModal = () => {
@@ -195,7 +223,9 @@ const TrainingPackages: React.FC = () => {
             flexDirection: 'column', 
             alignItems: 'center',
             justifyContent: 'center',
-            width: '100%'
+            width: '100%',
+            overflowY: 'visible', // Ensure vertical scrolling is not blocked
+            touchAction: 'manipulation' // Improve touch handling
           }}
         >
           <div 
@@ -208,7 +238,8 @@ const TrainingPackages: React.FC = () => {
               position: 'relative', 
               width: '100%',
               display: 'flex',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              touchAction: 'pan-y' // Enable vertical scrolling
             }}
           >
             {trainingPackages.map((pkg, index) => renderPackageCard(pkg, index))}
