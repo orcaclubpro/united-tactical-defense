@@ -141,6 +141,13 @@ const TrainingPackages: React.FC = () => {
     const openModalButton = document.getElementById('open-free-class-modal');
     if (openModalButton) {
       openModalButton.click();
+    } else {
+      console.warn('Free class modal button not found');
+      // Fallback method - try to locate and trigger the modal through other means if needed
+      const modalTriggers = document.querySelectorAll('[data-target="#freeClassModal"]');
+      if (modalTriggers.length > 0) {
+        (modalTriggers[0] as HTMLElement).click();
+      }
     }
   };
 
@@ -192,8 +199,8 @@ const TrainingPackages: React.FC = () => {
         
         <div className="card-body">
           <ul className="feature-list">
-            {pkg.features.map((feature, index) => (
-              <li key={index}>
+            {pkg.features.map((feature, fIndex) => (
+              <li key={fIndex}>
                 <FontAwesomeIcon icon={faCheck} className="check-icon" />
                 <span>{feature}</span>
               </li>
@@ -202,7 +209,15 @@ const TrainingPackages: React.FC = () => {
         </div>
         
         <div className="card-footer">
-          <button onClick={openFreeClassModal} className="btn btn-primary">Claim free class</button>
+          <button 
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent the event from bubbling up
+              openFreeClassModal();
+            }} 
+            className="btn btn-primary"
+          >
+            Claim free class
+          </button>
         </div>
       </div>
     );
@@ -224,8 +239,7 @@ const TrainingPackages: React.FC = () => {
             alignItems: 'center',
             justifyContent: 'center',
             width: '100%',
-            overflowY: 'visible', // Ensure vertical scrolling is not blocked
-            touchAction: 'manipulation' // Improve touch handling
+            overflowY: 'visible'
           }}
         >
           <div 
