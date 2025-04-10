@@ -62,7 +62,7 @@ const Hero: React.FC = () => {
         <div className="hero-content">
           <h1>REALITY-BASED TACTICAL TRAINING FOR REAL-WORLD DEFENSE</h1>
           <p className="hero-tagline">
-            Train to be safe. Train to be confident. Train to survive.
+            Train your survival mentality in a safe and engaging dry fire facility
           </p>
           <ul className="hero-benefits">
             <li>

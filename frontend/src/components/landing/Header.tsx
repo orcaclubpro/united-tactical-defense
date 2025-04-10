@@ -66,6 +66,7 @@ const Header: React.FC = () => {
   }, [isMenuOpen]);
 
   const toggleMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation(); // Prevent header click event
     setIsMenuOpen(!isMenuOpen);
   };
@@ -160,7 +161,7 @@ const Header: React.FC = () => {
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
         <div className="nav-overlay active" onClick={closeMenu}>
-          <div className="mobile-menu">
+          <div className="mobile-menu" onClick={(e) => e.stopPropagation()}>
             <ul className="nav-links active">
               <li>
                 <a href="#programs" onClick={(e) => scrollToSection('programs', e)}>

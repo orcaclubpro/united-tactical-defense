@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './VideoSection.scss';
 
+// Import an image to use as a fallback poster
+import fallbackPoster from '../../assets/images/hero.jpg';
+
 interface CountyStats {
   name: string;
   population: number;
@@ -50,13 +53,16 @@ const VideoSection: React.FC = () => {
     const video = videoRef.current;
     if (!video) return;
     
-    if (video.paused) {
-      video.play();
-      setIsPlaying(true);
-    } else {
+    if (isPlaying) {
       video.pause();
-      setIsPlaying(false);
+    } else {
+      video.play()
+        .catch(err => {
+          console.error('Error playing video:', err);
+        });
     }
+    
+    setIsPlaying(!isPlaying);
   };
 
   useEffect(() => {
@@ -177,7 +183,7 @@ const VideoSection: React.FC = () => {
               ref={videoRef}
               className="training-video"
               playsInline
-              poster={`${process.env.PUBLIC_URL}/assets/images/video-poster.jpg`}
+              poster={fallbackPoster}
             >
               <source src={`${process.env.PUBLIC_URL}/assets/videos/ty.mp4`} type="video/mp4" />
               <source src={`${process.env.PUBLIC_URL}/assets/videos/ty.webm`} type="video/webm" />

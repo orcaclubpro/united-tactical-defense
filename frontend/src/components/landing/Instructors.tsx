@@ -60,12 +60,7 @@ const Instructors: React.FC = () => {
   const carouselRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
-  const [isBioExpanded, setIsBioExpanded] = useState<boolean>(false);
   
-  useEffect(() => {
-    setIsBioExpanded(false);
-  }, [activeInstructor]);
-
   useEffect(() => {
     if (!autoScroll) return;
     
@@ -76,7 +71,7 @@ const Instructors: React.FC = () => {
     return () => clearInterval(interval);
   }, [autoScroll]);
 
-  const handleInstructorClick = (index: number) => {
+  const handleArrowClick = (index: number) => {
     setActiveInstructor(index);
     setAutoScroll(false);
     setTimeout(() => setAutoScroll(true), 15000);
@@ -97,9 +92,9 @@ const Instructors: React.FC = () => {
     
     if (Math.abs(swipeDistance) > minSwipeDistance) {
       if (swipeDistance > 0) {
-        handleInstructorClick((activeInstructor - 1 + instructorsData.length) % instructorsData.length);
+        handleArrowClick((activeInstructor - 1 + instructorsData.length) % instructorsData.length);
       } else {
-        handleInstructorClick((activeInstructor + 1) % instructorsData.length);
+        handleArrowClick((activeInstructor + 1) % instructorsData.length);
       }
     }
     
@@ -111,12 +106,6 @@ const Instructors: React.FC = () => {
     if (openModalButton) {
       openModalButton.click();
     }
-  };
-
-  const toggleBio = () => {
-    setIsBioExpanded(!isBioExpanded);
-    setAutoScroll(false);
-    setTimeout(() => setAutoScroll(true), 15000);
   };
 
   return (
@@ -160,13 +149,8 @@ const Instructors: React.FC = () => {
                         ))}
                       </div>
                     </div>
-                    <div className={`bio-container ${isBioExpanded && index === activeInstructor ? 'expanded' : ''}`}>
+                    <div className="bio-container expanded">
                       <p className="bio">{instructor.bio}</p>
-                      {instructor.bio.length > 150 && index === activeInstructor && (
-                        <button onClick={toggleBio} className="bio-toggle-btn">
-                          {isBioExpanded ? 'Read Less' : 'Read More'}
-                        </button>
-                      )}
                     </div>
                     <button onClick={openFreeClassModal} className="btn btn-primary">
                       Train With {instructor.name.split(' ')[0]}
@@ -180,14 +164,14 @@ const Instructors: React.FC = () => {
           <div className="carousel-controls">
             <button 
               className="carousel-control prev"
-              onClick={() => handleInstructorClick((activeInstructor - 1 + instructorsData.length) % instructorsData.length)}
+              onClick={() => handleArrowClick((activeInstructor - 1 + instructorsData.length) % instructorsData.length)}
               aria-label="Previous instructor"
             >
               ‹
             </button>
             <button 
               className="carousel-control next"
-              onClick={() => handleInstructorClick((activeInstructor + 1) % instructorsData.length)}
+              onClick={() => handleArrowClick((activeInstructor + 1) % instructorsData.length)}
               aria-label="Next instructor"
             >
               ›
@@ -199,7 +183,7 @@ const Instructors: React.FC = () => {
               <button
                 key={idx}
                 className={`pagination-dot ${idx === activeInstructor ? 'active' : ''}`}
-                onClick={() => handleInstructorClick(idx)}
+                onClick={() => handleArrowClick(idx)}
                 aria-label={`Go to instructor ${idx + 1}`}
               />
             ))}

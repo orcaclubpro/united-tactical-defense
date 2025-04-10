@@ -310,18 +310,12 @@
             }
           }
 
-          .bio-container:not(.expanded) {
+          .bio-container {
             .bio {
-              overflow: hidden;
-              display: -webkit-box;
-              -webkit-line-clamp: 4;
-              -webkit-box-orient: vertical;
               font-size: 0.85rem;
+              line-height: 1.5;
+              margin-bottom: 1rem;
             }
-          }
-          
-          .bio {
-            font-size: 0.85rem;
           }
           
           .btn {
@@ -329,6 +323,7 @@
             width: 100%;
             text-align: center;
             align-self: center;
+            pointer-events: auto;
           }
         }
       }
