@@ -62,7 +62,7 @@ const trainingPackages: TrainingPackage[] = [
 ];
 
 const Pricing: React.FC = () => {
-  const [currentIndex, setCurrentIndex] = useState(1); // Start with CORE+ in the middle
+  const [currentIndex, setCurrentIndex] = useState(1); // Start with CORE (index 1) as default
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   useEffect(() => {
