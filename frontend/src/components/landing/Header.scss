@@ -230,6 +230,7 @@
     font-size: 1.5rem;
     cursor: pointer;
     padding: 0.5rem;
+    z-index: 1500;
     
     @media (max-width: 768px) {
       display: block;
@@ -379,7 +380,7 @@
           span {
             &:nth-child(1) {
               transform: rotate(45deg);
-              top: 50%;
+              top: 7px;
             }
             
             &:nth-child(2) {
@@ -388,7 +389,8 @@
             
             &:nth-child(3) {
               transform: rotate(-45deg);
-              top: 50%;
+              top: 7px;
+              bottom: auto;
             }
           }
         }
@@ -533,10 +535,6 @@
     border-left: 1px solid rgba(255, 0, 0, 0.3);
     outline: 1px solid rgba(255, 255, 255, 0.1);
     
-    &.active, .nav-links.active & {
-      right: 0;
-    }
-    
     .nav-links {
       display: flex;
       flex-direction: column;
@@ -545,6 +543,7 @@
       padding: 0;
       
       &.active {
+        right: 0;
         display: flex;
       }
       

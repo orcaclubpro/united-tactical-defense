@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './VideoSection.scss';
-
-// Import an image to use as a fallback poster
-import fallbackPoster from '../../assets/images/hero.jpg';
+import videoPoster from '../../assets/images/video-poster.jpg';
 
 interface CountyStats {
   name: string;
@@ -53,16 +51,13 @@ const VideoSection: React.FC = () => {
     const video = videoRef.current;
     if (!video) return;
     
-    if (isPlaying) {
-      video.pause();
+    if (video.paused) {
+      video.play();
+      setIsPlaying(true);
     } else {
-      video.play()
-        .catch(err => {
-          console.error('Error playing video:', err);
-        });
+      video.pause();
+      setIsPlaying(false);
     }
-    
-    setIsPlaying(!isPlaying);
   };
 
   useEffect(() => {
@@ -169,6 +164,12 @@ const VideoSection: React.FC = () => {
     };
   }, []);
 
+  // Preload poster image
+  useEffect(() => {
+    const img = new Image();
+    img.src = videoPoster;
+  }, []);
+
   return (
     <section className="video-section">
       <div className="container">
@@ -183,7 +184,8 @@ const VideoSection: React.FC = () => {
               ref={videoRef}
               className="training-video"
               playsInline
-              poster={fallbackPoster}
+              preload="metadata"
+              poster={videoPoster}
             >
               <source src={`${process.env.PUBLIC_URL}/assets/videos/ty.mp4`} type="video/mp4" />
               <source src={`${process.env.PUBLIC_URL}/assets/videos/ty.webm`} type="video/webm" />

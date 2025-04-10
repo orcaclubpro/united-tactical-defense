@@ -94,7 +94,9 @@ const Header: React.FC = () => {
 
   const handleHeaderClick = (e: React.MouseEvent) => {
     // Only scroll to top if we're not clicking on a navigation link or menu button
-    if (!(e.target as HTMLElement).closest('a') && !(e.target as HTMLElement).closest('.mobile-menu-toggle')) {
+    if (!(e.target as HTMLElement).closest('a') && 
+        !(e.target as HTMLElement).closest('.mobile-menu-toggle') && 
+        !(e.target as HTMLElement).closest('.hamburger')) {
       scrollToTop(e);
     }
   };
