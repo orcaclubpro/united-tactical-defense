@@ -148,7 +148,7 @@ const Pricing: React.FC = () => {
   
   return (
     <section id="training-packages" className="training-packages-section">
-      <div className="container">
+      <div id="pricing" className="container">
         <header className="section-header">
           <h2>Training Packages</h2>
           <p>Elevate your tactical defense skills with our premium training programs</p>

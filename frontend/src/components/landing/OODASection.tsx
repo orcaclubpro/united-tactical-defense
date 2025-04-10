@@ -11,6 +11,7 @@ const OODASection: React.FC = () => {
   const stepsContainerRef = useRef<HTMLDivElement>(null);
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [initialized, setInitialized] = useState<boolean>(false);
 
   // Initialize first step as active and scroll into view
   useEffect(() => {
@@ -28,12 +29,30 @@ const OODASection: React.FC = () => {
           left: scrollLeft,
           behavior: 'smooth'
         });
+        
+        // Force the first step to be active
+        setActiveStep(0);
+        setInitialized(true);
       }
     };
 
-    // Run initialization immediately
-    initializeFirstStep();
+    // Add a delay to ensure refs are set properly before initializing
+    const timer = setTimeout(initializeFirstStep, 300);
+    return () => clearTimeout(timer);
   }, []);
+
+  // Re-apply active state on resize in case of mobile/desktop switch
+  useEffect(() => {
+    const handleResize = () => {
+      if (initialized) {
+        // Force a re-render to apply active styles after a slight delay
+        setActiveStep(prev => prev);
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [initialized]);
 
   const oodaSteps: OODAStep[] = [
     {
@@ -129,9 +148,7 @@ const OODASection: React.FC = () => {
 
   // Initial scroll to active step
   useEffect(() => {
-    if (activeStep > 0) {  // Only scroll for non-initial steps
-      scrollToStep(activeStep);
-    }
+    scrollToStep(activeStep);
   }, [scrollToStep, activeStep]);
 
   return (

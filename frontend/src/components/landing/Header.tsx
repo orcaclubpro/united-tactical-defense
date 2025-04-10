@@ -80,7 +80,14 @@ const Header: React.FC = () => {
     e.stopPropagation(); // Prevent header click event
     closeMenu();
     
-    const section = document.getElementById(sectionId);
+    let targetId = sectionId;
+    
+    // Special case handling for pricing section which is actually training-packages
+    if (sectionId === 'pricing') {
+      targetId = 'training-packages';
+    }
+    
+    const section = document.getElementById(targetId);
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' });
     }
@@ -146,12 +153,12 @@ const Header: React.FC = () => {
                 </a>
               </li>
               <li>
-                <a href="#pricing" onClick={(e) => scrollToSection('pricing', e)}>
+                <a href="#training-packages" onClick={(e) => scrollToSection('training-packages', e)}>
                   Pricing
                 </a>
               </li>
               <li>
-                <a href="#contact" onClick={(e) => scrollToSection('contact', e)}>
+                <a href="#location" onClick={(e) => scrollToSection('location', e)}>
                   Contact
                 </a>
               </li>
@@ -181,12 +188,12 @@ const Header: React.FC = () => {
                 </a>
               </li>
               <li>
-                <a href="#pricing" onClick={(e) => scrollToSection('pricing', e)}>
+                <a href="#training-packages" onClick={(e) => scrollToSection('training-packages', e)}>
                   Pricing
                 </a>
               </li>
               <li>
-                <a href="#contact" onClick={(e) => scrollToSection('contact', e)}>
+                <a href="#location" onClick={(e) => scrollToSection('location', e)}>
                   Contact
                 </a>
               </li>

@@ -255,6 +255,16 @@
         
         .step {
           flex: 0 0 130px;
+          
+          &.active {
+            transform: scale(1.05) translateY(-3px);
+            
+            .step-number {
+              background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+              color: white;
+              box-shadow: 0 4px 10px rgba(var(--primary-rgb), 0.3);
+            }
+          }
         }
       }
       
@@ -304,6 +314,20 @@
           .step-title {
             font-size: 0.8rem;
           }
+          
+          &.active {
+            transform: scale(1.05);
+            
+            .step-number {
+              transform: scale(1.1);
+            }
+          }
+          
+          .step-number {
+            width: 36px;
+            height: 36px;
+            font-size: 0.9rem;
+          }
         }
       }
       
@@ -318,6 +342,34 @@
           
           p {
             font-size: 0.95rem;
+          }
+        }
+      }
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .ooda-diagram {
+      .steps-container {
+        .step {
+          flex: 0 0 110px;
+          
+          &.active {
+            transform: scale(1.05);
+            
+            .step-number {
+              transform: scale(1.1);
+            }
+          }
+          
+          .step-number {
+            width: 36px;
+            height: 36px;
+            font-size: 0.9rem;
+          }
+          
+          .step-title {
+            font-size: 0.8rem;
           }
         }
       }
