@@ -336,7 +336,7 @@ const AssessmentForm: React.FC = () => {
                   <input type="checkbox" name="interests" value="private" />
                   <div className="option-content">
                     <span className="option-title">Private Sessions</span>
-                    <span className="option-desc">One-on-one instruction for focused learning</span>
+                    <span className="option-desc">Small group classes for personalized attention</span>
                   </div>
                 </label>
                 <label className={`answer-option ${formData.interests.includes('scenario') ? 'selected' : ''}`} onClick={handleOptionClick}>

@@ -74,8 +74,8 @@
     }
     
     .hero-tagline {
-      font-size: clamp(1rem, 2.5vw, 1.5rem);
-      font-weight: 300;
+      font-size: clamp(1.25rem, 3vw, 1.85rem);
+      font-weight: 400;
       margin-bottom: 1.5rem;
       font-style: italic;
       color: #fff;
@@ -220,9 +220,10 @@
       }
       
       .hero-tagline {
-        font-size: 1.1rem;
+        font-size: 1.35rem;
         margin-bottom: 1rem;
         text-align: center;
+        font-weight: 400;
       }
       
       .hero-benefits {

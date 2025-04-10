@@ -616,7 +616,7 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
       }
     } catch (error) {
       console.error('❌ Error submitting form:', error);
-      setSubmissionError('There was an error submitting your request. Please try again.');
+      setSubmissionError('Apologies, this time slot is currently booked, please choose another time to check availability.');
     } finally {
       setSubmitting(false);
     }
@@ -726,16 +726,17 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
     const calculateEndTime = (startTime: string) => {
       if (!startTime) return '';
       
+      // Parse the start time string to get hours and minutes as numbers
       const [hours, minutes] = startTime.split(':').map(part => parseInt(part));
-      let endHours = hours;
-      let endMinutes = minutes + 90;
       
-      if (endMinutes >= 60) {
-        endHours += Math.floor(endMinutes / 60);
-        endMinutes = endMinutes % 60;
-      }
+      // Convert to total minutes, add 90 minutes session duration
+      let totalMinutes = (hours * 60) + minutes + 90;
       
-      // Handle day wrap
+      // Calculate new hours and minutes
+      let endHours = Math.floor(totalMinutes / 60);
+      let endMinutes = totalMinutes % 60;
+      
+      // Handle day wrap (for times that go past midnight)
       if (endHours >= 24) {
         endHours = endHours % 24;
       }
@@ -813,13 +814,14 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
             <li>Your session will be 90 minutes of personalized training</li>
             <li>Arrive 10 minutes before your scheduled time</li>
             <li>Wear comfortable clothing you can move in</li>
-            <li>Bring a water bottle and a positive attitude</li>
+            <li>Wear proper pants for a holster to attach to</li>
+            <li>Same day cancellations/no shows will NOT be tolerated</li>
           </ul>
         </FreeClassInfo>
         
         {submissionError && (
           <ErrorMessage>
-            There was an error submitting your form. Please try again or contact us directly.
+            {submissionError}
           </ErrorMessage>
         )}
       </FormWrapper>

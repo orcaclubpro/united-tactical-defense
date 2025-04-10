@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, TouchEvent } from 'react';
 import './TrainingPackages.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faAward, faStar, faFire, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
@@ -61,9 +61,12 @@ const trainingPackages: TrainingPackage[] = [
   }
 ];
 
-const Pricing: React.FC = () => {
+const TrainingPackages: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(1); // Start with CORE (index 1) as default
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+  const cardsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -73,6 +76,38 @@ const Pricing: React.FC = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Minimum swipe distance in pixels to trigger card change
+  const minSwipeDistance = 50;
+
+  const handleTouchStart = (e: TouchEvent<HTMLDivElement>) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isSwipe = Math.abs(distance) > minSwipeDistance;
+    
+    if (isSwipe) {
+      if (distance > 0) {
+        // Swipe left - go to next card
+        handleNext();
+      } else {
+        // Swipe right - go to previous card
+        handlePrevious();
+      }
+    }
+    
+    // Reset values
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
 
   const openFreeClassModal = () => {
     const openModalButton = document.getElementById('open-free-class-modal');
@@ -112,7 +147,6 @@ const Pricing: React.FC = () => {
       <div 
         key={pkg.id} 
         className={`package-card ${pkg.popular ? 'popular' : ''} ${isActive ? 'active' : ''} position-${position} ${isMiddleCard ? 'middle-card' : ''}`}
-        onClick={() => isMobile && setCurrentIndex(index)}
       >
         {pkg.popular && <div className="popular-badge">Most Popular</div>}
         
@@ -148,27 +182,43 @@ const Pricing: React.FC = () => {
   
   return (
     <section id="training-packages" className="training-packages-section">
-      <div id="pricing" className="container">
+      <div id="packages" className="container">
         <header className="section-header">
           <h2>Training Packages</h2>
           <p>Elevate your tactical defense skills with our premium training programs</p>
         </header>
         
-        <div className="package-cards-container">
-          {isMobile && (
-            <button className="carousel-nav prev" onClick={handlePrevious}>
-              <FontAwesomeIcon icon={faChevronLeft} />
-            </button>
-          )}
-          
-          <div className="package-cards">
+        <div 
+          className="package-cards-container" 
+          style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%'
+          }}
+        >
+          <div 
+            className="package-cards"
+            ref={cardsRef}
+            onTouchStart={isMobile ? handleTouchStart : undefined}
+            onTouchMove={isMobile ? handleTouchMove : undefined}
+            onTouchEnd={isMobile ? handleTouchEnd : undefined}
+            style={{ 
+              position: 'relative', 
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'center'
+            }}
+          >
             {trainingPackages.map((pkg, index) => renderPackageCard(pkg, index))}
           </div>
           
           {isMobile && (
-            <button className="carousel-nav next" onClick={handleNext}>
-              <FontAwesomeIcon icon={faChevronRight} />
-            </button>
+            <div className="swipe-indicator">
+              <span>Swipe to view more</span>
+              <div className="swipe-animation"></div>
+            </div>
           )}
         </div>
         
@@ -181,4 +231,4 @@ const Pricing: React.FC = () => {
   );
 };
 
-export default Pricing; 
+export default TrainingPackages; 

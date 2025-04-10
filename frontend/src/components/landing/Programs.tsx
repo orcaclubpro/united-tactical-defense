@@ -46,7 +46,7 @@ const programsData: Program[] = [
       "Climate-controlled environment",
       "Multiple shooting distances",
       "Target analysis systems",
-      "One-on-one instruction available"
+      "Small group classes available"
     ],
     image: "/assets/images/udtrange.JPG",
     level: "All Levels"

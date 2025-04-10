@@ -38,7 +38,7 @@ const faqItems: FAQItem[] = [
     id: 5,
     question: "Do you offer private training sessions?",
     answer:
-      "No one-on-one classes, but it is small groups with a max of 5 people per class.",
+      "We offer small group classes with a maximum of 5 people per class to ensure personalized attention and quality instruction.",
     category: "Training",
   },
   {

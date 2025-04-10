@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './VideoSection.scss';
-import videoPoster from '../../assets/images/video-poster.jpg';
+import videoPoster from '../../assets/images/udt5.jpg';
 
 interface CountyStats {
   name: string;
@@ -11,10 +11,13 @@ interface CountyStats {
 
 const VideoSection: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [overviewSlide, setOverviewSlide] = useState(0);
   const [countySlide, setCountySlide] = useState(0);
+  const [firstFrameCapture, setFirstFrameCapture] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const overviewRef = useRef<HTMLDivElement>(null);
   const countyRef = useRef<HTMLDivElement>(null);
 
@@ -164,11 +167,56 @@ const VideoSection: React.FC = () => {
     };
   }, []);
 
-  // Preload poster image
+  // Check if device is mobile
   useEffect(() => {
-    const img = new Image();
-    img.src = videoPoster;
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    // Initial check
+    checkMobile();
+    
+    // Add event listener for window resize
+    window.addEventListener('resize', checkMobile);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
   }, []);
+
+  // Capture first frame when video metadata loads
+  useEffect(() => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    
+    if (!video || !canvas) return;
+    
+    const captureFirstFrame = () => {
+      if (isMobile && video.readyState >= 2) {
+        const context = canvas.getContext('2d');
+        if (!context) return;
+        
+        // Set canvas dimensions to match video
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        
+        // Draw the current frame (first frame) to the canvas
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        // Convert canvas to data URL
+        const dataURL = canvas.toDataURL('image/jpeg');
+        setFirstFrameCapture(dataURL);
+      }
+    };
+    
+    // Listen for loadeddata event to capture first frame
+    video.addEventListener('loadeddata', captureFirstFrame);
+    
+    return () => {
+      video.removeEventListener('loadeddata', captureFirstFrame);
+    };
+  }, [isMobile]);
 
   return (
     <section className="video-section">
@@ -185,12 +233,18 @@ const VideoSection: React.FC = () => {
               className="training-video"
               playsInline
               preload="metadata"
-              poster={videoPoster}
+              poster={isMobile && firstFrameCapture ? firstFrameCapture : videoPoster}
             >
               <source src={`${process.env.PUBLIC_URL}/assets/videos/ty.mp4`} type="video/mp4" />
               <source src={`${process.env.PUBLIC_URL}/assets/videos/ty.webm`} type="video/webm" />
               Your browser does not support the video tag.
             </video>
+            
+            {/* Hidden canvas for capturing the first frame */}
+            <canvas 
+              ref={canvasRef} 
+              style={{ display: 'none' }} 
+            />
             
             <div className="video-overlay" onClick={toggleVideo}>
               <button className={`play-button ${isPlaying ? 'playing' : ''}`}>

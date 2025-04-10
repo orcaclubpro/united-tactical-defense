@@ -154,7 +154,7 @@ const Header: React.FC = () => {
               </li>
               <li>
                 <a href="#training-packages" onClick={(e) => scrollToSection('training-packages', e)}>
-                  Pricing
+                  Packages
                 </a>
               </li>
               <li>
@@ -189,7 +189,7 @@ const Header: React.FC = () => {
               </li>
               <li>
                 <a href="#training-packages" onClick={(e) => scrollToSection('training-packages', e)}>
-                  Pricing
+                  Packages
                 </a>
               </li>
               <li>
