@@ -48,10 +48,7 @@ export const initializeGA4 = (measurementId: string): void => {
   
   // Set default configuration
   window.gtag('js', new Date());
-  window.gtag('config', measurementId, {
-    send_page_view: true,
-    cookie_flags: 'samesite=none;secure'
-  });
+  window.gtag('config', measurementId);
   
   console.info(`[Analytics] GA4 initialized with measurement ID: ${measurementId}`);
 };
