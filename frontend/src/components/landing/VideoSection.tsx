@@ -222,8 +222,8 @@ const VideoSection: React.FC = () => {
     <section className="video-section">
       <div className="container">
         <div className="section-header">
-          <h2>Training Overview</h2>
-          <p>Watch our comprehensive training video and explore the statistics that drive our mission</p>
+          <h2>About Us</h2>
+          <p>See what makes us different</p>
         </div>
 
         <div className="video-container">
