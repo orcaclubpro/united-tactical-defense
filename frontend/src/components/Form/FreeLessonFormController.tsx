@@ -484,10 +484,42 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
       // Format date with timezone for API
       let selectedSlot = '';
       if (formData.appointmentDate && formData.appointmentTime) {
+        // Create a new date object from the selected date
         const date = new Date(formData.appointmentDate);
-        const [hours, minutes] = formData.appointmentTime.split(':').map(Number);
-        date.setHours(hours, minutes, 0, 0);
-        selectedSlot = date.toISOString();
+        
+        // Parse the time string (format: "HH:MM AM/PM")
+        const timeMatch = formData.appointmentTime.match(/(\d+):(\d+)\s*(AM|PM)/i);
+        if (!timeMatch) {
+          throw new Error('Invalid time format');
+        }
+        
+        let [_, hours, minutes, period] = timeMatch;
+        let hour = parseInt(hours);
+        const minute = parseInt(minutes);
+        
+        // Convert to 24-hour format
+        if (period.toUpperCase() === 'PM' && hour < 12) {
+          hour += 12;
+        } else if (period.toUpperCase() === 'AM' && hour === 12) {
+          hour = 0;
+        }
+        
+        // Set the hours and minutes on the date object
+        date.setHours(hour, minute, 0, 0);
+        
+        // Format the date string with timezone
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        const formattedHours = hour.toString().padStart(2, '0');
+        const formattedMinutes = minute.toString().padStart(2, '0');
+        
+        // Use Pacific Time (PT) timezone offset
+        selectedSlot = `${year}-${month}-${day}T${formattedHours}:${formattedMinutes}:00-07:00`;
+        
+        console.log('Formatted date:', selectedSlot);
+      } else {
+        throw new Error('Date and time are required');
       }
       
       // Generate unique identifiers
@@ -558,7 +590,6 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
       });
       
       // Create multipart form data
-      const boundary = '----geckoformboundary' + Math.random().toString(16).substring(2);
       const formDataObj = new FormData();
       
       // Add formData part
@@ -585,11 +616,15 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
       try {
         responseData = await response.json();
       } catch (e) {
-        // If can't parse JSON, create a fallback response
-        responseData = { success: response.ok, message: response.statusText };
+        console.error('❌ Failed to parse response:', e);
+        throw new Error('Failed to process the response from the appointment service');
       }
       
       console.log('✅ External API response:', responseData);
+      
+      if (!response.ok) {
+        throw new Error(responseData.error || 'Failed to book appointment');
+      }
       
       // Track conversion in Google Analytics 4 using our custom hook
       trackForm('free_lesson', {
@@ -599,24 +634,13 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
         appointmentDate: formData.appointmentDate
       });
       
-      // For development/testing fallback
-      if (!response.ok) {
-        console.log('ℹ️ Response was not OK, using fallback response');
-        // Still show success in dev/test environment
-        if (process.env.NODE_ENV !== 'production') {
-          setSubmissionSuccess(true);
-          setCurrentStep(3);
-        } else {
-          throw new Error(responseData.error || 'Error from appointment service');
-        }
-      } else {
-        // Success state
-        setSubmissionSuccess(true);
-        setCurrentStep(3); // Move to success step
-      }
+      // Success state
+      setSubmissionSuccess(true);
+      setCurrentStep(3); // Move to success step
+      
     } catch (error) {
       console.error('❌ Error submitting form:', error);
-      setSubmissionError('Apologies, this time slot is currently booked, please choose another time to check availability.');
+      setSubmissionError(error instanceof Error ? error.message : 'Failed to book appointment. Please try again.');
     } finally {
       setSubmitting(false);
     }
