@@ -16,14 +16,21 @@ const Hero: React.FC = () => {
 
       // Add source
       const source = document.createElement("source");
-      source.src = `${process.env.PUBLIC_URL}/assets/videos/ty.mp4`;
+      // Use a relative URL to avoid mixed content issues
+      source.src = `/assets/videos/ty.mp4`;
       source.type = "video/mp4";
-
+      
+      // Add a fallback HTTPS source if the domain is known
+      const httpsSource = document.createElement("source");
+      httpsSource.src = `https://${window.location.host}/assets/videos/ty.mp4`;
+      httpsSource.type = "video/mp4";
+      
       video.appendChild(source);
+      video.appendChild(httpsSource);
 
       // Add fallback for browsers that don't support video
       video.innerHTML += `
-        <img src="${process.env.PUBLIC_URL}/assets/images/hero-fallback.jpg" alt="Tactical training" />
+        <img src="/assets/images/hero-fallback.jpg" alt="Tactical training" />
       `;
 
       // Append video to container
@@ -99,7 +106,7 @@ const Hero: React.FC = () => {
         </div>
         <div className="hero-logo">
           <img
-            src={`${process.env.PUBLIC_URL}/assets/images/logo.png`}
+            src="/assets/images/logo.png"
             alt="United Tactical Defense Logo"
           />
         </div>
