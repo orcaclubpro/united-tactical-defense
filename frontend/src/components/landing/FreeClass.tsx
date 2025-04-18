@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import scheduleImage from '../../assets/images/schedule.jpeg';
 import UDTTrainingForm from '../Form/UDTTrainingForm';
 import './FreeClass.scss';
@@ -15,6 +15,20 @@ const FreeClass: React.FC = () => {
     setIsModalOpen(false);
     document.body.classList.remove('modal-open');
   };
+  
+  // Handle escape key press
+  useEffect(() => {
+    const handleEscapeKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isModalOpen) {
+        closeModal();
+      }
+    };
+    
+    document.addEventListener('keydown', handleEscapeKey);
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [isModalOpen]);
   
   return (
     <section id="free-class" className="free-class-section">
