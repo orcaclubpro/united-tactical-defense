@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import scheduleImage from '../../assets/images/schedule.jpeg';
-import { FreeLessonFormController } from '../Form';
+import UDTTrainingForm from '../Form/UDTTrainingForm';
 import './FreeClass.scss';
 
 const FreeClass: React.FC = () => {
@@ -47,10 +47,9 @@ const FreeClass: React.FC = () => {
         </div>
       </div>
       
-      <FreeLessonFormController 
+      <UDTTrainingForm 
         isOpen={isModalOpen}
         onClose={closeModal}
-        formSource="website-homepage"
       />
     </section>
   );
