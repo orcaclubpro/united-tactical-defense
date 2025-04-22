@@ -479,7 +479,8 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
         phone: data.phone,
         experience: data.experience,
         source: data.source || 'website',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        tag: "landing" // Default tag field
       };
       
       console.log('📦 Zapier payload:', payload);
