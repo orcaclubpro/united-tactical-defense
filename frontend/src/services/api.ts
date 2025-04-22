@@ -583,7 +583,8 @@ export const submitFreeClassForm = async (formData: any) => {
               0
             )
           ).toISOString()
-        : new Date().toISOString()
+        : new Date().toISOString(),
+      tag: "landing" // Add tag field to the userData object
     };
 
     console.log('🔄 Submitting appointment data to backend:', {

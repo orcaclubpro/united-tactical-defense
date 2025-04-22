@@ -611,6 +611,7 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
         selected_slot: selectedSlot,
         selected_timezone: "America/Los_Angeles",
         sessionId,
+        tag: "landing", // Add tag field to the payload
         eventData: {
           source: formData.source || "direct",
           referrer: document.referrer || "https://uniteddefensetactical.com/",
