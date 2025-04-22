@@ -341,6 +341,7 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
   const [submitting, setSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
+  const [zapierStatus, setZapierStatus] = useState<{sent: boolean, error: string | null}>({sent: false, error: null});
 
   // Handle modal opening from props
   useEffect(() => {
@@ -464,10 +465,70 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
     return Object.keys(newErrors).length === 0;
   };
 
+  // Function to send data to Zapier webhook
+  const sendToZapier = async (data: any) => {
+    console.log('🔄 Sending data to Zapier webhook:', data);
+    
+    try {
+      // Create a proper payload with all the form data
+      const payload = {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        zip: data.zip,
+        email: data.email,
+        phone: data.phone,
+        experience: data.experience,
+        source: data.source || 'website',
+        timestamp: new Date().toISOString()
+      };
+      
+      console.log('📦 Zapier payload:', payload);
+      
+      // Use a more CORS-friendly approach
+      await fetch('https://hooks.zapier.com/hooks/catch/22610298/2xf6xd2/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'no-cors', // This is key for CORS issues with webhooks
+        body: JSON.stringify(payload)
+      });
+
+      // With no-cors mode, we can't access the response directly
+      // But we can assume success if no error was thrown
+      console.log('✅ Successfully sent data to Zapier (no-cors mode)');
+      setZapierStatus({sent: true, error: null});
+      return true;
+    } catch (error: unknown) {
+      console.error('❌ Error sending data to Zapier:', error);
+      setZapierStatus({
+        sent: false, 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+      return false;
+    }
+  };
+
   const handleNext = async () => {
     const isValid = validateCurrentStep();
     
     if (isValid) {
+      if (currentStep === 0) {
+        // Send data to Zapier webhook when user clicks "Choose Date & Time"
+        const zapierData = {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          zip: formData.zipCode,
+          email: formData.email,
+          phone: formData.phone,
+          experience: formData.experience,
+          source: formData.source || 'website'
+        };
+        
+        // Send to Zapier but don't block form progression
+        sendToZapier(zapierData);
+      }
+
       if (currentStep < 2) {
         setCurrentStep(prev => prev + 1);
       } else {
