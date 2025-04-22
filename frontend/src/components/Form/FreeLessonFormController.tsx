@@ -20,6 +20,7 @@ interface FormData {
   appointmentDate: Date | null;
   appointmentTime: string;
   experience: string;
+  zipCode?: string;
   [key: string]: any;
 }
 
@@ -443,6 +444,11 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
       if (!formData.phone?.trim()) {
         newErrors.phone = 'Phone number is required';
       }
+      
+      // Optional validation for zip code - only validate if provided
+      if (formData.zipCode?.trim() && !/^\d{5}(-\d{4})?$/.test(formData.zipCode.trim())) {
+        newErrors.zipCode = 'Please enter a valid zip code';
+      }
     } else if (currentStep === 1) {
       // Appointment
       if (!formData.appointmentDate) {
@@ -708,6 +714,19 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
       </FormGrid>
       
       <FormField>
+        <label htmlFor="zipCode">Zip Code</label>
+        <input
+          type="text"
+          id="zipCode"
+          name="zipCode"
+          value={formData.zipCode || ''}
+          onChange={handleInputChange}
+          placeholder="Your zip code"
+        />
+        {errors.zipCode && <div className="error-message">{errors.zipCode}</div>}
+      </FormField>
+      
+      <FormField>
         <label htmlFor="experience">Prior Experience</label>
         <select
           id="experience"
@@ -811,6 +830,12 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
             <div className="label">Phone:</div>
             <div className="value">{formData.phone}</div>
           </div>
+          {formData.zipCode && (
+            <div className="detail-row">
+              <div className="label">Zip Code:</div>
+              <div className="value">{formData.zipCode}</div>
+            </div>
+          )}
           <div className="detail-row">
             <div className="label">Date:</div>
             <div className="value">
