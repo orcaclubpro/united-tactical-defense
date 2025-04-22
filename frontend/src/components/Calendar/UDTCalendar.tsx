@@ -236,7 +236,7 @@ const UDTCalendar: React.FC<UDTCalendarProps> = ({
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
   
   // Time slots configuration
-  const timeSlots = [
+  const weekdayTimeSlots = [
     { id: '1', time: '9:00 AM', label: 'Morning' },
     { id: '2', time: '10:30 AM', label: 'Morning' },
     { id: '3', time: '12:00 PM', label: 'Midday' },
@@ -244,6 +244,15 @@ const UDTCalendar: React.FC<UDTCalendarProps> = ({
     { id: '5', time: '3:00 PM', label: 'Afternoon' },
     { id: '6', time: '4:30 PM', label: 'Evening' },
     { id: '7', time: '6:00 PM', label: 'Evening' }
+  ];
+
+  const weekendTimeSlots = [
+    { id: '1', time: '9:30 AM', label: 'Morning' },
+    { id: '2', time: '11:00 AM', label: 'Morning' },
+    { id: '3', time: '12:30 PM', label: 'Midday' },
+    { id: '4', time: '2:00 PM', label: 'Afternoon' },
+    { id: '5', time: '3:30 PM', label: 'Afternoon' },
+    { id: '6', time: '5:00 PM', label: 'Evening' }
   ];
   
   // Generate calendar days
@@ -299,6 +308,15 @@ const UDTCalendar: React.FC<UDTCalendarProps> = ({
       }
     }
     
+    // Check if the new month is beyond 30 days from today
+    const today = new Date();
+    const thirtyDaysFromNow = new Date(today);
+    thirtyDaysFromNow.setDate(today.getDate() + 30);
+    
+    if (newMonth > thirtyDaysFromNow) {
+      return; // Don't allow months beyond 30 days
+    }
+    
     setCurrentMonth(newMonth);
     
     // Clear selected date if it's not in the new month
@@ -319,9 +337,21 @@ const UDTCalendar: React.FC<UDTCalendarProps> = ({
     );
   };
   
+  // Check if next month navigation should be disabled
+  const isNextDisabled = () => {
+    const today = new Date();
+    const thirtyDaysFromNow = new Date(today);
+    thirtyDaysFromNow.setDate(today.getDate() + 30);
+    
+    const nextMonth = new Date(currentMonth);
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    
+    return nextMonth > thirtyDaysFromNow;
+  };
+  
   // Handle date selection
   const handleDateClick = (day: any) => {
-    if (day.day === 0 || isPastDate(day.date)) return;
+    if (day.day === 0 || isPastDate(day.date) || isBeyondThirtyDays(day.date)) return;
     
     setSelectedDate(day.date);
     setSelectedSlot(null);
@@ -336,7 +366,7 @@ const UDTCalendar: React.FC<UDTCalendarProps> = ({
     setSelectedSlot(index);
     
     if (onTimeSlotSelected && selectedDate) {
-      onTimeSlotSelected(timeSlots[index]);
+      onTimeSlotSelected(getTimeSlots()[index]);
     }
   };
   
@@ -370,6 +400,24 @@ const UDTCalendar: React.FC<UDTCalendarProps> = ({
       date.getMonth() === today.getMonth() && 
       date.getFullYear() === today.getFullYear()
     );
+  };
+  
+  // Check if a date is beyond 30 days from today
+  const isBeyondThirtyDays = (date: Date | null) => {
+    if (!date) return false;
+    
+    const today = new Date();
+    const thirtyDaysFromNow = new Date(today);
+    thirtyDaysFromNow.setDate(today.getDate() + 30);
+    
+    return date > thirtyDaysFromNow;
+  };
+  
+  // Get time slots based on the selected date
+  const getTimeSlots = () => {
+    if (!selectedDate) return weekdayTimeSlots;
+    const dayOfWeek = selectedDate.getDay();
+    return (dayOfWeek === 0 || dayOfWeek === 6) ? weekendTimeSlots : weekdayTimeSlots;
   };
   
   const monthYear = currentMonth.toLocaleDateString('en-US', { 
@@ -407,7 +455,10 @@ const UDTCalendar: React.FC<UDTCalendarProps> = ({
         
         <div className="month-title">{monthYear}</div>
         
-        <NavigationButton onClick={() => changeMonth(1)}>
+        <NavigationButton 
+          onClick={() => changeMonth(1)}
+          disabled={isNextDisabled()}
+        >
           <ChevronRightIcon />
         </NavigationButton>
       </CalendarHeader>
@@ -423,7 +474,7 @@ const UDTCalendar: React.FC<UDTCalendarProps> = ({
           <DayCell 
             key={index}
             isEmpty={day.day === 0}
-            isPast={isPastDate(day.date)}
+            isPast={isPastDate(day.date) || isBeyondThirtyDays(day.date)}
             isToday={isToday(day.date)}
             isSelected={selectedDate !== null && day.date !== null && 
               day.date.getDate() === selectedDate.getDate() && 
@@ -443,7 +494,7 @@ const UDTCalendar: React.FC<UDTCalendarProps> = ({
           </h3>
           
           <TimeSlotGrid>
-            {timeSlots.map((slot, index) => (
+            {getTimeSlots().map((slot: { id: string; time: string; label: string }, index: number) => (
               <TimeSlot 
                 key={index}
                 isSelected={selectedSlot === index}
