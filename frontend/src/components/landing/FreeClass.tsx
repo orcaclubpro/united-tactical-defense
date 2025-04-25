@@ -9,11 +9,19 @@ const FreeClass: React.FC = () => {
   
   // Check if device is mobile and open modal automatically
   useEffect(() => {
+    // More reliable mobile detection
+    const isMobileDevice = () => {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+             window.innerWidth <= 768;
+    };
+
     const checkMobileAndOpenModal = () => {
-      const isMobile = window.innerWidth <= 768;
-      if (isMobile && !isModalOpen && !userClosedModal) {
-        setIsModalOpen(true);
-        document.body.classList.add('modal-open');
+      if (isMobileDevice() && !isModalOpen && !userClosedModal) {
+        // Use setTimeout to ensure this happens after initial render
+        setTimeout(() => {
+          setIsModalOpen(true);
+          document.body.classList.add('modal-open');
+        }, 500);
       }
     };
 
