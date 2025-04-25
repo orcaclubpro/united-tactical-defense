@@ -1,19 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import scheduleImage from '../../assets/images/schedule.jpeg';
 import { FreeLessonFormController } from '../Form';
 import './FreeClass.scss';
 
 const FreeClass: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [userClosedModal, setUserClosedModal] = useState<boolean>(false);
+  
+  // Check if device is mobile and open modal automatically
+  useEffect(() => {
+    const checkMobileAndOpenModal = () => {
+      const isMobile = window.innerWidth <= 768;
+      if (isMobile && !isModalOpen && !userClosedModal) {
+        setIsModalOpen(true);
+        document.body.classList.add('modal-open');
+      }
+    };
+
+    // Initial check
+    checkMobileAndOpenModal();
+
+    // Add resize listener
+    window.addEventListener('resize', checkMobileAndOpenModal);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('resize', checkMobileAndOpenModal);
+    };
+  }, [isModalOpen, userClosedModal]);
   
   const openModal = () => {
     setIsModalOpen(true);
     document.body.classList.add('modal-open');
+    // Reset the user closed flag when manually opening
+    setUserClosedModal(false);
   };
   
   const closeModal = () => {
     setIsModalOpen(false);
     document.body.classList.remove('modal-open');
+    // Set the flag when user manually closes the modal
+    setUserClosedModal(true);
   };
   
   return (
