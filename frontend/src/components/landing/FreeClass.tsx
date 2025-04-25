@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import scheduleImage from '../../assets/images/schedule.jpeg';
 import { FreeLessonFormController } from '../Form';
 import './FreeClass.scss';
@@ -6,36 +6,47 @@ import './FreeClass.scss';
 const FreeClass: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [userClosedModal, setUserClosedModal] = useState<boolean>(false);
+  const modalInitialized = useRef<boolean>(false);
   
-  // Check if device is mobile and open modal automatically
+  // Check if device is mobile and open modal automatically - only once
   useEffect(() => {
+    // Skip if already initialized or user closed the modal
+    if (modalInitialized.current || userClosedModal) {
+      return;
+    }
+    
     // More reliable mobile detection
     const isMobileDevice = () => {
-      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
-             window.innerWidth <= 768;
+      // Check for mobile user agent
+      const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+      const mobileRegex = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
+      
+      // Check if it's a mobile device based on user agent
+      const isMobileUserAgent = mobileRegex.test(userAgent.toLowerCase());
+      
+      // Check if it's a small screen (mobile-like)
+      const isSmallScreen = window.innerWidth <= 768;
+      
+      // Only consider it a mobile device if both conditions are true
+      // This prevents desktop browsers with small windows from triggering the modal
+      return isMobileUserAgent && isSmallScreen;
     };
-
-    const checkMobileAndOpenModal = () => {
-      if (isMobileDevice() && !isModalOpen && !userClosedModal) {
-        // Use setTimeout to ensure this happens after initial render
-        setTimeout(() => {
-          setIsModalOpen(true);
-          document.body.classList.add('modal-open');
-        }, 500);
-      }
-    };
-
-    // Initial check
-    checkMobileAndOpenModal();
-
-    // Add resize listener
-    window.addEventListener('resize', checkMobileAndOpenModal);
-
-    // Cleanup
-    return () => {
-      window.removeEventListener('resize', checkMobileAndOpenModal);
-    };
-  }, [isModalOpen, userClosedModal]);
+    
+    // Only open on mobile devices
+    if (isMobileDevice()) {
+      // Mark as initialized to prevent duplicate openings
+      modalInitialized.current = true;
+      
+      // Use a single timeout to ensure this happens after initial render
+      const timer = setTimeout(() => {
+        setIsModalOpen(true);
+        document.body.classList.add('modal-open');
+      }, 1000);
+      
+      // Cleanup timeout if component unmounts
+      return () => clearTimeout(timer);
+    }
+  }, [userClosedModal]);
   
   const openModal = () => {
     setIsModalOpen(true);
