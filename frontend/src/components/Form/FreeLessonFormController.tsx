@@ -345,19 +345,30 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
 
   // Handle modal opening from props
   useEffect(() => {
-    setIsOpen(propIsOpen);
-  }, [propIsOpen]);
+    // Only update state if it's different from current state
+    if (isOpen !== propIsOpen) {
+      setIsOpen(propIsOpen);
+    }
+  }, [propIsOpen, isOpen]);
 
   // Add calendar styles when the form opens
   useEffect(() => {
+    // Only add/remove class if the state has changed
     if (isOpen) {
-      document.body.classList.add('modal-open');
+      if (!document.body.classList.contains('modal-open')) {
+        document.body.classList.add('modal-open');
+      }
     } else {
-      document.body.classList.remove('modal-open');
+      if (document.body.classList.contains('modal-open')) {
+        document.body.classList.remove('modal-open');
+      }
     }
     
     return () => {
-      document.body.classList.remove('modal-open');
+      // Clean up class on unmount
+      if (document.body.classList.contains('modal-open')) {
+        document.body.classList.remove('modal-open');
+      }
     };
   }, [isOpen]);
 

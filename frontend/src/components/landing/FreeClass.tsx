@@ -3,6 +3,10 @@ import scheduleImage from '../../assets/images/schedule.jpeg';
 import { FreeLessonFormController } from '../Form';
 import './FreeClass.scss';
 
+// Create a global variable to track if the modal has been shown
+// This ensures the modal only shows once across all components
+let globalModalShown = false;
+
 const FreeClass: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [userClosedModal, setUserClosedModal] = useState<boolean>(false);
@@ -10,8 +14,8 @@ const FreeClass: React.FC = () => {
   
   // Check if device is mobile and open modal automatically - only once
   useEffect(() => {
-    // Skip if already initialized or user closed the modal
-    if (modalInitialized.current || userClosedModal) {
+    // Skip if already initialized, user closed the modal, or modal was already shown globally
+    if (modalInitialized.current || userClosedModal || globalModalShown) {
       return;
     }
     
@@ -36,23 +40,30 @@ const FreeClass: React.FC = () => {
     if (isMobileDevice()) {
       // Mark as initialized to prevent duplicate openings
       modalInitialized.current = true;
+      globalModalShown = true;
       
       // Use a single timeout to ensure this happens after initial render
       const timer = setTimeout(() => {
-        setIsModalOpen(true);
-        document.body.classList.add('modal-open');
+        // Check if the modal is already open before setting it
+        if (!isModalOpen) {
+          setIsModalOpen(true);
+          document.body.classList.add('modal-open');
+        }
       }, 1000);
       
       // Cleanup timeout if component unmounts
       return () => clearTimeout(timer);
     }
-  }, [userClosedModal]);
+  }, [userClosedModal, isModalOpen]);
   
   const openModal = () => {
-    setIsModalOpen(true);
-    document.body.classList.add('modal-open');
-    // Reset the user closed flag when manually opening
-    setUserClosedModal(false);
+    // Only open if not already open
+    if (!isModalOpen) {
+      setIsModalOpen(true);
+      document.body.classList.add('modal-open');
+      // Reset the user closed flag when manually opening
+      setUserClosedModal(false);
+    }
   };
   
   const closeModal = () => {
