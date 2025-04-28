@@ -62,6 +62,7 @@ const ModalContainer = styled.div<{ isOpen: boolean; darkMode?: boolean }>`
   animation: ${props => props.isOpen ? slideUp : 'none'} 0.4s ease forwards;
   overflow: hidden;
   border: ${props => props.darkMode ? '1px solid rgba(255, 255, 255, 0.08)' : 'none'};
+  backdrop-filter: blur(10px);
   
   @media (max-width: 768px) {
     width: 95%;
@@ -76,6 +77,7 @@ const ModalHeader = styled.div<{ darkMode?: boolean }>`
   justify-content: space-between;
   align-items: center;
   position: relative;
+  background: ${props => props.darkMode ? 'linear-gradient(to right, #1e1f21, #2a2b2e)' : 'white'};
   
   &:after {
     content: '';
@@ -88,79 +90,119 @@ const ModalHeader = styled.div<{ darkMode?: boolean }>`
     display: ${props => props.darkMode ? 'block' : 'none'};
   }
   
-  h2 {
-    margin: 0;
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: ${props => props.darkMode ? '#ffffff' : '#1a1a1a'};
-    letter-spacing: -0.5px;
+  .header-content {
+    display: flex;
+    align-items: center;
+    
+    .logo-container {
+      display: flex;
+      align-items: center;
+      margin-right: 16px;
+      
+      img {
+        width: 32px;
+        height: 32px;
+        margin-right: 12px;
+        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3));
+      }
+    }
+    
+    h2 {
+      margin: 0;
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: ${props => props.darkMode ? '#ffffff' : '#1a1a1a'};
+      letter-spacing: -0.5px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+    
+    .form-title {
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: #b71c1c;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding-left: 16px;
+      margin-left: 16px;
+      border-left: 2px solid rgba(183, 28, 28, 0.3);
+    }
   }
 `;
 
 const CloseButton = styled.button<{ darkMode?: boolean }>`
   background: transparent;
   border: none;
+  color: ${props => props.darkMode ? 'rgba(255, 255, 255, 0.6)' : '#666'};
+  font-size: 24px;
   cursor: pointer;
-  font-size: 1.4rem;
-  width: 36px;
-  height: 36px;
-  color: ${props => props.darkMode ? '#999' : '#666'};
-  border-radius: 50%;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50%;
   transition: all 0.2s ease;
   
   &:hover {
-    background-color: ${props => props.darkMode ? 'rgba(255, 255, 255, 0.1)' : '#f5f5f5'};
+    background-color: ${props => props.darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'};
     color: ${props => props.darkMode ? '#fff' : '#333'};
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px ${props => props.darkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)'};
   }
 `;
 
 const ModalContentWrapper = styled.div`
+  flex: 1;
   overflow-y: auto;
-  max-height: calc(85vh - 145px); /* Adjust based on header and potential footer */
-  padding: 10px 5px;
+  padding: 0;
+  position: relative;
   
+  /* Custom scrollbar for webkit browsers */
   &::-webkit-scrollbar {
-    width: 6px;
+    width: 8px;
   }
   
   &::-webkit-scrollbar-track {
-    background: transparent;
+    background: rgba(0, 0, 0, 0.1);
   }
   
   &::-webkit-scrollbar-thumb {
-    background: rgba(128, 128, 128, 0.5);
-    border-radius: 3px;
+    background: rgba(183, 28, 28, 0.5);
+    border-radius: 4px;
   }
   
   &::-webkit-scrollbar-thumb:hover {
-    background: rgba(128, 128, 128, 0.7);
-  }
-  
-  @media (max-width: 768px) {
-    max-height: calc(80vh - 145px);
+    background: rgba(183, 28, 28, 0.7);
   }
 `;
 
 const ModalBody = styled.div<{ darkMode?: boolean }>`
-  padding: 10px 25px 25px;
-  color: ${props => props.darkMode ? '#e1e1e1' : '#333'};
+  padding: 24px 28px;
+  color: ${props => props.darkMode ? '#e0e0e0' : '#333'};
   
-  h2, h3 {
-    color: ${props => props.darkMode ? '#ffffff' : '#222'};
-    margin-top: 0;
+  /* Add some spacing at the top of the form content */
+  > div:first-child {
+    margin-top: 10px;
   }
 `;
 
 const ModalFooter = styled.div<{ darkMode?: boolean }>`
-  padding: 18px 28px;
+  padding: 20px 28px;
   border-top: 1px solid ${props => props.darkMode ? 'rgba(255, 255, 255, 0.08)' : '#f0f0f0'};
-  background-color: ${props => props.darkMode ? '#252628' : '#f8f8f8'};
+  background: ${props => props.darkMode ? 'linear-gradient(to right, #1e1f21, #2a2b2e)' : 'white'};
   
-  @media (max-width: 768px) {
-    padding: 16px 20px;
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+    display: ${props => props.darkMode ? 'block' : 'none'};
   }
 `;
 
@@ -250,7 +292,13 @@ const ModernModalUI: React.FC<ModernModalUIProps> = ({
         )}
         
         <ModalHeader darkMode={darkMode}>
-          <h2>{title}</h2>
+          <div className="header-content">
+            <div className="logo-container">
+              <img src="/favicon.ico" alt="UDT Logo" />
+            </div>
+            <h2>{title}</h2>
+            {formType === 'free-class' && <div className="form-title">Claim Your Free Class</div>}
+          </div>
           <CloseButton darkMode={darkMode} onClick={onClose} aria-label="Close">
             <span aria-hidden="true">×</span>
           </CloseButton>

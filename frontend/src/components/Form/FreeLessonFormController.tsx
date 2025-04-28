@@ -29,6 +29,7 @@ const FormWrapper = styled.div`
   max-width: 100%;
   background-color: #1e1f21;
   color: #e0e0e0;
+  padding: 0 0 10px 0;
 `;
 
 const FormField = styled.div`
@@ -90,15 +91,11 @@ const StepHeading = styled.h3`
   letter-spacing: 0.5px;
   position: relative;
   padding-bottom: 10px;
+  font-size: 1.5rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   
   &:after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 60px;
-    height: 1px;
-    background: linear-gradient(to right, rgba(255,255,255,0.1), transparent);
+    display: none;
   }
 `;
 
@@ -106,6 +103,7 @@ const StepDescription = styled.p`
   margin-bottom: 24px;
   color: #999;
   font-size: 0.95rem;
+  line-height: 1.5;
 `;
 
 const FreeClassInfo = styled.div`
@@ -187,52 +185,15 @@ const ActionButton = styled.button<{ isPrimary?: boolean }>`
   }
 `;
 
-// Step indicator
-const StepIndicator = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-bottom: 24px;
-`;
-
-const StepDot = styled.div<{ active?: boolean; completed?: boolean }>`
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  margin: 0 6px;
-  background: ${props => {
-    if (props.completed) return '#28a745';
-    if (props.active) return '#b71c1c';
-    return '#444';
-  }};
-  transform: ${props => props.active ? 'scale(1.2)' : 'scale(1)'};
-  transition: all 0.2s ease;
-  
-  position: relative;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    right: -10px;
-    width: 14px;
-    height: 2px;
-    background-color: ${props => props.completed ? '#28a745' : '#444'};
-    transform: translateY(-50%);
-  }
-  
-  &:last-child::after {
-    display: none;
-  }
-`;
-
-// Progress bar
+// Progress bar - make it more sleek
 const ProgressBar = styled.div`
   width: 100%;
   height: 4px;
-  background-color: #444;
+  background-color: rgba(68, 68, 68, 0.3);
   margin-bottom: 24px;
   border-radius: 2px;
   overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
 `;
 
 const ProgressFill = styled.div<{ percent: number }>`
@@ -240,6 +201,7 @@ const ProgressFill = styled.div<{ percent: number }>`
   width: ${props => props.percent}%;
   background: linear-gradient(to right, #b71c1c, #f44336);
   transition: width 0.3s ease;
+  box-shadow: 0 0 8px rgba(244, 67, 54, 0.4);
 `;
 
 const ErrorMessage = styled.div`
@@ -728,7 +690,7 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
 
   const renderContactInfoStep = () => (
     <FormWrapper className="calendar-styled-form">
-      <StepHeading>Personal Information</StepHeading>
+      <StepHeading>Registration Form</StepHeading>
       <StepDescription>Please provide your contact details for your 90-minute free session.</StepDescription>
       
       <FormGrid>
@@ -821,7 +783,7 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
 
   const renderAppointmentStep = () => (
     <>
-      <StepHeading>Schedule Your Free Class</StepHeading>
+      <StepHeading>Claim Your Class</StepHeading>
       <StepDescription>
         Select a date and time for your complimentary 90-minute tactical defense class.
       </StepDescription>
@@ -985,7 +947,7 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
   };
 
   const getButtonText = () => {
-    if (currentStep === 0) return 'Choose Date & Time';
+    if (currentStep === 0) return 'Submit';
     if (currentStep === 1) return 'Review Details';
     if (currentStep === 2) return submitting ? 'Submitting...' : 'Schedule My Session';
     return '';
@@ -1028,7 +990,7 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
       title={
         currentStep === 4
           ? "Confirmation"
-          : "Schedule Your Free Tactical Defense Class"
+          : "United Defense Tactical"
       }
       darkMode={true}
       showHook={currentStep === 1}
@@ -1038,12 +1000,6 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
       <div className="udt-calendar">
         {currentStep < 4 && (
           <>
-            <StepIndicator>
-              <StepDot active={currentStep === 1} completed={currentStep > 1} />
-              <StepDot active={currentStep === 2} completed={currentStep > 2} />
-              <StepDot active={currentStep === 3} completed={currentStep > 3} />
-            </StepIndicator>
-            
             <ProgressBar>
               <ProgressFill percent={getProgress()} />
             </ProgressBar>
