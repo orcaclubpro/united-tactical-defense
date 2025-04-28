@@ -30,6 +30,10 @@ const FormWrapper = styled.div`
   background-color: #1e1f21;
   color: #e0e0e0;
   padding: 0 0 10px 0;
+  
+  @media (max-width: 480px) {
+    padding: 0 0 8px 0;
+  }
 `;
 
 const FormField = styled.div`
@@ -71,6 +75,20 @@ const FormField = styled.div`
     font-size: 0.875rem;
     margin-top: 4px;
   }
+  
+  @media (max-width: 480px) {
+    margin-bottom: 16px;
+    
+    label {
+      font-size: 0.8rem;
+      margin-bottom: 6px;
+    }
+    
+    input, select, textarea {
+      padding: 10px 14px;
+      font-size: 0.95rem;
+    }
+  }
 `;
 
 const FormGrid = styled.div`
@@ -80,6 +98,10 @@ const FormGrid = styled.div`
   
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
+  }
+  
+  @media (max-width: 480px) {
+    gap: 12px;
   }
 `;
 
@@ -97,6 +119,12 @@ const StepHeading = styled.h3`
   &:after {
     display: none;
   }
+  
+  @media (max-width: 480px) {
+    font-size: 1.3rem;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+  }
 `;
 
 const StepDescription = styled.p`
@@ -104,6 +132,12 @@ const StepDescription = styled.p`
   color: #999;
   font-size: 0.95rem;
   line-height: 1.5;
+  
+  @media (max-width: 480px) {
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
 `;
 
 const FreeClassInfo = styled.div`
@@ -183,6 +217,12 @@ const ActionButton = styled.button<{ isPrimary?: boolean }>`
     color: #666;
     cursor: not-allowed;
   }
+  
+  @media (max-width: 480px) {
+    min-width: 100px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
 `;
 
 // Progress bar - make it more sleek
@@ -194,6 +234,11 @@ const ProgressBar = styled.div`
   border-radius: 2px;
   overflow: hidden;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+  
+  @media (max-width: 480px) {
+    height: 3px;
+    margin-bottom: 20px;
+  }
 `;
 
 const ProgressFill = styled.div<{ percent: number }>`

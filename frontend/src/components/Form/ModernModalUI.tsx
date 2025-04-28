@@ -71,7 +71,7 @@ const ModalContainer = styled.div<{ isOpen: boolean; darkMode?: boolean }>`
 `;
 
 const ModalHeader = styled.div<{ darkMode?: boolean }>`
-  padding: 22px 28px;
+  padding: 12px 20px;
   border-bottom: 1px solid ${props => props.darkMode ? 'rgba(255, 255, 255, 0.08)' : '#f0f0f0'};
   display: flex;
   justify-content: space-between;
@@ -93,23 +93,24 @@ const ModalHeader = styled.div<{ darkMode?: boolean }>`
   .header-content {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     
     .logo-container {
       display: flex;
       align-items: center;
-      margin-right: 16px;
+      margin-right: 10px;
       
       img {
-        width: 32px;
-        height: 32px;
-        margin-right: 12px;
+        width: 24px;
+        height: 24px;
+        margin-right: 8px;
         filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3));
       }
     }
     
     h2 {
       margin: 0;
-      font-size: 1.6rem;
+      font-size: 1.3rem;
       font-weight: 600;
       color: ${props => props.darkMode ? '#ffffff' : '#1a1a1a'};
       letter-spacing: -0.5px;
@@ -117,14 +118,40 @@ const ModalHeader = styled.div<{ darkMode?: boolean }>`
     }
     
     .form-title {
-      font-size: 1.2rem;
+      font-size: 1rem;
       font-weight: 500;
       color: #b71c1c;
       text-transform: uppercase;
       letter-spacing: 1px;
-      padding-left: 16px;
-      margin-left: 16px;
+      padding-left: 12px;
+      margin-left: 12px;
       border-left: 2px solid rgba(183, 28, 28, 0.3);
+    }
+  }
+  
+  @media (max-width: 480px) {
+    padding: 10px 16px;
+    
+    .header-content {
+      .logo-container {
+        margin-right: 8px;
+        
+        img {
+          width: 20px;
+          height: 20px;
+          margin-right: 6px;
+        }
+      }
+      
+      h2 {
+        font-size: 1.1rem;
+      }
+      
+      .form-title {
+        font-size: 0.85rem;
+        padding-left: 8px;
+        margin-left: 8px;
+      }
     }
   }
 `;
@@ -133,10 +160,10 @@ const CloseButton = styled.button<{ darkMode?: boolean }>`
   background: transparent;
   border: none;
   color: ${props => props.darkMode ? 'rgba(255, 255, 255, 0.6)' : '#666'};
-  font-size: 24px;
+  font-size: 20px;
   cursor: pointer;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -151,6 +178,12 @@ const CloseButton = styled.button<{ darkMode?: boolean }>`
   &:focus {
     outline: none;
     box-shadow: 0 0 0 2px ${props => props.darkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)'};
+  }
+  
+  @media (max-width: 480px) {
+    width: 24px;
+    height: 24px;
+    font-size: 18px;
   }
 `;
 
@@ -211,15 +244,20 @@ const HookBanner = styled.div<{ darkMode?: boolean }>`
     ? 'linear-gradient(135deg, #b71c1c, #880e0e)' 
     : 'linear-gradient(135deg, #007bff, #0056b3)'};
   color: white;
-  padding: 14px 28px;
+  padding: 10px 20px;
   text-align: center;
   font-weight: 500;
   animation: ${pulse} 3s infinite ease-in-out;
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
   letter-spacing: 0.3px;
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+  
+  @media (max-width: 480px) {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
 `;
 
 /**
