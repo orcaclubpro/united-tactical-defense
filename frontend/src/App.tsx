@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation, Link } from 'react-router-do
 import './App.scss';
 import { initializeGA4 } from './utils/analytics';
 import useAnalytics from './utils/useAnalytics';
+import { app, analytics } from './services/firebase';
 
 // Loading fallback with better user experience
 const LoadingFallback = () => (
@@ -79,11 +80,24 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/booking" element={<BookingPage />} />
         </Routes>
-        <Link to="/booking" className="floating-button">
-          Book
-        </Link>
+        <FloatingButton />
       </Suspense>
     </BrowserRouter>
+  );
+}
+
+function FloatingButton() {
+  const location = useLocation();
+  
+  // Don't show the floating button on the booking page
+  if (location.pathname === '/booking') {
+    return null;
+  }
+  
+  return (
+    <Link to="/booking" className="floating-button">
+      Book
+    </Link>
   );
 }
 

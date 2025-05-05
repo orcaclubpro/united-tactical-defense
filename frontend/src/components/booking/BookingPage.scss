@@ -1,7 +1,6 @@
 .booking-page {
   min-height: 100vh;
-  background-color: #f5f5f5;
-  padding: 20px;
+  background-color: #f8f9fa;
 }
 
 .booking-header {
@@ -26,11 +25,61 @@
   }
 }
 
+.booking-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-description {
+  color: #666;
+  margin-bottom: 24px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
 .calendar-container {
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 20px;
   margin: 0 auto;
-  max-width: 1200px;
+  width: 100%;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+// Responsive styles
+@media (max-width: 768px) {
+  .booking-page {
+    padding: 0;
+  }
+
+  .booking-content {
+    gap: 16px;
+  }
+
+  .calendar-container {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .booking-page {
+    padding: 0;
+  }
+
+  .booking-content {
+    gap: 12px;
+  }
+
+  .calendar-container {
+    padding: 12px;
+  }
 } 

@@ -222,6 +222,14 @@ const NotesSection = styled.div`
   font-style: italic;
 `;
 
+const ErrorMessage = styled.div`
+  background-color: #f44336;
+  color: white;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+`;
+
 interface UDTCalendarProps {
   onDateSelected?: (date: Date) => void;
   onTimeSlotSelected?: (slot: { id: string; time: string; label: string }) => void;
@@ -234,6 +242,7 @@ const UDTCalendar: React.FC<UDTCalendarProps> = ({
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
   // Time slots configuration
   const weekdayTimeSlots = [
@@ -349,10 +358,50 @@ const UDTCalendar: React.FC<UDTCalendarProps> = ({
     return nextMonth > thirtyDaysFromNow;
   };
   
+  // Check if a date/time is within 12 hours of now
+  const isWithinTwelveHours = (date: Date | null, time?: string) => {
+    if (!date) return false;
+    
+    const now = new Date();
+    const selectedDateTime = new Date(date);
+    
+    if (time) {
+      // Parse the time string (format: "HH:MM AM/PM")
+      const timeMatch = time.match(/(\d+):(\d+)\s*(AM|PM)/i);
+      if (timeMatch) {
+        let [_, hours, minutes, period] = timeMatch;
+        let hour = parseInt(hours);
+        const minute = parseInt(minutes);
+        
+        // Convert to 24-hour format
+        if (period.toUpperCase() === 'PM' && hour < 12) {
+          hour += 12;
+        } else if (period.toUpperCase() === 'AM' && hour === 12) {
+          hour = 0;
+        }
+        
+        selectedDateTime.setHours(hour, minute, 0, 0);
+      }
+    }
+    
+    // Calculate the difference in milliseconds
+    const diffInMs = selectedDateTime.getTime() - now.getTime();
+    const diffInHours = diffInMs / (1000 * 60 * 60);
+    
+    return diffInHours < 12;
+  };
+  
   // Handle date selection
   const handleDateClick = (day: any) => {
     if (day.day === 0 || isPastDate(day.date) || isBeyondThirtyDays(day.date)) return;
     
+    // Check if the date is within 12 hours
+    if (isWithinTwelveHours(day.date)) {
+      setErrorMessage('Appointments must be scheduled at least 12 hours in advance.');
+      return;
+    }
+    
+    setErrorMessage(null);
     setSelectedDate(day.date);
     setSelectedSlot(null);
     
@@ -363,10 +412,21 @@ const UDTCalendar: React.FC<UDTCalendarProps> = ({
   
   // Handle time slot selection
   const handleTimeSlotClick = (index: number) => {
+    if (!selectedDate) return;
+    
+    const selectedTimeSlot = getTimeSlots()[index];
+    
+    // Check if the selected date/time is within 12 hours
+    if (isWithinTwelveHours(selectedDate, selectedTimeSlot.time)) {
+      setErrorMessage('Appointments must be scheduled at least 12 hours in advance.');
+      return;
+    }
+    
+    setErrorMessage(null);
     setSelectedSlot(index);
     
-    if (onTimeSlotSelected && selectedDate) {
-      onTimeSlotSelected(getTimeSlots()[index]);
+    if (onTimeSlotSelected) {
+      onTimeSlotSelected(selectedTimeSlot);
     }
   };
   
@@ -444,6 +504,12 @@ const UDTCalendar: React.FC<UDTCalendarProps> = ({
           </div>
         </TrainingInfo>
       </Header>
+      
+      {errorMessage && (
+        <ErrorMessage>
+          {errorMessage}
+        </ErrorMessage>
+      )}
       
       <CalendarHeader>
         <NavigationButton 

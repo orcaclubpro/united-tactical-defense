@@ -593,6 +593,15 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
         // Set the hours and minutes on the date object
         date.setHours(hour, minute, 0, 0);
         
+        // Check if the appointment is within 12 hours
+        const now = new Date();
+        const diffInMs = date.getTime() - now.getTime();
+        const diffInHours = diffInMs / (1000 * 60 * 60);
+        
+        if (diffInHours < 12) {
+          throw new Error('Appointments must be scheduled at least 12 hours in advance.');
+        }
+        
         // Format the date string with timezone
         const year = date.getFullYear();
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
