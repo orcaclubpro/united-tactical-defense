@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, Link } from 'react-router-dom';
 import './App.scss';
 import { initializeGA4 } from './utils/analytics';
 import useAnalytics from './utils/useAnalytics';
@@ -15,6 +15,7 @@ const LoadingFallback = () => (
 // Lazy load components with prefetching capability
 const LandingPage = lazy(() => import('./components/landing').then(module => ({ default: module.LandingPage })));
 const Dashboard = lazy(() => import('./components/dashboard'));
+const BookingPage = lazy(() => import('./components/booking').then(module => ({ default: module.BookingPage })));
 
 // Prefetch components for upcoming routes
 const prefetchRoutes = () => {
@@ -76,7 +77,11 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/booking" element={<BookingPage />} />
         </Routes>
+        <Link to="/booking" className="floating-button">
+          Book
+        </Link>
       </Suspense>
     </BrowserRouter>
   );
