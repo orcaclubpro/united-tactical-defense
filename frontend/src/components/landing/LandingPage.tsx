@@ -17,6 +17,60 @@ import CallToAction from './CallToAction';
 import Footer from '../common/Footer';
 import { trackPageVisit } from '../../services/api';
 import './LandingPage.scss';
+import styled from 'styled-components';
+
+const FloatingButton = styled.button`
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #b71c1c 0%, #880e0e 100%);
+  color: white;
+  border: none;
+  padding: 16px 32px;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(183, 28, 28, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 1000;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 25px rgba(183, 28, 28, 0.4);
+    background: linear-gradient(135deg, #c71c1c 0%, #980e0e 100%);
+  }
+
+  &:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(183, 28, 28, 0.3);
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+    stroke: white;
+    stroke-width: 2;
+  }
+
+  @media (max-width: 768px) {
+    bottom: 16px;
+    right: 16px;
+    padding: 14px 24px;
+    font-size: 1rem;
+    gap: 8px;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+`;
 
 const LandingPage: React.FC = () => {
   // Track page visit when landing page loads

@@ -42,15 +42,20 @@ const NavBar = styled.nav`
   top: 0;
   left: 0;
   right: 0;
-  height: 70px;
+  height: 60px;
   background: rgba(30, 30, 30, 0.95);
   backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
-  padding: 0 40px;
+  padding: 0 20px;
   z-index: 1000;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+  @media (max-width: 768px) {
+    height: 50px;
+    padding: 0 16px;
+  }
 `;
 
 const BackButton = styled.button`
@@ -75,6 +80,11 @@ const BackButton = styled.button`
     height: 16px;
     stroke: #e0e0e0;
   }
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+    padding: 6px 12px;
+  }
 `;
 
 const ContentWrapper = styled.div`
@@ -89,6 +99,15 @@ const ContentWrapper = styled.div`
     grid-template-columns: 1fr;
     padding: 100px 20px 40px;
   }
+
+  @media (max-width: 768px) {
+    padding: 70px 16px 30px;
+    gap: 24px;
+    min-height: calc(100vh - 50px);
+    display: flex;
+    flex-direction: column-reverse;
+    margin-top: 0;
+  }
 `;
 
 const FormSection = styled.div`
@@ -100,27 +119,57 @@ const FormSection = styled.div`
   position: sticky;
   top: 100px;
   border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
 
   @media (max-width: 1200px) {
     position: static;
     margin-bottom: 40px;
   }
+
+  @media (max-width: 768px) {
+    padding: 24px;
+    border-radius: 12px;
+    margin-top: 0;
+    position: relative;
+    top: 0;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 24px;
+  }
 `;
 
 const FormHeader = styled.div`
   margin-bottom: 32px;
+  text-align: center;
 
   h1 {
     font-size: 2rem;
     color: #ffffff;
     margin-bottom: 12px;
     font-weight: 600;
+    letter-spacing: 0.5px;
   }
 
   p {
     color: #a0a0a0;
     font-size: 1.1rem;
     line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 768px) {
+    margin-bottom: 24px;
+    padding-top: 0;
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+
+    p {
+      font-size: 0.95rem;
+    }
   }
 `;
 
@@ -132,6 +181,8 @@ const FormGrid = styled.div`
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
   }
 `;
 
@@ -144,6 +195,7 @@ const FormField = styled.div`
     font-weight: 500;
     color: #e0e0e0;
     font-size: 0.95rem;
+    letter-spacing: 0.3px;
   }
 
   input, select {
@@ -155,6 +207,7 @@ const FormField = styled.div`
     transition: all 0.2s;
     background: #1a1a1a;
     color: #ffffff;
+    letter-spacing: 0.3px;
 
     &:focus {
       outline: none;
@@ -172,6 +225,21 @@ const FormField = styled.div`
     color: #ff6b6b;
     font-size: 0.875rem;
     margin-top: 6px;
+    letter-spacing: 0.2px;
+  }
+
+  @media (max-width: 768px) {
+    margin-bottom: 16px;
+
+    label {
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+    }
+
+    input, select {
+      padding: 12px 14px;
+      font-size: 0.95rem;
+    }
   }
 `;
 
@@ -182,6 +250,18 @@ const CalendarSection = styled.div`
   padding: 40px;
   height: fit-content;
   border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 1;
+
+  @media (max-width: 768px) {
+    padding: 24px;
+    border-radius: 12px;
+    margin-top: 0;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 24px;
+  }
 `;
 
 const SubmitButton = styled.button`
@@ -199,10 +279,28 @@ const SubmitButton = styled.button`
   letter-spacing: 0.5px;
   box-shadow: 0 4px 12px rgba(183, 28, 28, 0.2);
   margin-top: 32px;
+  position: relative;
+  overflow: hidden;
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
 
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(183, 28, 28, 0.3);
+
+    &:before {
+      opacity: 1;
+    }
   }
 
   &:disabled {
@@ -211,12 +309,19 @@ const SubmitButton = styled.button`
     transform: none;
     box-shadow: none;
   }
+
+  @media (max-width: 768px) {
+    padding: 14px 24px;
+    font-size: 1rem;
+    margin-top: 24px;
+  }
 `;
 
 const ProgressIndicator = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 24px;
   margin-bottom: 32px;
   padding: 12px 16px;
   background: #1a1a1a;
@@ -229,6 +334,7 @@ const ProgressIndicator = styled.div`
     gap: 8px;
     color: #a0a0a0;
     font-size: 0.9rem;
+    transition: all 0.2s;
 
     &.active {
       color: #b71c1c;
@@ -245,10 +351,28 @@ const ProgressIndicator = styled.div`
       align-items: center;
       justify-content: center;
       font-size: 0.8rem;
+      transition: all 0.2s;
 
       &.active {
         background: #b71c1c;
         color: white;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    margin-bottom: 24px;
+    padding: 10px 12px;
+    gap: 16px;
+
+    .step {
+      font-size: 0.8rem;
+      gap: 6px;
+
+      .number {
+        width: 20px;
+        height: 20px;
+        font-size: 0.75rem;
       }
     }
   }
@@ -268,17 +392,20 @@ const SuccessPopup = styled.div`
   max-width: 500px;
   width: 90%;
   border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
 
   h2 {
     color: #4caf50;
     margin-bottom: 16px;
     font-size: 1.5rem;
+    letter-spacing: 0.5px;
   }
 
   p {
     color: #e0e0e0;
     margin-bottom: 24px;
     line-height: 1.6;
+    letter-spacing: 0.3px;
   }
 
   button {
@@ -290,9 +417,31 @@ const SuccessPopup = styled.div`
     cursor: pointer;
     font-weight: 500;
     transition: all 0.2s;
+    letter-spacing: 0.3px;
 
     &:hover {
       background: #880e0e;
+      transform: translateY(-2px);
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 24px;
+    border-radius: 12px;
+
+    h2 {
+      font-size: 1.3rem;
+      margin-bottom: 12px;
+    }
+
+    p {
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 0.95rem;
     }
   }
 `;
@@ -311,17 +460,20 @@ const ErrorPopup = styled.div`
   max-width: 500px;
   width: 90%;
   border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
 
   h2 {
     color: #ff6b6b;
     margin-bottom: 16px;
     font-size: 1.5rem;
+    letter-spacing: 0.5px;
   }
 
   p {
     color: #e0e0e0;
     margin-bottom: 24px;
     line-height: 1.6;
+    letter-spacing: 0.3px;
   }
 
   button {
@@ -333,9 +485,31 @@ const ErrorPopup = styled.div`
     cursor: pointer;
     font-weight: 500;
     transition: all 0.2s;
+    letter-spacing: 0.3px;
 
     &:hover {
       background: #880e0e;
+      transform: translateY(-2px);
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 24px;
+    border-radius: 12px;
+
+    h2 {
+      font-size: 1.3rem;
+      margin-bottom: 12px;
+    }
+
+    p {
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 0.95rem;
     }
   }
 `;
