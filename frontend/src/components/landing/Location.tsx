@@ -44,7 +44,7 @@ const Location: React.FC = () => {
             
             <div className="detail-card contact">
               <h3>Contact</h3>
-              <p>Phone: (714) 555-0123</p>
+              <p>Phone: (657) 276-0457</p>
               <p>Email: anaheimhills@uniteddefensetactical.com</p>
             </div>
           </div>

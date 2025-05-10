@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
             <h3>Contact</h3>
             <p>160 S. Old Springs Rd, Suite 155</p>
             <p>Anaheim Hills, CA 92808</p>
-            <p>Phone: (714) 555-0123</p>
+            <p>Phone: (657) 276-0457</p>
             <p>Email: anaheimhills@uniteddefensetactical.com</p>
           </div>
           
