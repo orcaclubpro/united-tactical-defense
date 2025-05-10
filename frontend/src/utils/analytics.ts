@@ -232,22 +232,6 @@ export const trackTrafficSource = (): void => {
   }
   
   console.info(`[Analytics] Traffic source tracked: ${trafficSource} / ${trafficMedium}`);
-
-/**
- * Send test event to TikTok
- * @param testCode - Test code to send to TikTok
- */
-export const sendTikTokTestEvent = (testCode: string): void => {
-  if (typeof window.ttq !== 'undefined') {
-    window.ttq.track('TestEvent', {
-      content_id: testCode
-    });
-    console.log('[TikTok] Test event sent with code:', testCode);
-  } else {
-    console.error('[TikTok] TikTok pixel not initialized');
-  }
-};
-
 };
 
 /**
