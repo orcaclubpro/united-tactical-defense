@@ -1,65 +1,48 @@
 /**
  * Utility functions for ZIP code operations
+ * Using the zipcodes npm package for fast and reliable lookups
  */
+const zipcodes = require('zipcodes');
 
-interface ZipLookupResponse {
+export interface ZipLookupResponse {
   city: string;
   state: string;
   country: string;
 }
 
-// Simple cache to avoid repeat lookups for the same zip code
+// Simple cache for any fallback lookups
 const zipCache: Record<string, ZipLookupResponse> = {};
 
 /**
- * Lookup city/state information from a ZIP code
+ * Lookup city/state information from a ZIP code using the zipcodes package
  * @param zipCode ZIP code to lookup
- * @returns Promise resolving to city, state, and country data
+ * @returns Object containing city, state, and country info
  */
-export const lookupZipInfo = async (zipCode: string): Promise<ZipLookupResponse | null> => {
-  // Return cached result if available
-  if (zipCache[zipCode]) {
-    return zipCache[zipCode];
-  }
-  
+export const lookupZipInfo = (zipCode: string): ZipLookupResponse | null => {
   // Validate ZIP code format
   if (!zipCode || !/^\d{5}(-\d{4})?$/.test(zipCode)) {
     return null;
   }
   
-  try {
-    // Use ZIP code API - multiple options available:
-    // 1. Free option: api.zippopotam.us (chosen here, no auth required)
-    // 2. Paid options with more reliable service would be better for production
-    const response = await fetch(`https://api.zippopotam.us/us/${zipCode}`);
-    
-    if (!response.ok) {
-      console.error('ZIP lookup error:', response.status, response.statusText);
-      return null;
-    }
-    
-    const data = await response.json();
-    
-    // Extract city and state information
-    const result: ZipLookupResponse = {
-      city: data.places[0]['place name'],
-      state: data.places[0]['state'],
-      country: 'US'
-    };
-    
-    // Cache the result
-    zipCache[zipCode] = result;
-    
-    return result;
-  } catch (error) {
-    console.error('Error looking up ZIP code:', error);
+  // Use the zipcodes package to look up the zip code
+  const result = zipcodes.lookup(zipCode.substring(0, 5));
+  
+  // Return null if not found
+  if (!result) {
     return null;
   }
+  
+  // Return the city, state, and country from the result
+  return {
+    city: result.city,
+    state: result.state,
+    country: result.country
+  };
 };
 
 /**
  * Fallback city names for common area codes we serve
- * This is used if the API lookup fails
+ * This is used if the zipcodes package lookup fails
  */
 const fallbackZipMapping: Record<string, ZipLookupResponse> = {
   '92618': { city: 'Irvine', state: 'CA', country: 'US' },
@@ -77,25 +60,28 @@ const fallbackZipMapping: Record<string, ZipLookupResponse> = {
 };
 
 /**
- * Get city information from a ZIP code with fallback support
+ * Get city information from a ZIP code
  * This function will:
- * 1. Try to get the city from the API
+ * 1. Try to get the city from the zipcodes package
  * 2. If that fails, try to get it from our fallback mapping
  * 3. If both fail, return "Unknown"
  * 
  * @param zipCode ZIP code to lookup
- * @returns Promise resolving to city name
+ * @returns City name
  */
-export const getCityFromZip = async (zipCode: string): Promise<string> => {
-  // Try API lookup first
-  const apiResult = await lookupZipInfo(zipCode);
-  if (apiResult) {
-    return apiResult.city;
+export const getCityFromZip = (zipCode: string): string => {
+  if (!zipCode) return "Unknown";
+  
+  // Try zipcodes package lookup first
+  const zipResult = lookupZipInfo(zipCode);
+  if (zipResult) {
+    return zipResult.city;
   }
   
   // Try fallback mapping
-  if (fallbackZipMapping[zipCode]) {
-    return fallbackZipMapping[zipCode].city;
+  const normalizedZip = zipCode.substring(0, 5);
+  if (fallbackZipMapping[normalizedZip]) {
+    return fallbackZipMapping[normalizedZip].city;
   }
   
   // Return a default if all else fails

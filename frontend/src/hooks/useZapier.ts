@@ -22,13 +22,14 @@ const useZapier = (): ZapierHookResult => {
     console.log('🔄 Sending data to Zapier webhook:', data);
     
     try {
-      // Get city from ZIP code (using the utility function)
+      // Get city from ZIP code (using the synchronous utility function)
       let city = "Unknown";
       
       // Support for different field names (zipCode or zip)
       const zipCode = data.zipCode || data.zip;
       if (zipCode) {
-        city = await getCityFromZip(zipCode);
+        // The new implementation is synchronous
+        city = getCityFromZip(zipCode);
       }
       
       // Create a proper payload with all the form data
@@ -46,7 +47,7 @@ const useZapier = (): ZapierHookResult => {
         tag: tag // Use the provided tag
       };
       
-      console.log('📦 Zapier payload:', payload);
+      console.log('📦 Zapier payload with city:', payload);
       
       // Use a more CORS-friendly approach
       await fetch('https://hooks.zapier.com/hooks/catch/22610298/2xf6xd2/', {
