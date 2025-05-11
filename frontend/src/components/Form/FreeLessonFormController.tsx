@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import UDTCalendar from '../Calendar/UDTCalendar';
 import { submitFreeClassForm } from '../../services/api';
 import useAnalytics from '../../utils/useAnalytics';
+import { getCityFromZip } from '../../utils/zipUtils';
+import useZapier from '../../hooks/useZapier';
 
 interface FreeLessonFormControllerProps {
   isOpen?: boolean;
@@ -330,6 +332,8 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
 }) => {
   // Use our custom analytics hook
   const { trackForm } = useAnalytics();
+  // Use our Zapier hook
+  const { sendToZapier, status: zapierStatus } = useZapier();
   
   const [isOpen, setIsOpen] = useState(propIsOpen);
   const [currentStep, setCurrentStep] = useState(0);
@@ -348,7 +352,6 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
   const [submitting, setSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
-  const [zapierStatus, setZapierStatus] = useState<{sent: boolean, error: string | null}>({sent: false, error: null});
 
   // Handle modal opening from props
   useEffect(() => {
@@ -483,51 +486,6 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
     return Object.keys(newErrors).length === 0;
   };
 
-  // Function to send data to Zapier webhook
-  const sendToZapier = async (data: any) => {
-    console.log('🔄 Sending data to Zapier webhook:', data);
-    
-    try {
-      // Create a proper payload with all the form data
-      const payload = {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        zip: data.zip,
-        email: data.email,
-        phone: data.phone,
-        experience: data.experience,
-        source: data.source || 'website',
-        timestamp: new Date().toISOString(),
-        tag: "landing" // Default tag field
-      };
-      
-      console.log('📦 Zapier payload:', payload);
-      
-      // Use a more CORS-friendly approach
-      await fetch('https://hooks.zapier.com/hooks/catch/22610298/2xf6xd2/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        mode: 'no-cors', // This is key for CORS issues with webhooks
-        body: JSON.stringify(payload)
-      });
-
-      // With no-cors mode, we can't access the response directly
-      // But we can assume success if no error was thrown
-      console.log('✅ Successfully sent data to Zapier (no-cors mode)');
-      setZapierStatus({sent: true, error: null});
-      return true;
-    } catch (error: unknown) {
-      console.error('❌ Error sending data to Zapier:', error);
-      setZapierStatus({
-        sent: false, 
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-      return false;
-    }
-  };
-
   const handleNext = async () => {
     const isValid = validateCurrentStep();
     
@@ -537,7 +495,7 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
         const zapierData = {
           firstName: formData.firstName,
           lastName: formData.lastName,
-          zip: formData.zipCode,
+          zipCode: formData.zipCode, // Changed from zip to zipCode to match the field name
           email: formData.email,
           phone: formData.phone,
           experience: formData.experience,
@@ -545,7 +503,7 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
         };
         
         // Send to Zapier but don't block form progression
-        sendToZapier(zapierData);
+        sendToZapier(zapierData, "landing");
       }
 
       if (currentStep < 2) {

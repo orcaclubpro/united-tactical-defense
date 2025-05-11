@@ -5,6 +5,8 @@ import { submitFreeClassForm } from '../../services/api';
 import styled from 'styled-components';
 import './BookingPage.scss';
 import useAnalytics from '../../utils/useAnalytics';
+import { getCityFromZip } from '../../utils/zipUtils';
+import useZapier from '../../hooks/useZapier';
 
 interface FormData {
   firstName: string;
@@ -528,6 +530,7 @@ const Overlay = styled.div`
 const BookingPage: React.FC = () => {
   const navigate = useNavigate();
   const { trackForm } = useAnalytics();
+  const { sendToZapier } = useZapier();
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
@@ -597,6 +600,9 @@ const BookingPage: React.FC = () => {
     setIsSubmitting(true);
     
     try {
+      // Send data to Zapier first
+      await sendToZapier(formData, "booking_page");
+      
       // Format date with timezone for API
       let selectedSlot = '';
       if (formData.appointmentDate && formData.appointmentTime) {
