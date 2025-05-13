@@ -19,8 +19,8 @@ const fadeIn = keyframes`
   to { opacity: 1; }
 `;
 
-const slideUp = keyframes`
-  from { transform: translateY(30px); opacity: 0; }
+const slideDown = keyframes`
+  from { transform: translateY(-30px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 `;
 
@@ -40,7 +40,8 @@ const ModalBackdrop = styled.div<{ isOpen: boolean }>`
   background-color: rgba(0, 0, 0, 0.85);
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+  padding-top: 5vh;
   z-index: 1000;
   opacity: ${props => props.isOpen ? 1 : 0};
   visibility: ${props => props.isOpen ? 'visible' : 'hidden'};
@@ -59,7 +60,7 @@ const ModalContainer = styled.div<{ isOpen: boolean; darkMode?: boolean }>`
   flex-direction: column;
   max-height: 85vh;
   position: relative;
-  animation: ${props => props.isOpen ? slideUp : 'none'} 0.4s ease forwards;
+  animation: ${props => props.isOpen ? slideDown : 'none'} 0.4s ease forwards;
   overflow: hidden;
   border: ${props => props.darkMode ? '1px solid rgba(255, 255, 255, 0.08)' : 'none'};
   backdrop-filter: blur(10px);
