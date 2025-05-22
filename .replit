@@ -1,4 +1,4 @@
-hidden=[".config"]
+hidden = [".config"]
 modules = ["nodejs-18", "web"]
 run = "cd frontend && npm run serve:prod"
 
@@ -8,7 +8,6 @@ channel = "stable-24_05"
 [deployment]
 publicDir = "frontend/build"
 deploymentTarget = "static"
-build = ["sh", "-c", "cd frontend && npm run build:prod"]
 
 [[deployment.rewrites]]
 from = "/*"
