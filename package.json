@@ -47,9 +47,11 @@
     "redis": "^4.6.13",
     "slick-carousel": "^1.8.1",
     "sqlite3": "^5.1.7",
-    "ua-parser-js": "^1.0.40"
+    "ua-parser-js": "^1.0.40",
+    "zipcodes": "^8.0.0"
   },
   "devDependencies": {
+    "@types/zipcodes": "^8.0.5",
     "autocannon": "^7.14.0",
     "chai": "^4.5.0",
     "chai-http": "^4.4.0",
