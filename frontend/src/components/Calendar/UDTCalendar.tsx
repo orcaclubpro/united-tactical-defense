@@ -307,7 +307,7 @@ const UDTCalendar: React.FC<UDTCalendarProps> = ({
     const newMonth = new Date(currentMonth);
     newMonth.setMonth(newMonth.getMonth() + increment);
     
-    // If moving back and we need to disable past months
+    // If moving back, don't allow past months
     if (increment < 0) {
       const today = new Date();
       if (newMonth.getFullYear() < today.getFullYear() || 
@@ -317,13 +317,24 @@ const UDTCalendar: React.FC<UDTCalendarProps> = ({
       }
     }
     
-    // Check if the new month is beyond 30 days from today
-    const today = new Date();
-    const thirtyDaysFromNow = new Date(today);
-    thirtyDaysFromNow.setDate(today.getDate() + 30);
-    
-    if (newMonth > thirtyDaysFromNow) {
-      return; // Don't allow months beyond 30 days
+    // For forward navigation, be more permissive
+    // Allow navigation if the month contains any bookable days
+    if (increment > 0) {
+      const today = new Date();
+      const maxBookingDate = new Date(today);
+      maxBookingDate.setDate(today.getDate() + 30);
+      
+      // Get the first day of the new month
+      const firstDayOfNewMonth = new Date(newMonth.getFullYear(), newMonth.getMonth(), 1);
+      
+      // Only block if we're trying to go beyond reasonable limits (2+ months ahead)
+      const monthsAhead = (newMonth.getFullYear() - today.getFullYear()) * 12 + 
+                         (newMonth.getMonth() - today.getMonth());
+      
+      // Allow current month + next month, be more restrictive beyond that
+      if (monthsAhead > 2) {
+        return;
+      }
     }
     
     setCurrentMonth(newMonth);
@@ -349,13 +360,15 @@ const UDTCalendar: React.FC<UDTCalendarProps> = ({
   // Check if next month navigation should be disabled
   const isNextDisabled = () => {
     const today = new Date();
-    const thirtyDaysFromNow = new Date(today);
-    thirtyDaysFromNow.setDate(today.getDate() + 30);
-    
     const nextMonth = new Date(currentMonth);
     nextMonth.setMonth(nextMonth.getMonth() + 1);
     
-    return nextMonth > thirtyDaysFromNow;
+    // Calculate how many months ahead the next month would be
+    const monthsAhead = (nextMonth.getFullYear() - today.getFullYear()) * 12 + 
+                       (nextMonth.getMonth() - today.getMonth());
+    
+    // Allow navigation to current month + next 2 months
+    return monthsAhead > 2;
   };
   
   // Check if a date/time is within 12 hours of now
