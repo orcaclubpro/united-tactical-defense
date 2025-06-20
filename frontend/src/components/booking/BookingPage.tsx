@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UDTCalendar } from '../Calendar';
-import { submitFreeClassForm } from '../../services/api';
 import styled from 'styled-components';
 import './BookingPage.scss';
 import useAnalytics from '../../utils/useAnalytics';
-import { getCityFromZip } from '../../utils/zipUtils';
 import useZapier from '../../hooks/useZapier';
+import { submitToLeadConnector } from '../../services/leadConnectorService';
 import DistanceWarningModal from '../Form/DistanceWarningModal';
 import { validateZipCodeDistance, DistanceResult } from '../../utils/distanceUtils';
 
@@ -697,7 +696,7 @@ const BookingPage: React.FC = () => {
         throw new Error('Date and time are required');
       }
 
-      console.log('🔄 Submitting appointment via Zapier webhook:', {
+      console.log('🔄 Submitting appointment via Zapier webhook and LeadConnector:', {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
@@ -705,26 +704,53 @@ const BookingPage: React.FC = () => {
         selectedSlot
       });
 
-      // Send complete appointment data to Zapier webhook
-      const zapierSuccess = await sendToZapier({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        zipCode: formData.zipCode,
-        email: formData.email,
-        phone: formData.phone,
-        experience: formData.experience,
-        source: 'website',
-        appointmentDate: formData.appointmentDate?.toISOString(),
-        appointmentTime: formData.appointmentTime,
-        selectedSlot: selectedSlot,
-        timezone: "America/Los_Angeles"
-      }, "booking_page_appointment");
+      // Send complete appointment data to both Zapier webhook and LeadConnector simultaneously
+      const [zapierSuccess, leadConnectorResult] = await Promise.all([
+        sendToZapier({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          zipCode: formData.zipCode,
+          email: formData.email,
+          phone: formData.phone,
+          experience: formData.experience,
+          source: 'website',
+          appointmentDate: formData.appointmentDate?.toISOString(),
+          appointmentTime: formData.appointmentTime,
+          selectedSlot: selectedSlot,
+          timezone: "America/Los_Angeles"
+        }, "booking_page_appointment"),
+        submitToLeadConnector({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          selectedSlot: selectedSlot,
+          zipCode: formData.zipCode,
+          experience: formData.experience,
+          source: 'website'
+        })
+      ]);
       
       if (!zapierSuccess) {
-        throw new Error('Failed to submit appointment. Please try again.');
+        console.warn('⚠️ Zapier submission failed, but continuing with LeadConnector result');
+      } else {
+        console.log('✅ Appointment submitted successfully via Zapier');
       }
       
-      console.log('✅ Appointment submitted successfully via Zapier');
+      if (!leadConnectorResult.success) {
+        console.warn('⚠️ LeadConnector submission failed:', leadConnectorResult.error);
+        // Don't throw error here - if Zapier succeeded, that's sufficient
+        if (!zapierSuccess) {
+          throw new Error('Both Zapier and LeadConnector submissions failed. Please try again.');
+        }
+      } else {
+        console.log('✅ Appointment submitted successfully via LeadConnector');
+      }
+      
+      // Consider success if at least one submission succeeded
+      if (!zapierSuccess && !leadConnectorResult.success) {
+        throw new Error('Failed to submit appointment. Please try again.');
+      }
 
       // Track conversion in Google Analytics
       trackForm('free_lesson', {

@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import ModernModalUI from './ModernModalUI';
 import styled from 'styled-components';
 import UDTCalendar from '../Calendar/UDTCalendar';
-import { submitFreeClassForm } from '../../services/api';
 import useAnalytics from '../../utils/useAnalytics';
-import { getCityFromZip } from '../../utils/zipUtils';
 import useZapier from '../../hooks/useZapier';
+import { submitToLeadConnector } from '../../services/leadConnectorService';
 import DistanceWarningModal from './DistanceWarningModal';
 import { validateZipCodeDistance, DistanceResult } from '../../utils/distanceUtils';
 
@@ -355,7 +354,7 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
   // Use our custom analytics hook
   const { trackForm } = useAnalytics();
   // Use our Zapier hook
-  const { sendToZapier, status: zapierStatus } = useZapier();
+  const { sendToZapier } = useZapier();
   
   const [isOpen, setIsOpen] = useState(propIsOpen);
   const [currentStep, setCurrentStep] = useState(0);
@@ -585,7 +584,7 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
     setSubmissionError(null);
     
     try {
-      // Format date with timezone for Zapier
+      // Format date with timezone for LeadConnector
       let selectedSlot = '';
       if (formData.appointmentDate && formData.appointmentTime) {
         // Create a new date object from the selected date
@@ -635,7 +634,7 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
         throw new Error('Date and time are required');
       }
       
-      console.log('🔄 Submitting appointment via Zapier webhook:', {
+      console.log('🔄 Submitting appointment via LeadConnector:', {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
@@ -643,26 +642,23 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
         selectedSlot
       });
       
-      // Send complete appointment data to Zapier webhook
-      const zapierSuccess = await sendToZapier({
+      // Send complete appointment data to LeadConnector
+      const leadConnectorResult = await submitToLeadConnector({
         firstName: formData.firstName,
         lastName: formData.lastName,
-        zipCode: formData.zipCode,
         email: formData.email,
         phone: formData.phone,
-        experience: formData.experience,
-        source: formData.source || 'website',
-        appointmentDate: formData.appointmentDate?.toISOString(),
-        appointmentTime: formData.appointmentTime,
         selectedSlot: selectedSlot,
-        timezone: "America/Los_Angeles"
-      }, "landing_appointment");
+        zipCode: formData.zipCode,
+        experience: formData.experience,
+        source: formData.source || 'website'
+      });
       
-      if (!zapierSuccess) {
-        throw new Error('Failed to submit appointment. Please try again.');
+      if (!leadConnectorResult.success) {
+        throw new Error(leadConnectorResult.error || 'Failed to submit appointment to LeadConnector.');
       }
       
-      console.log('✅ Appointment submitted successfully via Zapier');
+      console.log('✅ Appointment submitted successfully via LeadConnector');
       
       // Track conversion in Google Analytics 4 using our custom hook
       trackForm('free_lesson', {
