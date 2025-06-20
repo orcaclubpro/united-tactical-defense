@@ -6,6 +6,8 @@ import { submitFreeClassForm } from '../../services/api';
 import useAnalytics from '../../utils/useAnalytics';
 import { getCityFromZip } from '../../utils/zipUtils';
 import useZapier from '../../hooks/useZapier';
+import DistanceWarningModal from './DistanceWarningModal';
+import { validateZipCodeDistance, DistanceResult } from '../../utils/distanceUtils';
 
 interface FreeLessonFormControllerProps {
   isOpen?: boolean;
@@ -76,6 +78,26 @@ const FormField = styled.div`
     color: #f44336;
     font-size: 0.875rem;
     margin-top: 4px;
+  }
+
+  .distance-feedback {
+    font-size: 0.875rem;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    
+    &.success {
+      color: #4caf50;
+    }
+    
+    &.warning {
+      color: #ff9800;
+    }
+    
+    &.blocked {
+      color: #f44336;
+    }
   }
   
   @media (max-width: 480px) {
@@ -352,6 +374,9 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
   const [submitting, setSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
+  const [distanceResult, setDistanceResult] = useState<DistanceResult | null>(null);
+  const [showDistanceModal, setShowDistanceModal] = useState(false);
+  const [distanceValidated, setDistanceValidated] = useState(false);
 
   // Handle modal opening from props
   useEffect(() => {
@@ -409,6 +434,16 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
         ...prev,
         [name]: ''
       }));
+    }
+
+    // Handle zip code distance validation
+    if (name === 'zipCode' && value.length === 5) {
+      const result = validateZipCodeDistance(value);
+      if (result) {
+        setDistanceResult(result);
+        // Reset validation status when zip code changes
+        setDistanceValidated(false);
+      }
     }
   };
 
@@ -491,6 +526,17 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
     
     if (isValid) {
       if (currentStep === 0) {
+        // Check distance validation before proceeding
+        if (distanceResult && !distanceValidated) {
+          if (distanceResult.requiresWarning) {
+            setShowDistanceModal(true);
+            return; // Show confirmation modal first
+          } else {
+            // Within acceptable range, mark as validated
+            setDistanceValidated(true);
+          }
+        }
+
         // Send data to Zapier webhook when user clicks "Choose Date & Time"
         const zapierData = {
           firstName: formData.firstName,
@@ -520,12 +566,26 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
     }
   };
 
+  const handleDistanceModalConfirm = () => {
+    setDistanceValidated(true);
+    setShowDistanceModal(false);
+    // Continue with the next step
+    if (currentStep === 0) {
+      setCurrentStep(prev => prev + 1);
+    }
+  };
+
+  const handleDistanceModalClose = () => {
+    setShowDistanceModal(false);
+    // Don't proceed to next step if user cancels
+  };
+
   const handleSubmit = async () => {
     setSubmitting(true);
     setSubmissionError(null);
     
     try {
-      // Format date with timezone for API
+      // Format date with timezone for Zapier
       let selectedSlot = '';
       if (formData.appointmentDate && formData.appointmentTime) {
         // Create a new date object from the selected date
@@ -575,67 +635,7 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
         throw new Error('Date and time are required');
       }
       
-      // Generate unique identifiers
-      const sessionId = Math.random().toString(36).substring(2, 15) + 
-                       Math.random().toString(36).substring(2, 15);
-      const generateUUID = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-      });
-      
-      // Create the form data object required by external API
-      const apiFormData = {
-        cLNizIhBIdwpbrfvmqH8: [],
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        phone: `+1${formData.phone.replace(/\D/g, '')}`,
-        email: formData.email,
-        formId: "bHbGRJjmTWG67GNRFqQY",
-        location_id: "wCjIiRV3L99XP2J5wYdA",
-        calendar_id: "EwO4iAyVRl5dqwH9pi1O",
-        selected_slot: selectedSlot,
-        selected_timezone: "America/Los_Angeles",
-        sessionId,
-        tag: "landing", // Add tag field to the payload
-        eventData: {
-          source: formData.source || "direct",
-          referrer: document.referrer || "https://uniteddefensetactical.com/",
-          url_params: {},
-          page: {
-            url: window.location.href,
-            title: "UDT Free Demo Training"
-          },
-          timestamp: Date.now(),
-          campaign: "",
-          contactSessionIds: {
-            ids: [sessionId]
-          },
-          type: "page-visit",
-          parentId: "0QbcKCTjT25VUqQhEKpj",
-          pageVisitType: "funnel",
-          domain: "uniteddefensetactical.com",
-          version: "v3",
-          fingerprint: null,
-          fbEventId: generateUUID(),
-          medium: "calendar",
-          mediumId: "EwO4iAyVRl5dqwH9pi1O"
-        },
-        sessionFingerprint: generateUUID(),
-        funneEventData: {
-          event_type: "optin",
-          domain_name: "uniteddefensetactical.com",
-          page_url: "/calendar-free-pass",
-          funnel_id: "U24FpiHkrMhcsvps5TR1",
-          page_id: "0QbcKCTjT25VUqQhEKpj",
-          funnel_step_id: "e451b167-1a02-436c-8df1-66dd8d5c1fe4"
-        },
-        dateFieldDetails: [],
-        Timezone: "America/Los_Angeles (GMT-07:00)",
-        paymentContactId: {},
-        timeSpent: Math.floor(Math.random() * 100) + 50
-      };
-      
-      console.log('🔄 Submitting appointment directly to external API:', {
+      console.log('🔄 Submitting appointment via Zapier webhook:', {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
@@ -643,46 +643,30 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
         selectedSlot
       });
       
-      // Create multipart form data
-      const formDataObj = new FormData();
+      // Send complete appointment data to Zapier webhook
+      const zapierSuccess = await sendToZapier({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        zipCode: formData.zipCode,
+        email: formData.email,
+        phone: formData.phone,
+        experience: formData.experience,
+        source: formData.source || 'website',
+        appointmentDate: formData.appointmentDate?.toISOString(),
+        appointmentTime: formData.appointmentTime,
+        selectedSlot: selectedSlot,
+        timezone: "America/Los_Angeles"
+      }, "landing_appointment");
       
-      // Add formData part
-      formDataObj.append('formData', JSON.stringify(apiFormData));
-      formDataObj.append('locationId', 'wCjIiRV3L99XP2J5wYdA');
-      formDataObj.append('formId', 'bHbGRJjmTWG67GNRFqQY');
-      formDataObj.append('captchaV3', 'CAPTCHA_TOKEN_PLACEHOLDER_' + sessionId);
-      
-      // Send request directly to external API
-      const response = await fetch('https://backend.leadconnectorhq.com/appengine/appointment', {
-        method: 'POST',
-        headers: {
-          'Accept': '*/*',
-          'Accept-Language': 'en-US,en;q=0.9',
-          'Origin': 'https://uniteddefensetactical.com',
-          'Referer': document.referrer || 'https://uniteddefensetactical.com/',
-          'fullurl': window.location.href || 'https://uniteddefensetactical.com/',
-          'timezone': 'America/Los_Angeles'
-        },
-        body: formDataObj
-      });
-      
-      let responseData;
-      try {
-        responseData = await response.json();
-      } catch (e) {
-        console.error('❌ Failed to parse response:', e);
-        throw new Error('Failed to process the response from the appointment service');
+      if (!zapierSuccess) {
+        throw new Error('Failed to submit appointment. Please try again.');
       }
       
-      console.log('✅ External API response:', responseData);
-      
-      if (!response.ok) {
-        throw new Error(responseData.error || 'Failed to book appointment');
-      }
+      console.log('✅ Appointment submitted successfully via Zapier');
       
       // Track conversion in Google Analytics 4 using our custom hook
       trackForm('free_lesson', {
-        id: responseData.id || `form_${Date.now()}`,
+        id: `form_${Date.now()}`,
         source: formData.source || 'website',
         experience: formData.experience,
         appointmentDate: formData.appointmentDate
@@ -772,6 +756,15 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
           placeholder="Your zip code"
         />
         {errors.zipCode && <div className="error-message">{errors.zipCode}</div>}
+        {distanceResult && (
+          <div className={`distance-feedback ${
+            distanceResult.requiresWarning ? 'warning' : 'success'
+          }`}>
+            {distanceResult.requiresWarning ? '⚠️' : '✅'} 
+            {distanceResult.distance} miles from Anaheim Hills
+            {distanceResult.userCity && ` (${distanceResult.userCity})`}
+          </div>
+        )}
       </FormField>
       
       <FormField>
@@ -1020,6 +1013,13 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
         
         {getStepContent()}
       </div>
+      
+      <DistanceWarningModal
+        isOpen={showDistanceModal}
+        onClose={handleDistanceModalClose}
+        onConfirm={handleDistanceModalConfirm}
+        distanceResult={distanceResult}
+      />
     </ModernModalUI>
   );
 };

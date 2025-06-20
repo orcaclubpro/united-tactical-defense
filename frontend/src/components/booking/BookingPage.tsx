@@ -7,6 +7,8 @@ import './BookingPage.scss';
 import useAnalytics from '../../utils/useAnalytics';
 import { getCityFromZip } from '../../utils/zipUtils';
 import useZapier from '../../hooks/useZapier';
+import DistanceWarningModal from '../Form/DistanceWarningModal';
+import { validateZipCodeDistance, DistanceResult } from '../../utils/distanceUtils';
 
 interface FormData {
   firstName: string;
@@ -228,6 +230,27 @@ const FormField = styled.div`
     font-size: 0.875rem;
     margin-top: 6px;
     letter-spacing: 0.2px;
+  }
+
+  .distance-feedback {
+    font-size: 0.875rem;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.2px;
+    
+    &.success {
+      color: #4caf50;
+    }
+    
+    &.warning {
+      color: #ff9800;
+    }
+    
+    &.blocked {
+      color: #ff6b6b;
+    }
   }
 
   @media (max-width: 768px) {
@@ -548,6 +571,9 @@ const BookingPage: React.FC = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [distanceResult, setDistanceResult] = useState<DistanceResult | null>(null);
+  const [showDistanceModal, setShowDistanceModal] = useState(false);
+  const [distanceValidated, setDistanceValidated] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -561,6 +587,16 @@ const BookingPage: React.FC = () => {
         ...prev,
         [name]: ''
       }));
+    }
+
+    // Handle zip code distance validation
+    if (name === 'zipCode' && value.length === 5) {
+      const result = validateZipCodeDistance(value);
+      if (result) {
+        setDistanceResult(result);
+        // Reset validation status when zip code changes
+        setDistanceValidated(false);
+      }
     }
   };
 
@@ -594,16 +630,33 @@ const BookingPage: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleDistanceModalConfirm = () => {
+    setDistanceValidated(true);
+    setShowDistanceModal(false);
+  };
+
+  const handleDistanceModalClose = () => {
+    setShowDistanceModal(false);
+  };
+
   const handleSubmit = async () => {
     if (!validateForm()) return;
+    
+    // Check distance validation before submitting
+    if (distanceResult && !distanceValidated) {
+      if (distanceResult.requiresWarning) {
+        setShowDistanceModal(true);
+        return; // Show confirmation modal first
+      } else {
+        // Within acceptable range, mark as validated
+        setDistanceValidated(true);
+      }
+    }
     
     setIsSubmitting(true);
     
     try {
-      // Send data to Zapier first
-      await sendToZapier(formData, "booking_page");
-      
-      // Format date with timezone for API
+      // Format date with timezone for Zapier
       let selectedSlot = '';
       if (formData.appointmentDate && formData.appointmentTime) {
         const date = new Date(formData.appointmentDate);
@@ -644,102 +697,38 @@ const BookingPage: React.FC = () => {
         throw new Error('Date and time are required');
       }
 
-      // Generate unique identifiers
-      const sessionId = Math.random().toString(36).substring(2, 15) + 
-                       Math.random().toString(36).substring(2, 15);
-      const generateUUID = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-      });
-
-      // Create the form data object required by external API
-      const apiFormData = {
-        cLNizIhBIdwpbrfvmqH8: [],
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        phone: `+1${formData.phone.replace(/\D/g, '')}`,
+      console.log('🔄 Submitting appointment via Zapier webhook:', {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
         email: formData.email,
-        formId: "bHbGRJjmTWG67GNRFqQY",
-        location_id: "wCjIiRV3L99XP2J5wYdA",
-        calendar_id: "EwO4iAyVRl5dqwH9pi1O",
-        selected_slot: selectedSlot,
-        selected_timezone: "America/Los_Angeles",
-        sessionId,
-        tag: "landing",
-        eventData: {
-          source: "website",
-          referrer: document.referrer || "https://uniteddefensetactical.com/",
-          url_params: {},
-          page: {
-            url: window.location.href,
-            title: "UDT Free Demo Training"
-          },
-          timestamp: Date.now(),
-          campaign: "",
-          contactSessionIds: {
-            ids: [sessionId]
-          },
-          type: "page-visit",
-          parentId: "0QbcKCTjT25VUqQhEKpj",
-          pageVisitType: "funnel",
-          domain: "uniteddefensetactical.com",
-          version: "v3",
-          fingerprint: null,
-          fbEventId: generateUUID(),
-          medium: "calendar",
-          mediumId: "EwO4iAyVRl5dqwH9pi1O"
-        },
-        sessionFingerprint: generateUUID(),
-        funneEventData: {
-          event_type: "optin",
-          domain_name: "uniteddefensetactical.com",
-          page_url: "/calendar-free-pass",
-          funnel_id: "U24FpiHkrMhcsvps5TR1",
-          page_id: "0QbcKCTjT25VUqQhEKpj",
-          funnel_step_id: "e451b167-1a02-436c-8df1-66dd8d5c1fe4"
-        },
-        dateFieldDetails: [],
-        Timezone: "America/Los_Angeles (GMT-07:00)",
-        paymentContactId: {},
-        timeSpent: Math.floor(Math.random() * 100) + 50
-      };
-
-      // Create multipart form data
-      const formDataObj = new FormData();
-      formDataObj.append('formData', JSON.stringify(apiFormData));
-      formDataObj.append('locationId', 'wCjIiRV3L99XP2J5wYdA');
-      formDataObj.append('formId', 'bHbGRJjmTWG67GNRFqQY');
-      formDataObj.append('captchaV3', 'CAPTCHA_TOKEN_PLACEHOLDER_' + sessionId);
-
-      // Send request to leadconnector endpoint
-      const response = await fetch('https://backend.leadconnectorhq.com/appengine/appointment', {
-        method: 'POST',
-        headers: {
-          'Accept': '*/*',
-          'Accept-Language': 'en-US,en;q=0.9',
-          'Origin': 'https://uniteddefensetactical.com',
-          'Referer': document.referrer || 'https://uniteddefensetactical.com/',
-          'fullurl': window.location.href || 'https://uniteddefensetactical.com/',
-          'timezone': 'America/Los_Angeles'
-        },
-        body: formDataObj
+        phone: formData.phone,
+        selectedSlot
       });
 
-      let responseData;
-      try {
-        responseData = await response.json();
-      } catch (e) {
-        console.error('Failed to parse response:', e);
-        throw new Error('Failed to process the response from the appointment service');
+      // Send complete appointment data to Zapier webhook
+      const zapierSuccess = await sendToZapier({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        zipCode: formData.zipCode,
+        email: formData.email,
+        phone: formData.phone,
+        experience: formData.experience,
+        source: 'website',
+        appointmentDate: formData.appointmentDate?.toISOString(),
+        appointmentTime: formData.appointmentTime,
+        selectedSlot: selectedSlot,
+        timezone: "America/Los_Angeles"
+      }, "booking_page_appointment");
+      
+      if (!zapierSuccess) {
+        throw new Error('Failed to submit appointment. Please try again.');
       }
-
-      if (!response.ok) {
-        throw new Error(responseData.error || 'Failed to book appointment');
-      }
+      
+      console.log('✅ Appointment submitted successfully via Zapier');
 
       // Track conversion in Google Analytics
       trackForm('free_lesson', {
-        id: responseData.id || `form_${Date.now()}`,
+        id: `form_${Date.now()}`,
         source: 'website',
         experience: formData.experience,
         appointmentDate: formData.appointmentDate
@@ -850,6 +839,15 @@ const BookingPage: React.FC = () => {
               onChange={handleInputChange}
               placeholder="Your zip code"
             />
+            {distanceResult && (
+              <div className={`distance-feedback ${
+                distanceResult.requiresWarning ? 'warning' : 'success'
+              }`}>
+                {distanceResult.requiresWarning ? '⚠️' : '✅'} 
+                {distanceResult.distance} miles from Anaheim Hills
+                {distanceResult.userCity && ` (${distanceResult.userCity})`}
+              </div>
+            )}
           </FormField>
           
           <FormField>
@@ -917,6 +915,13 @@ const BookingPage: React.FC = () => {
           </ErrorPopup>
         </>
       )}
+
+      <DistanceWarningModal
+        isOpen={showDistanceModal}
+        onClose={handleDistanceModalClose}
+        onConfirm={handleDistanceModalConfirm}
+        distanceResult={distanceResult}
+      />
     </PageContainer>
   );
 };

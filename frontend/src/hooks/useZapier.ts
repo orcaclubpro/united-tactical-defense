@@ -32,7 +32,7 @@ const useZapier = (): ZapierHookResult => {
         city = getCityFromZip(zipCode);
       }
       
-      // Create a proper payload with all the form data
+      // Create a proper payload with all the form data including appointment details
       const payload = {
         // Support various field names and formats
         firstName: data.firstName || data.first_name,
@@ -44,7 +44,12 @@ const useZapier = (): ZapierHookResult => {
         experience: data.experience,
         source: data.source || 'website',
         timestamp: new Date().toISOString(),
-        tag: tag // Use the provided tag
+        tag: tag, // Use the provided tag
+        // New appointment-specific fields
+        appointmentDate: data.appointmentDate,
+        appointmentTime: data.appointmentTime,
+        selectedSlot: data.selectedSlot, // Full formatted datetime string
+        timezone: data.timezone || 'America/Los_Angeles'
       };
       
       console.log('📦 Zapier payload with city:', payload);
