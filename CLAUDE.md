@@ -12,6 +12,9 @@ cd frontend && npm start
 # Build frontend for production
 cd frontend && npm run build:prod
 
+# Build frontend with optimized assets
+cd frontend && npm run build:optimized
+
 # Run frontend tests
 cd frontend && npm test
 
@@ -20,6 +23,12 @@ cd frontend && npm run analyze
 
 # Optimize assets before build
 cd frontend && npm run optimize-assets
+
+# Serve production build locally
+cd frontend && npm run serve:prod
+
+# Preload critical assets
+cd frontend && npm run preload-critical-assets
 ```
 
 ### Full Stack Development
@@ -48,6 +57,9 @@ npm run test:services
 # Run integration tests
 npm run test:integration
 
+# Run E2E tests
+npm run test:e2e
+
 # Run frontend tests
 npm run test:frontend
 
@@ -56,6 +68,9 @@ npm run test:performance
 
 # Generate test coverage report
 npm run test:coverage
+
+# Generate comprehensive test report
+npm run test:report
 ```
 
 ### Database Operations
@@ -74,17 +89,20 @@ npm run test:db-pooling
 
 ### Frontend Architecture (React + TypeScript)
 - **Framework**: React 18 with TypeScript
-- **Routing**: React Router DOM with lazy loading
-- **Styling**: SCSS with component-scoped styles
+- **Routing**: React Router DOM with lazy loading  
+- **Styling**: SCSS with component-scoped styles + Styled Components for dynamic styles
 - **State Management**: React hooks with context for global state
 - **Build Tool**: Create React App with custom optimizations
 - **Analytics**: Google Analytics 4 integration with custom tracking
+- **Icons**: FontAwesome React components and React Icons
+- **Charts**: Chart.js with react-chartjs-2 for dashboard analytics
 
 ### Backend Architecture (Hybrid: Deprecated + Serverless)
-- **Current**: Serverless functions (Netlify) with mock data fallbacks
+- **Current**: Serverless functions (Netlify) with mock data fallbacks in `frontend/netlify/functions/`
 - **Deprecated**: Express.js server with SQLite database (in `/deprecated/`)
 - **External APIs**: LeadConnector API for appointment booking
 - **Database**: Transitioned from SQLite to external services
+- **Development Mode**: Mock implementations with `logMockOperation` indicators in console
 
 ### Key Directories
 - `frontend/src/components/`: React components organized by feature
@@ -96,10 +114,11 @@ npm run test:db-pooling
 ## Code Architecture Patterns
 
 ### Component Organization
-- **Landing Page**: Modular sections (Hero, Programs, Testimonials, etc.)
-- **Dashboard**: Analytics dashboard with charts and metrics
-- **Booking**: Appointment booking flow with calendar integration
-- **Common**: Shared components (Footer, modals, etc.)
+- **Landing Page**: Modular sections (Hero, Programs, Testimonials, etc.) in `frontend/src/components/landing/`
+- **Dashboard**: Analytics dashboard with charts and metrics in `frontend/src/components/dashboard/`
+- **Booking**: Appointment booking flow with calendar integration in `frontend/src/components/booking/`
+- **Common**: Shared components (Footer, modals, etc.) in `frontend/src/components/common/`
+- **Form Components**: Booking forms and modals in `frontend/src/components/Form/`
 
 ### API Layer Pattern
 - Mock implementations for development (`frontend/src/services/api.ts`)
@@ -136,9 +155,10 @@ npm run test:db-pooling
 
 ### Local Development Setup
 1. Install dependencies: `npm run install-all`
-2. Start development: `npm start`
+2. Start development: `npm start` (runs both frontend and deprecated backend concurrently)
 3. Frontend runs on `http://localhost:3000`
-4. Backend API (if needed) runs on `http://localhost:3001`
+4. Deprecated backend API runs on `http://localhost:3001`
+5. For frontend-only development: `cd frontend && npm start`
 
 ### Testing Strategy
 - **Unit Tests**: Component and utility testing with Jest/React Testing Library
@@ -148,9 +168,11 @@ npm run test:db-pooling
 
 ### Build & Deployment
 - **Development**: `npm start` for hot reload
-- **Production**: `npm run build` creates optimized build
-- **Deployment**: Netlify automatic deployment from main branch
-- **Asset Optimization**: Images, videos, and bundle optimization
+- **Production**: `npm run build` creates optimized build  
+- **Optimized Production**: `cd frontend && npm run build:optimized` (includes asset optimization)
+- **Deployment**: Netlify automatic deployment from main branch using `build:optimized`
+- **Asset Optimization**: Automatic image format conversion, video compression, bundle optimization
+- **Local Testing**: `cd frontend && npm run serve:prod` to test production build locally
 
 ## TypeScript Configuration
 
@@ -220,6 +242,12 @@ EXTERNAL_APPOINTMENT_API=https://backend.leadconnectorhq.com/appengine/appointme
 
 ### Debug Commands
 - `npm run test:report` - Generate comprehensive test report
-- `npm run analyze` - Analyze frontend bundle size
-- `npm run test:performance` - Load test API endpoints
+- `cd frontend && npm run analyze` - Analyze frontend bundle size with source-map-explorer
+- `npm run test:performance` - Load test API endpoints with autocannon
+- `cd frontend && npm run build:analyze` - Generate bundle analysis with webpack-bundle-analyzer
 - Check browser console for mock API indicators during development
+
+### Asset Optimization Commands
+- `cd frontend && npm run optimize-assets` - Optimize images and videos before build
+- `cd frontend && npm run preload-critical-assets` - Generate critical asset preloading
+- `cd frontend && npm run build:optimized` - Build with full asset optimization pipeline
