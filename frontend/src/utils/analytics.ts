@@ -1,8 +1,8 @@
 /**
- * Google Analytics 4 implementation for United Tactical Defense
+ * Analytics implementation for United Tactical Defense
  * 
- * This utility provides functions for tracking events in Google Analytics 4 (GA4).
- * It focuses on tracking conversions (form submissions) and traffic sources.
+ * This utility provides functions for tracking events in Google Analytics 4 (GA4)
+ * and Nextdoor Pixel. It focuses on tracking conversions (form submissions) and traffic sources.
  */
 
 // Type definitions for event parameters
@@ -17,12 +17,33 @@ declare global {
     // Use the same type signature that's expected elsewhere
     // This avoids the "subsequent property declarations" error
     GA4_CONVERSION_ID: string;
+    // Nextdoor pixel function
+    ndp: (...args: any[]) => void;
+    // Rumble analytics functions
+    _ratagData: any[];
+    ratag: (...args: any[]) => void;
+    ratag_conversion: (url?: string) => boolean;
   }
 }
 
 // Type guard for checking if gtag is initialized
 function isGtagInitialized(): boolean {
   return typeof window.gtag !== 'undefined';
+}
+
+// Type guard for checking if Nextdoor pixel is initialized
+function isNextdoorInitialized(): boolean {
+  return typeof window.ndp !== 'undefined';
+}
+
+// Type guard for checking if Rumble analytics is initialized
+function isRumbleInitialized(): boolean {
+  return typeof window.ratag !== 'undefined' && typeof window._ratagData !== 'undefined';
+}
+
+// Type guard for checking if Rumble conversion function is available
+function isRumbleConversionAvailable(): boolean {
+  return typeof window.ratag_conversion !== 'undefined';
 }
 
 /**
@@ -93,16 +114,22 @@ function setProperties(
  * @param title - The page title (optional, defaults to document title)
  */
 export const trackPageView = (path?: string, title?: string): void => {
-  if (!isGtagInitialized()) return;
-  
   const pageTitle = title || document.title;
   const pagePath = path || window.location.pathname;
   
-  trackEvent('page_view', {
-    page_title: pageTitle,
-    page_path: pagePath,
-    page_location: window.location.href
-  });
+  // Track with Google Analytics
+  if (isGtagInitialized()) {
+    trackEvent('page_view', {
+      page_title: pageTitle,
+      page_path: pagePath,
+      page_location: window.location.href
+    });
+  }
+  
+  // Track with Nextdoor Pixel
+  if (isNextdoorInitialized()) {
+    window.ndp('track', 'PAGE_VIEW');
+  }
   
   console.info(`[Analytics] Page view tracked: ${pagePath}`);
 };
@@ -113,8 +140,6 @@ export const trackPageView = (path?: string, title?: string): void => {
  * @param formData - The form data (optional)
  */
 export const trackFormSubmission = (formType: string, formData?: Record<string, any>): void => {
-  if (!isGtagInitialized()) return;
-  
   // Base event parameters
   const eventParams: EventParams = {
     form_type: formType,
@@ -134,15 +159,41 @@ export const trackFormSubmission = (formType: string, formData?: Record<string, 
     }
   }
   
-  // Send the conversion event
-  trackEvent('generate_lead', eventParams);
+  // Track with Google Analytics
+  if (isGtagInitialized()) {
+    // Send the conversion event
+    trackEvent('generate_lead', eventParams);
+    
+    // Also track as a standard conversion
+    trackEvent('conversion', {
+      send_to: window.GA4_CONVERSION_ID, // This should be set in your environment variables
+      value: formType === 'free_lesson' ? 50 : 20, // Example value based on form type
+      currency: 'USD'
+    });
+  }
   
-  // Also track as a standard conversion
-  trackEvent('conversion', {
-    send_to: window.GA4_CONVERSION_ID, // This should be set in your environment variables
-    value: formType === 'free_lesson' ? 50 : 20, // Example value based on form type
-    currency: 'USD'
-  });
+  // Track with Nextdoor Pixel
+  if (isNextdoorInitialized()) {
+    window.ndp('track', 'LEAD');
+  }
+
+  // Track with Rumble Analytics
+  if (isRumbleInitialized()) {
+    // Track the form submission event
+    const rumbleEventData = {
+      form_type: formType,
+      form_source: formData?.source || 'website',
+      ...formData
+    };
+    
+    window.ratag('form_submit', rumbleEventData);
+    
+    // For free lesson forms, also track conversion
+    if (formType === 'free_lesson' && isRumbleConversionAvailable()) {
+      window.ratag_conversion();
+      console.info('[Analytics] Rumble conversion tracked for free lesson form');
+    }
+  }
   
   console.info(`[Analytics] Form submission tracked: ${formType}`);
 };
@@ -232,6 +283,18 @@ export const trackTrafficSource = (): void => {
   }
   
   console.info(`[Analytics] Traffic source tracked: ${trafficSource} / ${trafficMedium}`);
+};
+
+/**
+ * Track a custom event with Nextdoor Pixel
+ * @param eventType - The event type to track
+ * @param eventData - Optional event data
+ */
+export const trackNextdoorEvent = (eventType: string, eventData?: Record<string, any>): void => {
+  if (!isNextdoorInitialized()) return;
+  
+  window.ndp('track', eventType, eventData);
+  console.info(`[Analytics] Nextdoor event tracked: ${eventType}`);
 };
 
 /**

@@ -6,6 +6,7 @@ import './BookingPage.scss';
 import useAnalytics from '../../utils/useAnalytics';
 import useZapier from '../../hooks/useZapier';
 import { submitToLeadConnector } from '../../services/leadConnectorService';
+import { trackRumbleBookingConversion } from '../../services/rumbleAnalytics';
 import DistanceWarningModal from '../Form/DistanceWarningModal';
 import { validateZipCodeDistance, DistanceResult } from '../../utils/distanceUtils';
 
@@ -758,6 +759,18 @@ const BookingPage: React.FC = () => {
         source: 'website',
         experience: formData.experience,
         appointmentDate: formData.appointmentDate
+      });
+
+      // Track conversion in Rumble Analytics
+      trackRumbleBookingConversion({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        source: 'booking_page',
+        experience: formData.experience,
+        appointmentDate: formData.appointmentDate?.toISOString(),
+        appointmentTime: formData.appointmentTime
       });
 
       setShowSuccess(true);

@@ -5,6 +5,7 @@ import UDTCalendar from '../Calendar/UDTCalendar';
 import useAnalytics from '../../utils/useAnalytics';
 import useZapier from '../../hooks/useZapier';
 import { submitToLeadConnector } from '../../services/leadConnectorService';
+import { trackRumbleBookingConversion } from '../../services/rumbleAnalytics';
 import DistanceWarningModal from './DistanceWarningModal';
 import { validateZipCodeDistance, DistanceResult } from '../../utils/distanceUtils';
 
@@ -666,6 +667,18 @@ export const FreeLessonFormController: React.FC<FreeLessonFormControllerProps> =
         source: formData.source || 'website',
         experience: formData.experience,
         appointmentDate: formData.appointmentDate
+      });
+
+      // Track conversion in Rumble Analytics
+      trackRumbleBookingConversion({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        source: formData.source || 'modal_form',
+        experience: formData.experience,
+        appointmentDate: formData.appointmentDate?.toISOString(),
+        appointmentTime: formData.appointmentTime
       });
       
       // Success state
