@@ -1,9 +1,13 @@
 import { useState } from 'react';
 import { getCityFromZip } from '../utils/zipUtils';
+import { AppError, CommonErrors, HttpStatusCode, errorHandler } from '../utils/ErrorHandler';
+import { zapierRetryHandler } from '../utils/WebhookRetryHandler';
 
 interface ZapierStatus {
   sent: boolean;
   error: string | null;
+  lastAttempt?: Date;
+  attempts?: number;
 }
 
 interface ZapierHookResult {
@@ -12,7 +16,7 @@ interface ZapierHookResult {
 }
 
 /**
- * Hook to handle sending data to Zapier with city lookup
+ * Hook to handle sending data to Zapier with proper CORS handling and retry logic
  * @returns Object containing sendToZapier function and status
  */
 const useZapier = (): ZapierHookResult => {
@@ -54,26 +58,65 @@ const useZapier = (): ZapierHookResult => {
       
       console.log('📦 Zapier payload with city:', payload);
       
-      // Use a more CORS-friendly approach
-      await fetch('https://hooks.zapier.com/hooks/catch/22610298/2xf6xd2/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        mode: 'no-cors', // This is key for CORS issues with webhooks
-        body: JSON.stringify(payload)
-      });
+      let attemptCount = 0;
+      
+      // Use proper CORS with retry logic - NO MORE no-cors mode!
+      const response = await zapierRetryHandler.sendWithRetry(
+        'https://hooks.zapier.com/hooks/catch/22610298/2xf6xd2/',
+        payload,
+        {}, // headers
+        {
+          onRetry: (attempt, error) => {
+            attemptCount = attempt;
+            console.log(`🔄 Zapier retry attempt ${attempt}:`, error.message);
+          }
+        }
+      );
 
-      // With no-cors mode, we can't access the response directly
-      // But we can assume success if no error was thrown
-      console.log('✅ Successfully sent data to Zapier (no-cors mode)');
-      setStatus({ sent: true, error: null });
+      // Now we can actually check the response!
+      if (!response.ok) {
+        throw new AppError(
+          CommonErrors.WEBHOOK_FAILED,
+          response.status as HttpStatusCode,
+          `Zapier webhook failed: ${response.status} ${response.statusText}`,
+          true,
+          { 
+            url: 'zapier_webhook',
+            status: response.status,
+            statusText: response.statusText,
+            payload: JSON.stringify(payload)
+          }
+        );
+      }
+
+      console.log('✅ Zapier webhook actually succeeded!');
+      setStatus({ 
+        sent: true, 
+        error: null, 
+        lastAttempt: new Date(),
+        attempts: attemptCount + 1
+      });
       return true;
+
     } catch (error: unknown) {
-      console.error('❌ Error sending data to Zapier:', error);
+      console.error('❌ Zapier webhook failed after all retries:', error);
+      
+      // Handle the error properly
+      const appError = error instanceof AppError ? error : new AppError(
+        CommonErrors.NETWORK_ERROR,
+        HttpStatusCode.SERVICE_UNAVAILABLE,
+        error instanceof Error ? error.message : 'Unknown Zapier webhook error',
+        true,
+        { tag, payload: JSON.stringify(data) }
+      );
+
+      await errorHandler.handleError(appError);
+
       setStatus({
         sent: false, 
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: appError.message,
+        lastAttempt: new Date(),
+        attempts: (zapierRetryHandler.options.maxRetries ?? 2) + 1
       });
       return false;
     }

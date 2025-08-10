@@ -9,6 +9,7 @@ import { submitToLeadConnector } from '../../services/leadConnectorService';
 import { trackRumbleBookingConversion } from '../../services/rumbleAnalytics';
 import DistanceWarningModal from '../Form/DistanceWarningModal';
 import { validateZipCodeDistance, DistanceResult } from '../../utils/distanceUtils';
+import { AppError, CommonErrors, HttpStatusCode, errorHandler } from '../../utils/ErrorHandler';
 
 interface FormData {
   firstName: string;
@@ -656,13 +657,19 @@ const BookingPage: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      // Format date with timezone for Zapier
+      // Format date with timezone for both services
       let selectedSlot = '';
       if (formData.appointmentDate && formData.appointmentTime) {
         const date = new Date(formData.appointmentDate);
         const timeMatch = formData.appointmentTime.match(/(\d+):(\d+)\s*(AM|PM)/i);
         if (!timeMatch) {
-          throw new Error('Invalid time format');
+          throw new AppError(
+            CommonErrors.VALIDATION_ERROR,
+            HttpStatusCode.BAD_REQUEST,
+            'Invalid time format provided',
+            true,
+            { appointmentTime: formData.appointmentTime }
+          );
         }
         
         let [_, hours, minutes, period] = timeMatch;
@@ -683,7 +690,13 @@ const BookingPage: React.FC = () => {
         const diffInHours = diffInMs / (1000 * 60 * 60);
         
         if (diffInHours < 12) {
-          throw new Error('Appointments must be scheduled at least 12 hours in advance.');
+          throw new AppError(
+            CommonErrors.VALIDATION_ERROR,
+            HttpStatusCode.BAD_REQUEST,
+            'Appointments must be scheduled at least 12 hours in advance',
+            true,
+            { diffInHours, appointmentDate: date.toISOString(), currentTime: now.toISOString() }
+          );
         }
         
         const year = date.getFullYear();
@@ -694,7 +707,13 @@ const BookingPage: React.FC = () => {
         
         selectedSlot = `${year}-${month}-${day}T${formattedHours}:${formattedMinutes}:00-07:00`;
       } else {
-        throw new Error('Date and time are required');
+        throw new AppError(
+          CommonErrors.VALIDATION_ERROR,
+          HttpStatusCode.BAD_REQUEST,
+          'Date and time are required for appointment booking',
+          true,
+          { appointmentDate: formData.appointmentDate, appointmentTime: formData.appointmentTime }
+        );
       }
 
       console.log('🔄 Submitting appointment via Zapier webhook and LeadConnector:', {
@@ -705,9 +724,16 @@ const BookingPage: React.FC = () => {
         selectedSlot
       });
 
-      // Send complete appointment data to both Zapier webhook and LeadConnector simultaneously
-      const [zapierSuccess, leadConnectorResult] = await Promise.all([
-        sendToZapier({
+      // Try Zapier first, then LeadConnector as fallback
+      let zapierSuccess = false;
+      let leadConnectorSuccess = false;
+      let zapierError: string | null = null;
+      let leadConnectorError: string | null = null;
+
+      // Try Zapier first
+      try {
+        console.log('🔄 Attempting Zapier submission...');
+        zapierSuccess = await sendToZapier({
           firstName: formData.firstName,
           lastName: formData.lastName,
           zipCode: formData.zipCode,
@@ -719,38 +745,69 @@ const BookingPage: React.FC = () => {
           appointmentTime: formData.appointmentTime,
           selectedSlot: selectedSlot,
           timezone: "America/Los_Angeles"
-        }, "booking_page_appointment"),
-        submitToLeadConnector({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          phone: formData.phone,
-          selectedSlot: selectedSlot,
-          zipCode: formData.zipCode,
-          experience: formData.experience,
-          source: 'website'
-        })
-      ]);
-      
-      if (!zapierSuccess) {
-        console.warn('⚠️ Zapier submission failed, but continuing with LeadConnector result');
-      } else {
-        console.log('✅ Appointment submitted successfully via Zapier');
-      }
-      
-      if (!leadConnectorResult.success) {
-        console.warn('⚠️ LeadConnector submission failed:', leadConnectorResult.error);
-        // Don't throw error here - if Zapier succeeded, that's sufficient
-        if (!zapierSuccess) {
-          throw new Error('Both Zapier and LeadConnector submissions failed. Please try again.');
+        }, "booking_page_appointment");
+        
+        if (zapierSuccess) {
+          console.log('✅ Zapier webhook succeeded - skipping LeadConnector');
         }
-      } else {
-        console.log('✅ Appointment submitted successfully via LeadConnector');
+      } catch (zapierErr) {
+        zapierError = zapierErr instanceof Error ? zapierErr.message : 'Unknown Zapier error';
+        console.warn('⚠️ Zapier submission failed:', zapierError);
+      }
+
+      // Only try LeadConnector if Zapier failed
+      if (!zapierSuccess) {
+        try {
+          console.log('🔄 Attempting LeadConnector submission as fallback...');
+          const leadConnectorResult = await submitToLeadConnector({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            phone: formData.phone,
+            selectedSlot: selectedSlot,
+            zipCode: formData.zipCode,
+            experience: formData.experience,
+            source: 'website'
+          });
+
+          leadConnectorSuccess = leadConnectorResult.success;
+          if (leadConnectorSuccess) {
+            console.log('✅ LeadConnector fallback submission succeeded');
+          } else {
+            leadConnectorError = leadConnectorResult.error || 'LeadConnector submission failed';
+            console.warn('⚠️ LeadConnector fallback submission failed:', leadConnectorError);
+          }
+        } catch (leadConnectorErr) {
+          leadConnectorError = leadConnectorErr instanceof Error ? leadConnectorErr.message : 'Unknown LeadConnector error';
+          console.warn('⚠️ LeadConnector fallback submission failed:', leadConnectorError);
+        }
       }
       
-      // Consider success if at least one submission succeeded
-      if (!zapierSuccess && !leadConnectorResult.success) {
-        throw new Error('Failed to submit appointment. Please try again.');
+      // Determine overall success - we need at least one service to succeed
+      if (!zapierSuccess && !leadConnectorSuccess) {
+        throw new AppError(
+          CommonErrors.SERVICE_UNAVAILABLE,
+          HttpStatusCode.SERVICE_UNAVAILABLE,
+          'Both Zapier and LeadConnector services failed to process your appointment',
+          true,
+          { 
+            zapierError, 
+            leadConnectorError, 
+            appointmentData: {
+              firstName: formData.firstName,
+              lastName: formData.lastName,
+              email: formData.email,
+              selectedSlot
+            }
+          }
+        );
+      }
+
+      // Log success status
+      if (zapierSuccess) {
+        console.log('✅ Appointment processed successfully via Zapier');
+      } else if (leadConnectorSuccess) {
+        console.log('✅ Appointment processed successfully via LeadConnector fallback');
       }
 
       // Track conversion in Google Analytics

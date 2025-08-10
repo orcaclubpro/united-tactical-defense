@@ -3,14 +3,15 @@
 
 const axios = require('axios');
 
-// Test data for form submission
+// Test data for form submission - updated to match current frontend format
 const testFormData = {
   firstName: 'Test',
   lastName: 'User',
   email: 'testuser@example.com',
-  phone: '(555) 123-4567',
+  phone: '5551234567', // Remove formatting
+  zipCode: '92808', // Added required zip code
   appointmentDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
-  appointmentTime: '14:30', // 2:30 PM
+  appointmentTime: '2:30 PM', // Updated format
   experience: 'beginner',
   source: 'test-script'
 };

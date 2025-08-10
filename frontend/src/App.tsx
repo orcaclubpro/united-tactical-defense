@@ -4,6 +4,7 @@ import './App.scss';
 import { initializeGA4 } from './utils/analytics';
 import useAnalytics from './utils/useAnalytics';
 import { app, analytics } from './services/firebase';
+import { setupGlobalErrorHandling } from './utils/ErrorHandler';
 
 // Loading fallback with better user experience
 const LoadingFallback = () => (
@@ -54,6 +55,10 @@ const RouteChangeHandler = () => {
 function App() {
   // Initialize analytics and prefetch routes after component mounts
   useEffect(() => {
+    // Initialize global error handling first
+    setupGlobalErrorHandling();
+    console.log('✅ Global error handling initialized');
+
     // Initialize Google Analytics 4
     const measurementId = process.env.REACT_APP_GA4_MEASUREMENT_ID;
     if (measurementId && process.env.NODE_ENV === 'production') {
