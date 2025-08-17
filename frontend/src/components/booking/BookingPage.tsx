@@ -724,13 +724,13 @@ const BookingPage: React.FC = () => {
         selectedSlot
       });
 
-      // Try Zapier first, then LeadConnector as fallback
+      // Send to both Zapier and LeadConnector (parallel, not fallback)
       let zapierSuccess = false;
       let leadConnectorSuccess = false;
       let zapierError: string | null = null;
       let leadConnectorError: string | null = null;
 
-      // Try Zapier first
+      // Send to Zapier
       try {
         console.log('🔄 Attempting Zapier submission...');
         zapierSuccess = await sendToZapier({
@@ -748,39 +748,37 @@ const BookingPage: React.FC = () => {
         }, "booking_page_appointment");
         
         if (zapierSuccess) {
-          console.log('✅ Zapier webhook succeeded - skipping LeadConnector');
+          console.log('✅ Zapier webhook succeeded');
         }
       } catch (zapierErr) {
         zapierError = zapierErr instanceof Error ? zapierErr.message : 'Unknown Zapier error';
         console.warn('⚠️ Zapier submission failed:', zapierError);
       }
 
-      // Only try LeadConnector if Zapier failed
-      if (!zapierSuccess) {
-        try {
-          console.log('🔄 Attempting LeadConnector submission as fallback...');
-          const leadConnectorResult = await submitToLeadConnector({
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            email: formData.email,
-            phone: formData.phone,
-            selectedSlot: selectedSlot,
-            zipCode: formData.zipCode,
-            experience: formData.experience,
-            source: 'website'
-          });
+      // Send to LeadConnector (always, not as fallback)
+      try {
+        console.log('🔄 Attempting LeadConnector submission...');
+        const leadConnectorResult = await submitToLeadConnector({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          selectedSlot: selectedSlot,
+          zipCode: formData.zipCode,
+          experience: formData.experience,
+          source: 'website'
+        });
 
-          leadConnectorSuccess = leadConnectorResult.success;
-          if (leadConnectorSuccess) {
-            console.log('✅ LeadConnector fallback submission succeeded');
-          } else {
-            leadConnectorError = leadConnectorResult.error || 'LeadConnector submission failed';
-            console.warn('⚠️ LeadConnector fallback submission failed:', leadConnectorError);
-          }
-        } catch (leadConnectorErr) {
-          leadConnectorError = leadConnectorErr instanceof Error ? leadConnectorErr.message : 'Unknown LeadConnector error';
-          console.warn('⚠️ LeadConnector fallback submission failed:', leadConnectorError);
+        leadConnectorSuccess = leadConnectorResult.success;
+        if (leadConnectorSuccess) {
+          console.log('✅ LeadConnector submission succeeded');
+        } else {
+          leadConnectorError = leadConnectorResult.error || 'LeadConnector submission failed';
+          console.warn('⚠️ LeadConnector submission failed:', leadConnectorError);
         }
+      } catch (leadConnectorErr) {
+        leadConnectorError = leadConnectorErr instanceof Error ? leadConnectorErr.message : 'Unknown LeadConnector error';
+        console.warn('⚠️ LeadConnector submission failed:', leadConnectorError);
       }
       
       // Determine overall success - we need at least one service to succeed
@@ -804,10 +802,12 @@ const BookingPage: React.FC = () => {
       }
 
       // Log success status
-      if (zapierSuccess) {
-        console.log('✅ Appointment processed successfully via Zapier');
+      if (zapierSuccess && leadConnectorSuccess) {
+        console.log('✅ Appointment processed successfully via both Zapier and LeadConnector');
+      } else if (zapierSuccess) {
+        console.log('✅ Appointment processed successfully via Zapier (LeadConnector failed)');
       } else if (leadConnectorSuccess) {
-        console.log('✅ Appointment processed successfully via LeadConnector fallback');
+        console.log('✅ Appointment processed successfully via LeadConnector (Zapier failed)');
       }
 
       // Track conversion in Google Analytics
